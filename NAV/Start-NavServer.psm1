@@ -8,7 +8,7 @@
 function Start-NavServer {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$False)]
+        [Parameter(Mandatory=$True)]
         [String]
 		$ServiceName = "*NavServer*",
 		

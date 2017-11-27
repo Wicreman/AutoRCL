@@ -1,36 +1,28 @@
-<#
-.SYNOPSIS
-    A brief description of the module.
-.DESCRIPTION
-    A detailed description of the module.
-#>
-
-function Start-NavServer {
+Function Stop-ApplicationObjectServer
+{
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$False)]
+    Param(
+        [Parameter(Mandatory = $False)]
         [String]
-		$ServiceName = "*NavServer*",
-		
-		[Parameter(Mandatory=$False)]
-		[int]
-		$RetryCount = 5,
-		
-		[Parameter(Mandatory = $False)]
+        $ServiceName = "*NavServer*",
+        
+        [Parameter(Mandatory = $False)]
+        [Int]
+        $RetryCount = 3,
+        
+        [Parameter(Mandatory = $False)]
         [Timespan]
-        $WaitTimeout = (New-Object Timespan 0, 5, 0),
-
-        [Parameter(Mandatory = $True)]
-        [String]
-        $LogPath
+        $WaitTimeout = (New-Object Timespan 0, 5, 0)
     )
-    process {
-        Write-Log "Trying to find Dynamics NAV service..."
+    
+    Process
+    {
+        Write-Log "Trying to find Dynamics Nav Server service..."
         $Services = Get-Service $ServiceName
 
         If ($Services -Eq $Null)
         {
-            Write-Log "Service not found matching '$ServiceName'! Assuming NAV Server is not installed."
+            Write-Log "Service not found matching '$ServiceName'! Assuming Dynamics NAV server is not installed."
             Return
         }
 
@@ -40,10 +32,10 @@ function Start-NavServer {
             $Name = $Service.Name
             $ServiceStatus = $Service.Status
 
-            While (($Attempt -Le $RetryCount) -And ($ServiceStatus -Ne [System.ServiceProcess.ServiceControllerStatus]::Running))
+            While (($Attempt -Le $RetryCount) -And ($ServiceStatus -Ne [System.ServiceProcess.ServiceControllerStatus]::Stopped))
             {
                 Write-Log "Service '$Name': Status is $ServiceStatus."
-                Write-Log "Service '$Name': Attempt $Attempt to ensure service is running."
+                Write-Log "Service '$Name': Attempt $Attempt to ensure service is stopped."
                 # Get-Service returns a snapshot of the service at a certain point in time - it doesn't update the Status...
                 $Service = Get-Service $Name
                 $ServiceStatus = $Service.Status
@@ -76,33 +68,32 @@ function Start-NavServer {
                 
                 $Service = Get-Service $Name
                 $ServiceStatus = $Service.Status
-                If (($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::Stopped) `
+                If (($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::Running) `
                 -Or ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::Paused))
                 {
-                    Write-Log "Service '$Name': Attempting to start service..."
+                    Write-Log "Service '$Name': Attempting to stop service..."
                     Try
                     {
-                        $Service.Start()
+                        $Service.Stop()
                     }
                     Catch
                     {
-                        Write-Log ("Service '$Name': Failed starting service. Exception message: {0}" -f $_.Exception.Message)
+                        Write-Log ("Service '$Name': Failed stopping service. Exception message: {0}" -f $_.Exception.Message)
                     }
                 }
                 
                 $Service = Get-Service $Name
                 $ServiceStatus = $Service.Status
-                If (($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::StartPending) `
-                -Or ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::ContinuePending))
+                If (($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::StopPending))
                 {
-                    Write-Log "Service '$Name': Status is pending start ($ServiceStatus). Waiting for up to 5 minutes..."
+                    Write-Log "Service '$Name': Status is pending stop ($ServiceStatus). Waiting for up to 5 minutes..."
                     Try
                     {
                         $Service.WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Running, $WaitTimeout)
                     }
                     Catch [System.ServiceProcess.TimeoutException]
                     {
-                        Write-Log "Service '$Name': Timed out waiting for service to start!"
+                        Write-Log "Service '$Name': Timed out waiting for service to stop!"
                     }
                 }
 
@@ -111,21 +102,9 @@ function Start-NavServer {
 
             $Service = Get-Service $Name
             $ServiceStatus = $Service.Status
-            If ($ServiceStatus -Ne [System.ServiceProcess.ServiceControllerStatus]::Running)
+            If ($ServiceStatus -Ne [System.ServiceProcess.ServiceControllerStatus]::Stopped)
             {
-                # We assume that AOS service name is in the format like "AOS60$01".
-                $NavServerInstanceNum = $Name.Split('$')[1]
-                $NavServerEventLogFileName = "$Name-EventLog-{0}.log" -f (Get-Date).ToString("yyyyMMddHHmmss")
-                $NavServerEventLogFilePath = Join-Path $LogPath $NavServerEventLogFileName
-
-                $LogFilter = @{
-                    LogName = 'Application'
-                    ProviderName = $NavServerInstanceNum 
-                }
-
-                Get-WinEvent -FilterHashtable $LogFilter | Select TimeCreated, Id, LevelDisplayName, Message | Export-Csv $NavServerEventLogFilePath -NoTypeInformation
-
-                $Message = "Expected service '$Name' to be running but it is $ServiceStatus!"
+                $Message = "Expected service '$Name' to be stopped but it is $ServiceStatus!"
                 Write-Log $Message
                 Throw $Message
             }
@@ -133,8 +112,4 @@ function Start-NavServer {
     }
 }
 
-Export-ModuleMember Start-NavServer
-
-# Optional commands to create a public alias for the function
-New-Alias -Name StartServer -Value Start-NavServer
-Export-ModuleMember -Alias StartServer
+Export-ModuleMember Stop-ApplicationObjectServer
