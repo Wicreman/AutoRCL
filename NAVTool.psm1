@@ -16,6 +16,7 @@
 .(Join-Path $PSScriptRoot 'NAV\Invoke-NavSetup.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Start-NavServer.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Stop-NavServer.ps1')
+.(Join-Path $PSScriptRoot 'NAV\Install-NAV.ps1')
 .(Join-Path $PSScriptRoot 'SQL\Convert-NAVDatabase.ps1')
 .(Join-Path $PSScriptRoot 'SQL\Remove-SqlDatabase.ps1')
 .(Join-Path $PSScriptRoot 'SQL\Restore-RTMDatabase.ps1')
@@ -24,7 +25,7 @@
 .(Join-Path $PSScriptRoot 'Log\Write-Exception.ps1')
 .(Join-Path $PSScriptRoot 'Log\Write-Log.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Uninstall-NAVAll.ps1')
-.(Join-Path $PSScriptRoot 'NAV\Ensure-NAVMgtModuleLoaded.ps1')
+.(Join-Path $PSScriptRoot 'NAV\Find-NAVMgtModuleLoaded.ps1')
 
 # SIG # Begin signature block
 # MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

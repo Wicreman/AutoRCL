@@ -1,4 +1,4 @@
-function Ensure-NAVMgtModuleLoaded  {
+function Find-NAVMgtModuleLoaded  {
     [CmdletBinging()]
     param(
         [Parameter(Mandatory = $true)]
@@ -15,7 +15,7 @@ function Ensure-NAVMgtModuleLoaded  {
     }
 }
 
-Export-ModuleMember -Function Ensure-NAVMgtModuleLoaded
+Export-ModuleMember -Function Find-NAVMgtModuleLoaded
 
 # SIG # Begin signature block
 # MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

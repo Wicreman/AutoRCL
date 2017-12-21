@@ -124,7 +124,7 @@ Function Copy-NAVSetup  {
         }
 
         Push-Location $Destination
-        Expand-ZipFile -zipfile $BuilPackge.FullName -outpath ExtractToPath
+        Expand-ZipFile -zipfile $BuilPackge.FullName -outpath $ExtractToPath
         Pop-Location
 
         $ExtractToDVDPath = Join-Path $ExtractToPath "DVD"

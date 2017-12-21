@@ -24,7 +24,6 @@ Function Expand-ZipFile
         if (Test-Path $outpath)
         {
             Get-ChildItem -Path $outpath -Recurse | Remove-Item -Force -Recurse
-            Remove-Item $outpath -Force
         }
     
         [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
