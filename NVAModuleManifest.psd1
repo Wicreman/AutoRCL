@@ -66,26 +66,26 @@ FormatsToProcess = @()
 
 # Modules to import as nested modules of the module specified in ModuleToProcess
 NestedModules = @(
-    'Expand-ZipFile',
-    'Import-NAVIdeModule',
-    'Import-NAVMgmtModule',
-    'Import-SqlPsModule',
-    'Invoke-ProcessWithProgress',
-    'Get-ExceptionString',
-    'Copy-NAVSetup',
-    'Import-FobOrTxtFile',
-    'Import-NAVLicense',
-    'Invoke-NAVCompile',
-    'Invoke-NavSetup',
-    'Start-NavServer',
-    'Stop-NavServery',
-    'Convert-NAVDatabase', 
-    'Remove-SqlDatabase',
-    'Restore-RTMDatabase',
-    'Sync-NAVDatabase',
-    'Write-Exception',
-    'Write-Log',
-    'UninstallNAVAll'
+    'Common\Expand-ZipFile',
+    'Common\Import-NAVIdeModule',
+    'Common\Import-NAVMgmtModule',
+    'Common\Import-SqlPsModule',
+    'Common\Invoke-ProcessWithProgress',
+    'Log\Get-ExceptionString',
+    'NAV\Copy-NAVSetup',
+    'NAV\Import-FobOrTxtFile',
+    'NAV\Import-NAVLicense',
+    'NAV\Invoke-NAVCompile',
+    'NAV\Invoke-NavSetup',
+    'NAV\Start-NavServer',
+    'NAV\Stop-NavServer',
+    'SQL\Convert-NAVDatabase', 
+    'SQL\Remove-SqlDatabase',
+    'SQL\Restore-RTMDatabase',
+    'SQL\Sync-NAVDatabase',
+    'Log\Write-Exception',
+    'Log\Write-Log',
+    'NAV\UninstallNAVAll'
     )
 
 # Functions to export from this module
@@ -105,26 +105,26 @@ ModuleList = @()
 
 # List of all files packaged with this module
 FileList = @(
-    'Expand-ZipFile.psm1',
-    'Import-NAVIdeModule.psm1',
-    'Import-NAVMgmtModule.psm1',
-    'Import-SqlPsModule.psm1',
-    'Invoke-ProcessWithProgress.psm1',
-    'Get-ExceptionString.psm1',
-    'Copy-NAVSetup.psm1',
-    'Import-FobOrTxtFile.psm1',
-    'Import-NAVLicense.psm1',
-    'Invoke-NAVCompile.psm1',
-    'Invoke-NavSetup.psm1',
-    'Start-NavServer.psm1',
-    'Stop-NavServery.psm1',
-    'Convert-NAVDatabase.psm1', 
-    'Remove-SqlDatabase.psm1',
-    'Restore-RTMDatabase.psm1',
-    'Sync-NAVDatabase.psm1',
-    'Write-Exception.psm1',
-    'Write-Log.psm1',
-    'UninstallNAVAll.psm1'
+    'Common\Expand-ZipFile.psm1',
+    'Common\Import-NAVIdeModule.psm1',
+    'Common\Import-NAVMgmtModule.psm1',
+    'Common\Import-SqlPsModule.psm1',
+    'Common\Invoke-ProcessWithProgress.psm1',
+    'Log\Get-ExceptionString.psm1',
+    'NAV\Copy-NAVSetup.psm1',
+    'NAV\Import-FobOrTxtFile.psm1',
+    'NAV\Import-NAVLicense.psm1',
+    'NAV\Invoke-NAVCompile.psm1',
+    'NAV\Invoke-NavSetup.psm1',
+    'NAV\Start-NavServer.psm1',
+    'NAV\Stop-NavServer.psm1',
+    'SQL\Convert-NAVDatabase.psm1', 
+    'SQL\Remove-SqlDatabase.psm1',
+    'SQL\Restore-RTMDatabase.psm1',
+    'SQL\Sync-NAVDatabase.psm1',
+    'Log\Write-Exception.psm1',
+    'Log\Write-Log.psm1',
+    'NAV\UninstallNAVAll.psm1'
     )
 
 # Private data to pass to the module specified in ModuleToProcess
@@ -132,3 +132,27 @@ PrivateData = ''
 
 }
 
+
+# SIG # Begin signature block
+# MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUy5IvIh1UAUs/d1zlNJFIn3du
+# 1uegggH1MIIB8TCCAV6gAwIBAgIQerav1OJGjJREr2hDMeEqHzAJBgUrDgMCHQUA
+# MA4xDDAKBgNVBAMTA05BVjAeFw0xNzExMjgwNDAwMzlaFw0zOTEyMzEyMzU5NTla
+# MA4xDDAKBgNVBAMTA05BVjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAp5GZ
+# c6U30Wj/1Y5mmZpi4BU7Cy1Pbo7gDOVnxvIHCi1Bfivb7WQB3cpp1b2vYeBgH3y0
+# Cl9th4bgTy9fPe/zdin57thq/OwJS3qB8rxKazh+Xa3BpHxvAumX7THqZ8ocvirB
+# JGIl3K9fDUyeRkPDKq+CC0eqnKDaS6ANuHdvCg8CAwEAAaNYMFYwEwYDVR0lBAww
+# CgYIKwYBBQUHAwMwPwYDVR0BBDgwNoAQEgOra+cR2aH3BOGG7Qzr1qEQMA4xDDAK
+# BgNVBAMTA05BVoIQerav1OJGjJREr2hDMeEqHzAJBgUrDgMCHQUAA4GBABelU7ZT
+# +OXIZH2HfiD4Ngv7lef7RGEaLtBCiXyxkcmTInxY8s6FImkD0Hywf1jcDcU3LeEt
+# QnxDsQvfkUFBRHhzFIUvhCxmTHgKfDvisV07bOIrraHuCUAQ+72yrQ7HSRQ5p9z4
+# B98bWycdUXSY7mg5l6VilFT2A2Bs03U0WZ82MYIBQjCCAT4CAQEwIjAOMQwwCgYD
+# VQQDEwNOQVYCEHq2r9TiRoyURK9oQzHhKh8wCQYFKw4DAhoFAKB4MBgGCisGAQQB
+# gjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYK
+# KwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFGiS2f3J
+# u7VYVClTrCydXc0tAQ6VMA0GCSqGSIb3DQEBAQUABIGAby2wcKM0VznhOydU6l0F
+# HnoCwZ7E15BWtgjM86BCLl+I1dxgBDz14zAVvUsTyG2n5mdFkYXhihDHXAQwNDou
+# RG8N7GptJSBmrEsgI3Qu/PctLqU6Qx+lrVqdlfynLoXYkRHiwAtNX0vo0OiUEADW
+# 7eBrM2enhlwJr4n/OmIyVo4=
+# SIG # End signature block
