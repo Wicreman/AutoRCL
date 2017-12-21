@@ -19,14 +19,14 @@ function Invoke-NavSetup {
         [string]
         $Path,
 
-        [Parameter(Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [string]
-        $ConfigFilePath = (Join-Path $PSScriptRoot "Data"),
-
         [Parameter(Mandatory = $true)]
         [string]
-        $LogPath
+        $LogPath,
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $ShortVersion
+
     )
     Process 
     {
@@ -44,7 +44,7 @@ function Invoke-NavSetup {
             Throw $Message
         }
         
-        [string]$ConfigFile = Join-Path $ConfigFilePath "Install-NavConfigTemplate.xml"
+        [string]$ConfigFile = Join-Path $PSScriptRoot  "Data\NAVConfig.xml"
         Write-Log "Looking  for NAV configuration file in $ConfigFile"
         if ((Test-Path -PathType Leaf $ConfigFile) -eq $false) 
         {
@@ -53,11 +53,20 @@ function Invoke-NavSetup {
             Throw $Message
         }
 
+        $LogPath = Join-Path $LogPath "Logs"
+        if(-Not(Test-Path $LogPath))
+        {
+            $null = New-Item -ItemType Directory -Path $LogPath -Force
+        }
         [string]$logFile = (Join-Path $LogPath  "Install-NAV.log")
+        if(-Not(Test-Path $logFile))
+        {
+            $null = New-Item -ItemType File -Path $LogPath -Force
+        }
         [int]$i = 0
         while (Test-Path -PathType Leaf $logFile) {
             [int]$i = $i + 1
-            $logFile = (Join-Path $env:Temp  "Install-NAV$i.log")
+            $logFile = (Join-Path $LogPath  "Install-NAV$i.log")
         }
 
         [string]$argumentList = "-quiet -config `"$ConfigFile`" -log `"$logFile`""
@@ -76,6 +85,38 @@ function Invoke-NavSetup {
     }
 }
 
+function Update-ConfigFile ([string]$configFile, [string] $version) {
+    $localMachineName = $env:COMPUTERNAME
+
+    Write-Log "Update target path"
+    $targetPath = Join-Path "[WIX_ProgramFilesFolder]\Microsoft Dynamics NAV" $version
+    Set-NavInstallerConfiguration `
+        -SetupConfigFile $configFile `
+        -ParameterId "TargetPath" `
+        -ParameterValue $targetPath
+
+    $targetPathX64 = Join-Path "[WIX_ProgramFilesX64Folder]\Microsoft Dynamics NAV" $version
+    Set-NavInstallerConfiguration `
+        -SetupConfigFile $configFile `
+        -ParameterId "TargetPathX64" `
+        -ParameterValue $targetPathX64
+
+    Write-Log "Update NavServiceInstanceName"   
+    $navServiceInstanceName = "DynamicsNAV$version"
+
+    Set-NavInstallerConfiguration `
+        -SetupConfigFile $configFile `
+        -ParameterId "NavServiceInstanceName" `
+        -ParameterValue navServiceInstanceName
+
+    Write-Log "Update NavServiceInstanceName"   
+    $navServiceInstanceName = "DynamicsNAV$version"
+    
+    Set-NavInstallerConfiguration `
+        -SetupConfigFile $configFile `
+        -ParameterId "NavServiceInstanceName" `
+        -ParameterValue navServiceInstanceName
+}
 Export-ModuleMember -Function Invoke-NavSetup
 # SIG # Begin signature block
 # MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

@@ -33,7 +33,7 @@ Function Copy-NAVSetup  {
 
         [Parameter(Mandatory = $False)]
         [String]
-        $Destination = (Join-Path $env:TEMP "NAVSetup")
+        $Destination = (Join-Path $env:HOMEDRIVE "NAVWorking")
     )
 
     Process{
@@ -142,10 +142,10 @@ Function Copy-NAVSetup  {
             $null = New-Item -ItemType Directory -Path $ExtractToDVDPath -Force
         }
         
-        Expand-ZipFile -zipfile $BuilDVDPackge.FullName -outpath ExtractToDVDPath
+        Expand-ZipFile -zipfile $BuilDVDPackge.FullName -outpath $ExtractToDVDPath
         Pop-Location
 
-        Push-Location ExtractToDVDPath
+        Push-Location $ExtractToDVDPath
 
         If(-Not (Test-Path (Join-Path $ExtractToDVDPath "Setup.exe")))
         {
@@ -155,7 +155,7 @@ Function Copy-NAVSetup  {
         }
         Pop-Location
 
-        Return ExtractToDVDPath
+        Return $ExtractToDVDPath
     }
 }
 

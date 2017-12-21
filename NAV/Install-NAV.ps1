@@ -27,7 +27,11 @@ function Install-NAV {
 
         [Parameter(Mandatory = $true)]
         [string]
-        $Language
+        $Language,
+
+        [Parameter(Mandatory = $False)]
+        [string]
+        $BuildFlavor = "Cumulative_Updates"
     )
 
     Process {
@@ -37,7 +41,8 @@ function Install-NAV {
             $LocalBuildPath = Copy-NAVSetup`
                 -BuildDropPath $BuildDropPath `
                 -BuildDate $BuildDate `
-                -Language $Language
+                -Language $Language `
+                -BuildFlavor $BuildFlavor
         }
         Catch
         {
@@ -51,7 +56,7 @@ function Install-NAV {
         {
             Invoke-NavSetup `
                 -Path $LocalBuildPath `
-                -LogPath $env:TMP
+                -LogPath (Join-Path $env:HOMEDRIVE "NAVWorking")
         }
         Catch
         {
@@ -61,7 +66,12 @@ function Install-NAV {
 
         Write-Log "Copy RTM Database to SQL backukp"
         # TODO: Copy-RTM-DB
-
+        try {
+            
+        }
+        catch {
+            
+        }
         Write-Log "Restore RTM Database"
         # TODO: Restore-RTM-DB
 

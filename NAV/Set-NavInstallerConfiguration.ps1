@@ -5,20 +5,20 @@ function Set-NavInstallerConfiguration
         [parameter(Mandatory=$true)]
         [string] $SetupConfigFile, 
 
-        [parameter(ParameterSetName="Component", Mandatory=$true)]
+        [parameter(ParameterSetName="Component", Mandatory=$false)]
         [string] $ComponentId,
 
-        [parameter(ParameterSetName="Component", Mandatory=$true)]
+        [parameter(ParameterSetName="Component", Mandatory=$false)]
         [string] $ComponentState,
 
         [parameter(ParameterSetName="Component", Mandatory=$false)]
         [ValidateNotNullOrEmpty()]
         [string] $ComponentShowOptionNode = "Yes",
 
-        [parameter(ParameterSetName="Parameter", Mandatory=$true)]
+        [parameter(ParameterSetName="Parameter", Mandatory=$false)]
         [string] $ParameterId,
 
-        [parameter(ParameterSetName="Parameter", Mandatory=$true)]
+        [parameter(ParameterSetName="Parameter", Mandatory=$false)]
         [AllowEmptyString()]
         [string] $ParameterValue
         )    

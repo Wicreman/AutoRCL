@@ -15,6 +15,8 @@ function Invoke-ProcessWithProgress
         )
     PROCESS 
     {
+        try {
+
         $process = Start-Process `
             -FilePath $FilePath `
             -PassThru `
@@ -40,7 +42,12 @@ function Invoke-ProcessWithProgress
                 -Status "Please wait."
         }
 
-        Write-Progress -Activity "Installing..." -PercentComplete 100 -Status "Done."
+        Write-Progress -Activity "Sucessfully installed NAV " -PercentComplete 100 -Status "Done."
+        }
+        catch {
+            Write-Exception $_
+        }
+        
     }
 }
 
