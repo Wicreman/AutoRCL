@@ -10,7 +10,7 @@
 .(Join-Path $PSScriptRoot 'Common\Add-Admin.ps1')
 .(Join-Path $PSScriptRoot 'Log\Get-ExceptionString.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Copy-NAVCU.ps1')
-.(Join-Path $PSScriptRoot 'NAV\Copy-NAVRTM.ps1')
+.(Join-Path $PSScriptRoot 'NAV\Get-NAVRTMDemoData.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Import-FobOrTxtFile.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Import-NAVLicense.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Invoke-NAVCompile.ps1')

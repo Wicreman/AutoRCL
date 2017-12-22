@@ -1,4 +1,4 @@
-Function Copy-NAVSetup  {
+Function Get-NAVRTMDemoData  {
     <#
     .SYNOPSIS
     Copy NAV RTM file from release build drop
@@ -74,10 +74,15 @@ Function Copy-NAVSetup  {
             Throw $Message
         }
 
-        $BuildVersionPath = Join-Path $BuildDropPath "Dynamcis$Version"
-        If (-Not (Test-Path -PathType Container $BuildDropPath))
+        if($Version -ne "NAV2015")
         {
-            $Message = ("Build Version path '{0}' cannot be found!" -f "Dynamcis$Version")
+            $Version = "Dynamics$Version"
+        }
+
+        $BuildVersionPath = Join-Path $BuildDropPath $Version
+        If (-Not (Test-Path -PathType Container $BuildVersionPath))
+        {
+            $Message = ("Build Version path '{0}' cannot be found!" -f $Version)
             Write-Log $Message
             Throw $Message
         }
@@ -136,12 +141,12 @@ Function Copy-NAVSetup  {
         Write-Log ("Found RTM demodata package {0}." -f $demoDataPackge.FullName)
 
         $FileSize = $demoDataPackge.Length / 1024 / 1024
-        Write-Log ("Copying file {0} ({1:F2} MB) to {2}..." -f $demoDataPackge.Name, $FileSize, $rtmPath)
+        Write-Log ("Return {0} Demo data file  : {1}..." -f "Dynamics$Version", $demoDataPackge.Name)
         Return $demoDataPackge.FullName
     }
 }
 
-Export-ModuleMember -Function Copy-NAVRTM
+Export-ModuleMember -Function Get-NAVRTMDemoData
 
 # SIG # Begin signature block
 # MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

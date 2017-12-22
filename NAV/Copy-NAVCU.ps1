@@ -17,7 +17,7 @@ Function Copy-NAVCU  {
         # Parameter help description
         [Parameter(Mandatory = $true)]
         [string]
-        $BuildDropPath,
+        $Version,
 
         [Parameter(Mandatory = $true)]
         [string]
@@ -37,6 +37,13 @@ Function Copy-NAVCU  {
     )
 
     Process{
+
+        $rootPath = "\\vedfssrv01\DynNavFS\Releases\NAV\"
+        if($Version -ne "NAV2015")
+        {
+            $Version = "Dynamics$Version"
+        }
+        $BuildDropPath = Join-Path $rootPath $Version
 
         Write-Log "Preparing $Destination directory..."
         if (-Not(Test-Path $Destination)) {

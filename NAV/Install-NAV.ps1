@@ -19,7 +19,7 @@ function Install-NAV {
         # Parameter help description
         [Parameter(Mandatory = $true)]
         [string]
-        $BuildDropPath,
+        $Version,
 
         [Parameter(Mandatory = $true)]
         [string]
@@ -38,8 +38,8 @@ function Install-NAV {
         Write-Log "Copying setup files locally..."
         Try
         {
-            $LocalBuildPath = Copy-NAVSetup`
-                -BuildDropPath $BuildDropPath `
+            $LocalBuildPath = Copy-NAVCU`
+                -Version $Version `
                 -BuildDate $BuildDate `
                 -Language $Language `
                 -BuildFlavor $BuildFlavor
@@ -67,10 +67,14 @@ function Install-NAV {
         Write-Log "Copy RTM Database to SQL backukp"
         # TODO: Copy-RTM-DB
         try {
-            
+            $rtmDemodataBackup = Get-NAVRTMDemoData `
+                -Version $Version `
+                -Language $Language `
+                
         }
         catch {
-            
+            Write-Log "Fail to get the RTM demo  data. See exception for more information."
+            Throw $_
         }
         Write-Log "Restore RTM Database"
         # TODO: Restore-RTM-DB
