@@ -1,4 +1,4 @@
-Function Copy-NAVSetup  {
+Function Copy-NAVCU  {
     <#
     .SYNOPSIS
     Copy setup file from release build drop
@@ -159,7 +159,7 @@ Function Copy-NAVSetup  {
     }
 }
 
-Export-ModuleMember -Function Copy-NAVSetup
+Export-ModuleMember -Function Copy-NAVCU
 
 # SIG # Begin signature block
 # MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
