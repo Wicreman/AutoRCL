@@ -1,5 +1,5 @@
 # import individual scripts
-
+.(Join-Path $PSScriptRoot 'Common\Add-Admin.ps1')
 .(Join-Path $PSScriptRoot 'Common\Expand-ZipFile.ps1')
 .(Join-Path $PSScriptRoot 'Common\Import-NAVIdeModule.ps1')
 .(Join-Path $PSScriptRoot 'Common\Import-NAVMgmtModule.ps1')
@@ -7,10 +7,10 @@
 .(Join-Path $PSScriptRoot 'Common\Invoke-ProcessWithProgress.ps1')
 .(Join-Path $PSScriptRoot 'Common\Update-OSDisplayLanguage.ps1')
 .(Join-Path $PSScriptRoot 'Common\Update-RegionalFormat.ps1')
-.(Join-Path $PSScriptRoot 'Common\Add-Admin.ps1')
-.(Join-Path $PSScriptRoot 'Log\Get-ExceptionString.ps1')
+.(Join-Path $PSScriptRoot 'Common\Set-NAVServerServiceAccount.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Copy-NAVCU.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Get-NAVRTMDemoData.ps1')
+.(Join-Path $PSScriptRoot 'NAV\Find-NAVMgtModuleLoaded.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Import-FobOrTxtFile.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Import-NAVLicense.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Invoke-NAVCompile.ps1')
@@ -18,15 +18,19 @@
 .(Join-Path $PSScriptRoot 'NAV\Start-NavServer.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Stop-NavServer.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Install-NAV.ps1')
+.(Join-Path $PSScriptRoot 'NAV\Uninstall-NAVAll.ps1')
+.(Join-Path $PSScriptRoot 'NAV\Set-NavInstallerConfiguration.ps1')
+.(Join-Path $PSScriptRoot 'NAV\Set-NewNAVServerConfiguration.ps1')
 .(Join-Path $PSScriptRoot 'SQL\Convert-NAVDatabase.ps1')
 .(Join-Path $PSScriptRoot 'SQL\Remove-SqlDatabase.ps1')
 .(Join-Path $PSScriptRoot 'SQL\Restore-RTMDatabase.ps1')
 .(Join-Path $PSScriptRoot 'SQL\Sync-NAVDatabase.ps1')
 .(Join-Path $PSScriptRoot 'SQL\Remove-SQLConnectionsToDatabase.ps1')
+.(Join-Path $PSScriptRoot 'SQL\Set-NAVServerServiceAccount.ps1')
+.(Join-Path $PSScriptRoot 'Log\Get-ExceptionString.ps1')
 .(Join-Path $PSScriptRoot 'Log\Write-Exception.ps1')
 .(Join-Path $PSScriptRoot 'Log\Write-Log.ps1')
-.(Join-Path $PSScriptRoot 'NAV\Uninstall-NAVAll.ps1')
-.(Join-Path $PSScriptRoot 'NAV\Find-NAVMgtModuleLoaded.ps1')
+
 
 # SIG # Begin signature block
 # MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
