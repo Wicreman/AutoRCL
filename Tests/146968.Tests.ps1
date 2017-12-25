@@ -13,7 +13,7 @@ Describe "TestCasesFor146968 NAV2017" {
         Update-RegionalFormat -Language $Language
 
         $paramDE = @{
-            Version = $
+            Version = $Version
             BuildDate = $buildDate
             Language = $Language
         }
