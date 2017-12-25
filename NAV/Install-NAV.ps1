@@ -1,20 +1,5 @@
 function Install-NAV {
-    <#
-    .SYNOPSIS
-    Install NAV 
-    
-    .DESCRIPTION
-    1.
-    
-    .EXAMPLE
-    An example
-    
-    .NOTES
-    General notes
-    #>
-
-    [cmdletbinding(SupportsShouldProcess=$true)]
-
+    [cmdletbinding()]
     param (
         # Parameter help description
         [Parameter(Mandatory = $true)]
@@ -29,63 +14,166 @@ function Install-NAV {
         [string]
         $Language,
 
-        [Parameter(Mandatory = $False)]
+        [Parameter(Mandatory = $false)]
         [string]
-        $BuildFlavor = "Cumulative_Updates"
+        $DatabaseServer = "localhost", 
+
+        # Specifies the instance of the Dynamics NAV database
+        [Parameter(Mandatory = $false)]
+        [string]
+        $DatabaseInstance = "NAVDEMO", 
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $RTMDatabaseName = "NAVRTMDB",
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE",
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $ShortVersion
     )
 
     Process {
-        Write-Log "Copying setup files locally..."
+
+        $SQLServerInstance = $DatabaseServer;
+        if (!$DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO"))
+        {       
+            $SQLServerInstance = "$DatabaseServer`\$DatabaseInstance"
+        }
+
+        if(!$ShortVersion.Equals(""))
+        {
+            switch ($Version) {
+                "NAV2017" { 
+                    $ShortVersion = "100" 
+                    break
+                }
+                "NAV2016" { 
+                    $ShortVersion = "90" 
+                    break
+                }
+                "NAV2015" { 
+                    $ShortVersion = "80" 
+                    break
+                }
+                "NAV2013R2" { 
+                    $ShortVersion = "71" 
+                    break
+                }
+                "NAV2013" { 
+                    $ShortVersion = "70" 
+                    break
+                }
+            }
+        }
+
+        $NAVServerInstance = "DynamicsNAV$ShortVersion"
+        
         Try
         {
-            $LocalBuildPath = Copy-NAVCU`
-                -Version $Version `
-                -BuildDate $BuildDate `
-                -Language $Language `
-                -BuildFlavor $BuildFlavor
+            Write-Log "Step 1: Copy CU build"
+            Write-Log "Dynamics NAV Version: $Version Build Date: $BuildDate Language: $Language."
+            $copyCUParam = @{
+                Version = $Version
+                BuildDate = $BuildDate
+                Language = $Language
+            }
+            $LocalBuildPath = Copy-NAVCU @copyCUParam
+
+            Write-Log "Step 2: Install NAV by using setup.exe"
+            Write-Log "Running setup.exe to install $Version with $Language"
+            Invoke-NavSetup -Path $LocalBuildPath -ShortVersion $ShortVersion
+
+            Write-Log "Setp 3: Get the RTM Database backup file"
+            $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
+
+
+            Write-Log "Setp 4: Restore RTM Database backup file as new database"
+            $rtmParam = @{
+                SQLServerInstance = $SQLServerInstance
+                DatabaseName = $RTMDatabaseName
+                BackupFile = $RTMDataBaseBackupFile
+            }
+            Stop-NAVServer -ServiceName $NAVServerInstance
+            Restore-RTMDatabase @rtmParam
+
+            Write-Log "Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database "
+            $setServiceAccountParam = @{
+                NAVServerServiceAccount = $NAVServerServiceAccount
+                SqlServerInstance = $SQLServerInstance
+                DatabaseName = $RTMDatabaseName
+            }
+            Set-NAVServerServiceAccount @setServiceAccountParam
+
+            Write-Log "Setp 6: Update NAV Server configuration to connect RTM Database"
+            $serverConfigParam = @{
+                ServerInstance = $NAVServerInstance
+                KeyValue = $RTMDatabaseName
+            }
+
+            Set-NAVServerConfiguration @serverConfigParam
+
+            Write-Log "Setp 7: Restart NAV AOS"
+            Start-NavServer -ServiceName $NAVServerInstance
+
+            Write-Log "Setp 8: Convert the database"
+            Stop-NAVServer -ServiceName $NAVServerInstance
+            $convertDBParam = @{
+                DatabaseServer = $DatabaseServer
+                DatabaseInstance = $DatabaseInstance
+                DatabaseName = $RTMDatabaseName
+            }
+            Import-NAVIdeModule -ShortVersion $ShortVersion
+            Convert-NAVDatabase @convertDBParam
+            Start-NavServer -ServiceName $NAVServerInstance
+
+            Write-Log "Setp 9: Sync the database"
+            Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+
+            Write-Log "Setp 10: Import FOB file"
+            $demoDataPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\APPLICATION")
+            Push-Location $demoDataPath
+            $fobPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
+            Pop-Location
+            $importFobParam = @{
+                Path = $fobPackge.FullName
+                SQLServerInstance = $SQLServerInstance
+                DatabaseName = $RTMDatabaseName
+            }
+            Import-FobOrTxtFile @importFobParam
+
+            Write-Log "Setp 11: Import txt file"
+            Push-Location $demoDataPath
+            $txtPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
+            Pop-Location
+            $importTxtParam = @{
+                Path = $txtPackge.FullName
+                SQLServerInstance = $SQLServerInstance
+                DatabaseName = $RTMDatabaseName
+            }
+            Import-FobOrTxtFile @importTxtParam
+
+            Write-Log "Setp 11: Compile txt file"
+            $compileParam = @{
+                DatabaseName = $RTMDatabaseName
+                SQLServerInstance = $SQLServerInstance
+            }
+            Invoke-NAVCompile @compileParam
+
+            return 1
         }
         Catch
-        {
-            Write-Log "The Copy-NAVSetup function failed! See exception for more information."
+        { 
+            Write-Log "Fail to install or configure NAV function failed! See exception for more information."
+            Write-Exception $_.Exception
             Throw $_
+
+            return 0
         }
         
-
-        Write-Log "Running setup.exe to install NAV..."
-        Try
-        {
-            Invoke-NavSetup -Path $LocalBuildPath `
- 
-        }
-        Catch
-        {
-            Write-Log "The Run setup.exe failed! See exception for more information."
-            Throw $_
-        }
-
-        Write-Log "Copy RTM Database to SQL backukp"
-        # TODO: Copy-RTM-DB
-        try {
-            $rtmDemodataBackup = Get-NAVRTMDemoData `
-                -Version $Version `
-                -Language $Language `
-                
-        }
-        catch {
-            Write-Log "Fail to get the RTM demo  data. See exception for more information."
-            Throw $_
-        }
-        Write-Log "Restore RTM Database"
-        # TODO: Restore-RTM-DB
-
-        Write-Log "Convert the Database"
-        # TODO: Convert-DB
-
-        Write-Log "Convert the Database"
-        # TODO: Import-Fob
-
-        Write-Log "Convert the Database"
-        # TODO: Import-Txt
     }
 }
 

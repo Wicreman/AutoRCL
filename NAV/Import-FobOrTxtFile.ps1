@@ -7,7 +7,7 @@ function Import-FobOrTxtFile{
 
         [Parameter(Mandatory = $true)]
         [string]
-        $DatabaseSQLServerInstance,
+        $SQLServerInstance,
 
         [Parameter(Mandatory = $true)]
         [string]
@@ -19,7 +19,7 @@ function Import-FobOrTxtFile{
 
         [Parameter(Mandatory = $true)]
         [string]
-        $ImportAction = "Default",
+        $ImportAction = "Overwrite",
 
         [Parameter(Mandatory = $false)]
         [string]
@@ -44,7 +44,7 @@ function Import-FobOrTxtFile{
             Import-NAVApplicationObject `
                 -Path $Path `
                 -DatabaseName $DatabaseName `
-                -DatabaseServer $DatabaseSQLServerInstance `
+                -DatabaseServer $SQLServerInstance `
                 -LogPath $LogPath `
                 -ImportAction $ImportAction `
                 -SynchronizeSchemaChanges $SynchronizeSchemaChanges `

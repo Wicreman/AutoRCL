@@ -24,14 +24,14 @@ function Restore-RTMDatabase
     [CmdletBinding()]
     param(
         # Server instance name like "Computer\Instance"
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
-        $ServerInstance = "localhost\NAVDEMO",
+        $SQLServerInstance = "localhost\NAVDEMO",
 
         # New database name
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
-        $DatabaseName,
+        $DatabaseName = "NAVRTMDB",
 
         [Parameter(Mandatory = $true)]
         [string]
@@ -87,7 +87,7 @@ function Restore-RTMDatabase
                         Move '$rtmLdf' TO '$newLdf'
                         "
 
-            Invoke-Sqlcmd $updateSQL -ServerInstance $ServerInstance
+            Invoke-Sqlcmd $updateSQL -ServerInstance $SQLServerInstance
         }
         catch
         {

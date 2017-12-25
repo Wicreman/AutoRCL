@@ -13,19 +13,18 @@ function Invoke-NavSetup {
     #>
     [CmdletBinding(SupportsShouldProcess=$true)]
     Param(
-        
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Path,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $true)]
         [string]
-        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking"),
+        $ShortVersion,
 
         [Parameter(Mandatory = $false)]
         [string]
-        $ShortVersion
+        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking")
     )
     Process 
     {
@@ -94,38 +93,6 @@ function Invoke-NavSetup {
     }
 }
 
-function Update-ConfigFile ([string]$configFile, [string] $version) {
-    $localMachineName = $env:COMPUTERNAME
-
-    Write-Log "Update target path"
-    $targetPath = Join-Path "[WIX_ProgramFilesFolder]\Microsoft Dynamics NAV" $version
-    Set-NavInstallerConfiguration `
-        -SetupConfigFile $configFile `
-        -ParameterId "TargetPath" `
-        -ParameterValue $targetPath
-
-    $targetPathX64 = Join-Path "[WIX_ProgramFilesX64Folder]\Microsoft Dynamics NAV" $version
-    Set-NavInstallerConfiguration `
-        -SetupConfigFile $configFile `
-        -ParameterId "TargetPathX64" `
-        -ParameterValue $targetPathX64
-
-    Write-Log "Update NavServiceInstanceName"   
-    $navServiceInstanceName = "DynamicsNAV$version"
-
-    Set-NavInstallerConfiguration `
-        -SetupConfigFile $configFile `
-        -ParameterId "NavServiceInstanceName" `
-        -ParameterValue navServiceInstanceName
-
-    Write-Log "Update NavServiceInstanceName"   
-    $navServiceInstanceName = "DynamicsNAV$version"
-    
-    Set-NavInstallerConfiguration `
-        -SetupConfigFile $configFile `
-        -ParameterId "NavServiceInstanceName" `
-        -ParameterValue navServiceInstanceName
-}
 Export-ModuleMember -Function Invoke-NavSetup
 # SIG # Begin signature block
 # MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

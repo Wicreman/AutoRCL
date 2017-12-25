@@ -14,14 +14,14 @@ function Convert-NAVDatabase {
         # Specifies the name of the Dynamics NAV database that will be created.
         [Parameter(Mandatory = $true)]
         [string]
-        $DatabaseName, 
+        $DatabaseName,
 
         [Parameter(Mandatory = $false)]
         [string]
-        $LogPath 
+        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking\Logs")
     )
     process{
-        $DatabaseServerInstanceName = $DatabaseServer;
+        $DatabaseServerInstance = $DatabaseServer;
 
         if (!$DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO"))
         {       

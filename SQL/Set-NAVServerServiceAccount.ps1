@@ -1,3 +1,30 @@
+<#
+.SYNOPSIS
+Short description
+
+.DESCRIPTION
+Long description
+
+.PARAMETER NAVServerServiceAccount
+Parameter description
+
+.PARAMETER SqlServerInstance
+Parameter description
+
+.PARAMETER DatabaseName
+Parameter description
+
+.EXAMPLE
+$setServiceAccountParam = @{
+    NAVServerServiceAccount = $NAVServerServiceAccount
+    SqlServerInstance = $SQLServerInstance
+    DatabaseName = $RTMDatabaseName
+}
+Set-NAVServerServiceAccount @setServiceAccountParam
+
+.NOTES
+General notes
+#>
 function Set-NAVServerServiceAccount  {
     param(
         [parameter(Mandatory=$false)]

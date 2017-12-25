@@ -7,7 +7,7 @@ function Invoke-NAVCompile{
 
         [Parameter(Mandatory = $false)]
         [string]
-        $DatabaseServer = ".",
+        $SQLServerInstance = ".",
 
         [Parameter(Mandatory = $false)]
         [string]
@@ -24,7 +24,7 @@ function Invoke-NAVCompile{
 
             Compile-NAVApplicationObject `
                 -DatabaseName $DatabaseName `
-                -DatabaseServer $DatabaseServer`
+                -DatabaseServer $SQLServerInstance `
                 -LogPath $LogPath
             # TODO: 
         }

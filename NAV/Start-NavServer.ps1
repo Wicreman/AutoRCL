@@ -26,26 +26,33 @@ General notes
 function Start-NavServer {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$True)]
+        [Parameter(Mandatory=$false)]
         [String]
-		$ServiceName = "*NavServer*",
+		$ServiceName = "*DynamicsNAV*",
 		
-		[Parameter(Mandatory=$False)]
+		[Parameter(Mandatory=$false)]
 		[int]
 		$RetryCount = 5,
 		
-		[Parameter(Mandatory = $False)]
+		[Parameter(Mandatory = $false)]
         [Timespan]
         $WaitTimeout = (New-Object Timespan 0, 5, 0),
 
-        [Parameter(Mandatory = $True)]
+        [Parameter(Mandatory = $false)]
         [String]
-        $LogPath
+        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking\Logs")
     )
     process {
+
+        $LogPath = Join-Path $LogPath "Logs"
+        if(-Not(Test-Path $LogPath))
+        {
+            $null = New-Item -ItemType Directory -Path $LogPath -Force
+        }
+
         Write-Log "Trying to find Dynamics NAV service..."
         # $Services = Get-Service $ServiceName
-       $Services = Get-Service "MicrosoftDynamicsNavServer`$$ServiceName"
+        $Services = Get-Service "MicrosoftDynamicsNavServer`$$ServiceName"
 
         If ($Services -Eq $Null)
         {

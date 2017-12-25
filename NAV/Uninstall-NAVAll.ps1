@@ -1,3 +1,36 @@
+<#
+.SYNOPSIS
+Short description
+
+.DESCRIPTION
+$queryStr = "SET @command = ''
+                    SELECT  @command = @command
+                    + 'ALTER DATABASE [' + [name] + ']  SET single_user with rollback immediate;'+CHAR(13)+CHAR(10)
+                    + 'DROP DATABASE [' + [name] +'];'+CHAR(13)+CHAR(10)
+                    FROM  [master].[sys].[databases] 
+                     where [name] not in ( 'master', 'model', 'msdb', 'tempdb');
+
+                    SELECT @command
+                    EXECUTE sp_executesql @command"
+
+.PARAMETER LogPath
+Parameter description
+
+.PARAMETER CustomQueryFilter
+Parameter description
+
+.PARAMETER DatabaseServer
+Parameter description
+
+.PARAMETER DatabaseInstance
+Parameter description
+
+.EXAMPLE
+An example
+
+.NOTES
+General notes
+#>
 function Uninstall-NAVAll {
     [CmdletBinding()]
     param (
@@ -7,7 +40,7 @@ function Uninstall-NAVAll {
 
         [Parameter(Mandatory = $false)]
         [string]
-        $CustomQueryFilter = "%NAV%",
+        $CustomQueryFilter = "`'%NAV%`'",
 
         [Parameter(Mandatory = $false)]
         [string]
@@ -27,10 +60,9 @@ function Uninstall-NAVAll {
             {
                 $componentName = $component.Name
                 $IdentifyingNumber = $component.IdentifyingNumber
-                $LogFile = Join-Path $LogPath ($componentName+"Uninstall.log")
-                $args = "/X $IdentifyingNumber REBOOT=ReallySuppress /qb-! /l*v $LogFile"
+                $LogFile = Join-Path $LogPath "UninstAllNAV.log"
                 Write-Log "Uninstalling NAV Component: $componentName : $IdentifyingNumber"
-                $ExitCode = (Start-Process -FilePath "msiexec.exe" -ArgumentList $args -Wait -Passthru).ExitCode
+                $ExitCode = (Start-Process -FilePath "msiexec.exe" -ArgumentList "/X $IdentifyingNumber REBOOT=ReallySuppress /qb-! /l*v $LogFile" -Wait -Passthru).ExitCode
                 if($ExitCode -eq 0)
                 {
                     Write-Log "Finsihed Uninstalling NAV Component: $componentName : $IdentifyingNumber"

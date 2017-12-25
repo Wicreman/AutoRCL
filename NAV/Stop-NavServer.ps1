@@ -26,7 +26,7 @@ Function Stop-NAVServer
     Param(
         [Parameter(Mandatory = $False)]
         [String]
-        $ServiceName = "*NavServer*",
+        $ServiceName = "*DynamicsNAV*",
         
         [Parameter(Mandatory = $False)]
         [Int]
