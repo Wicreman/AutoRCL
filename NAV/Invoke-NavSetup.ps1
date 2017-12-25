@@ -19,14 +19,13 @@ function Invoke-NavSetup {
         [string]
         $Path,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
-        $LogPath,
+        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking"),
 
         [Parameter(Mandatory = $false)]
         [string]
         $ShortVersion
-
     )
     Process 
     {
@@ -51,6 +50,16 @@ function Invoke-NavSetup {
             $Message = "NAV configuration file cannot be found in directory '$Path'!"
             Write-Log $Message
             Throw $Message
+        }
+        else 
+        {
+            $configParams = @{
+                SetupConfigFile = $ConfigFile;
+                ParameterId = "NavServiceInstanceName";
+                ParameterValue = "DynamicsNAV$ShortVersion"
+            }
+
+            Set-NavInstallerConfiguration @configParams
         }
 
         $LogPath = Join-Path $LogPath "Logs"

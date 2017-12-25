@@ -1,5 +1,4 @@
 function Import-NAVMgmtModule {
-    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
         [string]

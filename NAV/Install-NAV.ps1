@@ -54,9 +54,8 @@ function Install-NAV {
         Write-Log "Running setup.exe to install NAV..."
         Try
         {
-            Invoke-NavSetup `
-                -Path $LocalBuildPath `
-                -LogPath (Join-Path $env:HOMEDRIVE "NAVWorking")
+            Invoke-NavSetup -Path $LocalBuildPath `
+ 
         }
         Catch
         {

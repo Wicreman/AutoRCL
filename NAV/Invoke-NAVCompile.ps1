@@ -9,13 +9,19 @@ function Invoke-NAVCompile{
         [string]
         $DatabaseServer = ".",
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
-        $LogPath
+        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking\Logs")
     )
     process{
         try
         {
+            $LogPath = Join-Path $LogPath "Compile$([GUID]::NewGuid().GUID)"
+            if(-Not(Test-Path $LogPath))
+            {
+                $null = New-Item -ItemType Directory -Path $LogPath -Force 
+            }
+
             Compile-NAVApplicationObject `
                 -DatabaseName $DatabaseName `
                 -DatabaseServer $DatabaseServer`

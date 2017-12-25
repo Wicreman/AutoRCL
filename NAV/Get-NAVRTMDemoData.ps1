@@ -32,6 +32,12 @@ Function Get-NAVRTMDemoData  {
     )
 
     Process{
+
+        if($Version -ne "NAV2015")
+        {
+            $Version = "Dynamics$Version"
+        }
+        
         Write-Log "Preparing $Destination directory..."
         if (-Not(Test-Path $Destination)) {
             if (-Not(Test-Path $Destination -IsValid)) {
@@ -44,8 +50,14 @@ Function Get-NAVRTMDemoData  {
             $null = New-Item -ItemType Directory $Destination -Force
         }
 
+        $DestinationVersionLanguage = Join-Path $Destination "$Version\$Language"
+        if (-Not(Test-Path $DestinationVersionLanguage)) {
+            Write-Log ("Destination path '{0}' does not exist - creating..." -f $DestinationVersionLanguage)
+            $null = New-Item -ItemType Directory $DestinationVersionLanguage -Force
+        }
+
         Write-Log "Preparing directory for NAV RTM"
-        $rtmPath  = Join-Path $Destination "RTM"
+        $rtmPath  = Join-Path $DestinationVersionLanguage "RTM"
         if(Test-Path $ExtractToPath)
         {
             Write-Log "$ExtractToPath exists. Deleting..."
@@ -72,11 +84,6 @@ Function Get-NAVRTMDemoData  {
             $Message = ("Build drop path '{0}' cannot be found!" -f $BuildDropPath)
             Write-Log $Message
             Throw $Message
-        }
-
-        if($Version -ne "NAV2015")
-        {
-            $Version = "Dynamics$Version"
         }
 
         $BuildVersionPath = Join-Path $BuildDropPath $Version

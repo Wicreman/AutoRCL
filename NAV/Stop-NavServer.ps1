@@ -1,4 +1,26 @@
-Function Stop-ApplicationObjectServer
+<#
+.SYNOPSIS
+
+
+.DESCRIPTION
+Long description
+
+.PARAMETER ServiceName
+Parameter description
+
+.PARAMETER RetryCount
+Parameter description
+
+.PARAMETER WaitTimeout
+Parameter description
+
+.EXAMPLE
+Stop-NAVServer -ServiceName "DynamicsNAV"
+
+.NOTES
+General notes
+#>
+Function Stop-NAVServer
 {
     [CmdletBinding()]
     Param(
@@ -18,7 +40,8 @@ Function Stop-ApplicationObjectServer
     Process
     {
         Write-Log "Trying to find Dynamics Nav Server service..."
-        $Services = Get-Service $ServiceName
+        #$Services = Get-Service $ServiceName
+        $Services = Get-Service "MicrosoftDynamicsNavServer`$$ServiceName"
 
         If ($Services -Eq $Null)
         {
@@ -112,7 +135,7 @@ Function Stop-ApplicationObjectServer
     }
 }
 
-Export-ModuleMember -Function Stop-ApplicationObjectServer
+Export-ModuleMember -Function Stop-NAVServer
 
 # SIG # Begin signature block
 # MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

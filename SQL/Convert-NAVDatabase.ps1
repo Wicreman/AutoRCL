@@ -23,17 +23,26 @@ function Convert-NAVDatabase {
     process{
         $DatabaseServerInstanceName = $DatabaseServer;
 
-        if (!($DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO")))
+        if (!$DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO"))
         {       
-            $DatabaseServerInstanceName = "$DatabaseServer`\$DatabaseInstance"
+            $DatabaseServerInstance = "$DatabaseServer`\$DatabaseInstance"
         }
         try
         {
+            $LogPath = Join-Path $LogPath "Database Conversion\$([GUID]::NewGuid().GUID)"
+            if(-Not(Test-Path $LogPath))
+            {
+                $null = New-Item -ItemType Directory -Path $LogPath -Force 
+            }
             Write-Log "Convert NAV Database $DatabaseName"
-            Invoke-NAVDatabaseConversion `
-                -DatabaseName $DatabaseName `
-                -DatabaseServer $DatabaseSQLServerInstance `
-                -LogPath $LogPath\"Database Conversion"  
+
+            $params = @{
+                DatabaseName = $DatabaseName;
+                DatabaseServer = $DatabaseServerInstance;
+                LogPath = $LogPath
+            }
+
+            Invoke-NAVDatabaseConversion @params
         }
         catch
         {

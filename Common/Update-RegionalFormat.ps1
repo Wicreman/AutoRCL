@@ -16,10 +16,10 @@ function Update-RegionalFormat {
     .NOTES
     General notes
     #>
-    [CmletBingding()]
+
     param(
         # language name  'fr-FR'
-        [Parameter(AttributeValues)]
+        [Parameter(Mandatory = $true)]
         [string]
         $Language
     )
@@ -30,7 +30,7 @@ function Update-RegionalFormat {
             Set-WinCultureFromLanguageListOptOut 1
         }
         Write-Log "Change the Region format of language to $Languge"
-        Set-ItemProperty 'HKCU\Control Panel\International' -Name "LocaleName" -Value $Language 
+        Set-ItemProperty 'HKCU:\Control Panel\International' -Name "LocaleName" -Value $Language 
     }
 }
 

@@ -1,10 +1,28 @@
 <#
 .SYNOPSIS
-    A brief description of the module.
-.DESCRIPTION
-    A detailed description of the module.
-#>
+Short description
 
+.DESCRIPTION
+Long description
+
+.PARAMETER ServiceName
+Parameter description
+
+.PARAMETER RetryCount
+Parameter description
+
+.PARAMETER WaitTimeout
+Parameter description
+
+.PARAMETER LogPath
+Parameter description
+
+.EXAMPLE
+Start-NavServer -ServiceName "DynamicsNAV" -LogPath "C:\NAVWorking"
+
+.NOTES
+General notes
+#>
 function Start-NavServer {
     [CmdletBinding()]
     param(
@@ -26,7 +44,8 @@ function Start-NavServer {
     )
     process {
         Write-Log "Trying to find Dynamics NAV service..."
-        $Services = Get-Service $ServiceName
+        # $Services = Get-Service $ServiceName
+       $Services = Get-Service "MicrosoftDynamicsNavServer`$$ServiceName"
 
         If ($Services -Eq $Null)
         {
@@ -113,7 +132,6 @@ function Start-NavServer {
             $ServiceStatus = $Service.Status
             If ($ServiceStatus -Ne [System.ServiceProcess.ServiceControllerStatus]::Running)
             {
-                # We assume that AOS service name is in the format like "AOS60$01".
                 $NavServerInstanceNum = $Name.Split('$')[1]
                 $NavServerEventLogFileName = "$Name-EventLog-{0}.log" -f (Get-Date).ToString("yyyyMMddHHmmss")
                 $NavServerEventLogFilePath = Join-Path $LogPath $NavServerEventLogFileName

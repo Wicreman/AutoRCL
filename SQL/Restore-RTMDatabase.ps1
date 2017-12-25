@@ -10,7 +10,14 @@ function Restore-RTMDatabase
     Restore RTM database 
     
     .EXAMPLE
-
+    
+    $parameter = @{
+        ServerInstance = "localhost\NAVDEMO";
+        Database = "RTM100B";
+        BackupFile = "C:\NAVWorking\RTM\Demo Database NAV (10-0).bak"
+    }
+   
+    Restore-RTMDatabase @parameter
 
     #>
 
@@ -19,7 +26,7 @@ function Restore-RTMDatabase
         # Server instance name like "Computer\Instance"
         [Parameter(Mandatory = $true)]
         [string]
-        $ServerInstance,
+        $ServerInstance = "localhost\NAVDEMO",
 
         # New database name
         [Parameter(Mandatory = $true)]
@@ -41,13 +48,6 @@ function Restore-RTMDatabase
                 Throw $Message
             }
 
-            $SqlServerInstance = $DatabaseServer
-
-            if (!($DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO")))
-            {       
-                $SqlServerInstance  = "$DatabaseServer`\$DatabaseInstance"
-            }
-
             $navDataDir = join-path $env:HOMEDRIVE "navDataDir"
             Write-Log "Preparing $navDataDir directory..."
             if (-Not(Test-Path $navDataDir)) {
@@ -62,15 +62,15 @@ function Restore-RTMDatabase
                 $null = New-Item -ItemType Directory $navDataDir -Force
             }
 
-            $newMdf = join-path $navDataDir "$DatabaseName'_Data.mdf'"
-            $newLdf = join-path $navDataDir "$DatabaseName'_log.ldf'"
+            $newMdf = join-path $navDataDir ("$DatabaseName" + "_Data.mdf")
+            $newLdf = join-path $navDataDir ("$DatabaseName" + "_log.ldf")
 
             $RTMDBName = [System.IO.Path]::GetFileNameWithoutExtension($BackupFile)
 
-            $rtmMdf = "$RTMDBName'_Data'"
-            $rtmLdf = "$RTMDBName'_Log'"
+            $rtmMdf =  -Join($RTMDBName, "_Data")
+            $rtmLdf =  -Join($RTMDBName, "_Log")
 
-            Invoke-Sqlcmd "USE [master]
+            $updateSQL = "USE [master]
                         DECLARE @id INTEGER
                         DECLARE @sql NVARCHAR(200)
                         WHILE EXISTS(SELECT * FROM master..sysprocesses WHERE dbid = DB_ID(N'$DatabaseName'))
@@ -81,18 +81,19 @@ function Restore-RTMDatabase
                         END
                         
                         -- Restore RTM database
-                        restore database $DatabaseName from Disk = $BackupFile
+                        restore database $DatabaseName from Disk = '$BackupFile'
                         WITH REPLACE, 
                         Move '$rtmMdf' TO '$newMdf',
                         Move '$rtmLdf' TO '$newLdf'
-                        
-                        " -ServerInstance $SqlServerInstance
+                        "
+
+            Invoke-Sqlcmd $updateSQL -ServerInstance $ServerInstance
         }
         catch
         {
             $Message = ("Fail to restore '{0}" -f $Database)
             Write-Log $Message
-            Throw $Message
+            Throw $_.Message
         }
         finally
         {

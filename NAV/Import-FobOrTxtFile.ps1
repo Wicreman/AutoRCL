@@ -23,7 +23,7 @@ function Import-FobOrTxtFile{
 
         [Parameter(Mandatory = $false)]
         [string]
-        $LogPath
+        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking\Logs")
 
     )
     process{
@@ -35,6 +35,12 @@ function Import-FobOrTxtFile{
                 Write-Log $Message
                 Throw $Message
             }
+            $LogPath = Join-Path $LogPath "ImportFobOrTxt\$([GUID]::NewGuid().GUID)"
+            if(-Not(Test-Path $LogPath))
+            {
+                $null = New-Item -ItemType Directory -Path $LogPath -Force 
+            }
+
             Import-NAVApplicationObject `
                 -Path $Path `
                 -DatabaseName $DatabaseName `

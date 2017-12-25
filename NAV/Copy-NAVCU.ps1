@@ -1,20 +1,31 @@
+<#
+   .SYNOPSIS
+   Short description
+   
+   .DESCRIPTION
+   Long description
+   
+   .PARAMETER Version
+   NAV2017, NAV2016, NAV2015, NAV2013R2, NAV2013
+   
+   .PARAMETER BuildDate
+   Parameter description
+   
+   .PARAMETER Language
+   Parameter description
+   
+   .PARAMETER Destination
+   Parameter description
+   
+   .EXAMPLE
+   An example
+   
+   .NOTES
+   General notes
+   #>
 Function Copy-NAVCU  {
-    <#
-    .SYNOPSIS
-    Copy setup file from release build drop
-    
-    .DESCRIPTION
-    \\vedfssrv01\DynNavFS\Releases\NAV\DynamicsNAV2016\Cumulative_Updates\2017-02\DE
-    
-    .EXAMPLE
-    An example
-    
-    .NOTES
-    General notes
-    #>
     [CmdletBinding()]
     Param(
-        # Parameter help description
         [Parameter(Mandatory = $true)]
         [string]
         $Version,
@@ -22,10 +33,6 @@ Function Copy-NAVCU  {
         [Parameter(Mandatory = $true)]
         [string]
         $BuildDate,
-
-        [Parameter(Mandatory = $False)]
-        [string]
-        $BuildFlavor = "Cumulative_Updates",
 
         [Parameter(Mandatory = $true)]
         [string]
@@ -39,13 +46,30 @@ Function Copy-NAVCU  {
     Process{
 
         $rootPath = "\\vedfssrv01\DynNavFS\Releases\NAV\"
+
+        switch -Wildcard($Version) {
+            "NAV2017" { 
+                $BuildFlavor = "_Cumulative_Updates"
+                break
+            }
+            "NAV2013*" { 
+                $BuildFlavor = "Update_Rollups"
+                break
+            }
+            Default {
+                $BuildFlavor = "Cumulative_Updates"
+            }
+        }
+
         if($Version -ne "NAV2015")
         {
             $Version = "Dynamics$Version"
         }
+
         $BuildDropPath = Join-Path $rootPath $Version
 
         Write-Log "Preparing $Destination directory..."
+
         if (-Not(Test-Path $Destination)) {
             if (-Not(Test-Path $Destination -IsValid)) {
                 $Message = ("Destination path '{0}' is not valid!" -f $Destination)
@@ -55,6 +79,22 @@ Function Copy-NAVCU  {
 
             Write-Log ("Destination path '{0}' does not exist - creating..." -f $Destination)
             $null = New-Item -ItemType Directory $Destination -Force
+        }
+
+        $Destination = Join-Path $Destination $Version
+        if (-Not(Test-Path $Destination)) {
+            Write-Log ("Destination path '{0}' does not exist - creating..." -f $Destination)
+            $null = New-Item -ItemType Directory $Destination -Force
+        }
+
+        $Destination  = Join-Path $Destination $Language
+        if(Test-Path $Destination)
+        {
+            Write-Log "$Destination exists. Deleting..."
+            Remove-Item $Destination -Force -Recurse
+        }
+        else {
+            $Null = New-Item -ItemType Directory -Path $Destination -Force
         }
 
         Write-Log "Preparing directory to extract files to..."
