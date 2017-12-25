@@ -5,7 +5,7 @@ function Find-NAVMgtModuleLoaded  {
         $ShortVersion
     )
     process {
-        if(Get-Module -ListAvailable -Name Microsoft.Dynamics.NAV.Management){
+        if(Get-Module -ListAvailable -Name "Microsoft.Dynamics.NAV.Management"){
             Write-Log "Module Microsoft.Dynamics.NAV.Management has been loaded."
         }
         else {
