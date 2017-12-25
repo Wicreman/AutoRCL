@@ -17,8 +17,8 @@ function Remove-SqlConnectionsToDatabase  {
         try
         {
             $SqlServerInstance = $DatabaseServer
-
-            if (!($DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO")))
+            
+            if (-not($DatabaseInstance.Equals("")) -or $DatabaseInstance.Equals("NAVDEMO"))
             {       
                 $SqlServerInstance  = "$DatabaseServer`\$DatabaseInstance"
             }
@@ -36,6 +36,8 @@ function Remove-SqlConnectionsToDatabase  {
         finally
         {
             Set-Location $CurrentLocation
+            # TODO: add log informaiton
+            # FIXME: Today
         }
     }
 }

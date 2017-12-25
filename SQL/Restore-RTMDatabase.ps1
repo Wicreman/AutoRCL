@@ -11,10 +11,6 @@ function Restore-RTMDatabase
     
     .EXAMPLE
 
-    Copy the 90DE RTM database 'Demo Database NAV (9-0).bak' 
-    from \\vedfssrv01\DynNavFS\Releases\NAV\DynamicsNAV2016\DE\Dynamics.90.DE.1769282.DVD.zip\SQLDemoDatabase\CommonAppData\Microsoft\Microsoft Dynamics NAV\90\Database 
-    to C:\Program Files\Microsoft SQL Server\MSSQL13.NAVDEMO\MSSQL\Backup
-
 
     #>
 
@@ -28,14 +24,14 @@ function Restore-RTMDatabase
         # New database name
         [Parameter(Mandatory = $true)]
         [string]
-        $Database,
+        $DatabaseName,
 
         [Parameter(Mandatory = $true)]
         [string]
         $BackupFile
     )
     process{
-        
+        $CurrentLocation = Get-Location
         try
         {
             if (-Not (Test-Path -PathType Leaf -Path $BackupFile))
@@ -44,17 +40,63 @@ function Restore-RTMDatabase
                 Write-Log $Message
                 Throw $Message
             }
-            
-            Restore-SqlDatabase `
-                -ServerInstance $ServerInstance `
-                -Database $Database `
-                -BackupFile $BackupFile
+
+            $SqlServerInstance = $DatabaseServer
+
+            if (!($DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO")))
+            {       
+                $SqlServerInstance  = "$DatabaseServer`\$DatabaseInstance"
+            }
+
+            $navDataDir = join-path $env:HOMEDRIVE "navDataDir"
+            Write-Log "Preparing $navDataDir directory..."
+            if (-Not(Test-Path $navDataDir)) {
+                if (-Not(Test-Path $navDataDir -IsValid)) {
+                    $Message = ("NAV Working Directory '{0}' is not valid!" -f $navDataDir)
+                    Write-Log $Message
+                    Throw $Message
+                }
+
+                Write-Log ("navWorkingDir path '{0}' does not exist - creating..." -f $navDataDir)
+
+                $null = New-Item -ItemType Directory $navDataDir -Force
+            }
+
+            $newMdf = join-path $navDataDir "$DatabaseName'_Data.mdf'"
+            $newLdf = join-path $navDataDir "$DatabaseName'_log.ldf'"
+
+            $RTMDBName = [System.IO.Path]::GetFileNameWithoutExtension($BackupFile)
+
+            $rtmMdf = "$RTMDBName'_Data'"
+            $rtmLdf = "$RTMDBName'_Log'"
+
+            Invoke-Sqlcmd "USE [master]
+                        DECLARE @id INTEGER
+                        DECLARE @sql NVARCHAR(200)
+                        WHILE EXISTS(SELECT * FROM master..sysprocesses WHERE dbid = DB_ID(N'$DatabaseName'))
+                        BEGIN
+                            SELECT TOP 1 @id = spid FROM master..sysprocesses WHERE dbid = DB_ID(N'$DatabaseName')
+                            SET @sql = 'KILL '+RTRIM(@id) 
+                        EXEC(@sql)  
+                        END
+                        
+                        -- Restore RTM database
+                        restore database $DatabaseName from Disk = $BackupFile
+                        WITH REPLACE, 
+                        Move '$rtmMdf' TO '$newMdf',
+                        Move '$rtmLdf' TO '$newLdf'
+                        
+                        " -ServerInstance $SqlServerInstance
         }
         catch
         {
             $Message = ("Fail to restore '{0}" -f $Database)
             Write-Log $Message
             Throw $Message
+        }
+        finally
+        {
+            Set-Location $CurrentLocation
         }
 
     }

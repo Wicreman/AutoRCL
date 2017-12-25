@@ -7,7 +7,7 @@ function Remove-SqlDatabase  {
 
         [Parameter(Mandatory = $true)]
         [string]
-        $SQLInstanceName,
+        $DatabaseInstance,
 
         [Parameter(Mandatory = $true)]
         [string]
@@ -18,8 +18,9 @@ function Remove-SqlDatabase  {
         Try
         {
             Write-Log "Remove '$DatabaseName'" 
+            # FIXME: incorrect database instance name
 
-            $databaseLocation = "SQLSERVER:\SQL\$DatabaseServer\$SQLInstanceName\Databases\$DatabaseName"
+            $databaseLocation = "SQLSERVER:\SQL\$DatabaseServer\$DatabaseInstance\Databases\$DatabaseName"
 
             if(Get-Item $databaseLocation -ErrorAction SilentlyContinue)
             {

@@ -12,6 +12,15 @@ function Find-NAVMgtModuleLoaded  {
         else {
             Import-NAVMgmtModule -ShortVersion $ShortVersion
         }
+
+        	
+        if (-not(Get-Module -Name SQLPS)) {
+            if (Get-Module -ListAvailable -Name SQLPS) {
+                Push-Location
+                Import-Module -Name SQLPS -DisableNameChecking
+                Pop-Location
+            }
+        }
     }
 }
 
