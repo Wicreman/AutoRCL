@@ -18,7 +18,7 @@ Describe "TestCasesFor146968 NAV2017" {
             Language = $Language
         }
 
-        Install-NAV @paramDE | Should -Be 1
+        Install-NAV @paramDE | Should Be 1
     }
 
     It "AT" -test {
@@ -32,7 +32,7 @@ Describe "TestCasesFor146968 NAV2017" {
             Language = $Language
         }
 
-        Install-NAV @paramDE | Should -Be 1
+        Install-NAV @paramDE | Should Be 1
     }
 
     AfterEach {
