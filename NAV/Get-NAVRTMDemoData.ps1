@@ -58,10 +58,10 @@ Function Get-NAVRTMDemoData  {
 
         Write-Log "Preparing directory for NAV RTM"
         $rtmPath  = Join-Path $DestinationVersionLanguage "RTM"
-        if(Test-Path $ExtractToPath)
+        if(Test-Path $rtmPath)
         {
-            Write-Log "$ExtractToPath exists. Deleting..."
-            Remove-Item $ExtractToPath -Force -Recurse
+            Write-Log "$rtmPath exists. Deleting..."
+            Remove-Item $rtmPath -Force -Recurse
         }
         else {
             $Null = New-Item -ItemType Directory -Path $rtmPath -Force

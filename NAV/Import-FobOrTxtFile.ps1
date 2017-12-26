@@ -13,11 +13,11 @@ function Import-FobOrTxtFile{
         [string]
         $DatabaseName,
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
         $SynchronizeSchemaChanges = "Yes",
 
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
         $ImportAction = "Overwrite",
 

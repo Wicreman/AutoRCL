@@ -108,13 +108,17 @@ function Install-NAV {
             }
             Set-NAVServerServiceAccount @setServiceAccountParam
 
-            Write-Log "Setp 6: Update NAV Server configuration to connect RTM Database"
+            Write-Log "Setp 6.1: Import NAV admin and development module"
+            Import-NAVIdeModule -ShortVersion $ShortVersion
+            Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
+
+            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database"
             $serverConfigParam = @{
-                ServerInstance = $NAVServerInstance
+                ServerInstance = $NAVServerInstance  
                 KeyValue = $RTMDatabaseName
             }
 
-            Set-NAVServerConfiguration @serverConfigParam
+            Set-NewNAVServerConfiguration  @serverConfigParam
 
             Write-Log "Setp 7: Restart NAV AOS"
             Start-NavServer -ServiceName $NAVServerInstance
@@ -126,7 +130,7 @@ function Install-NAV {
                 DatabaseInstance = $DatabaseInstance
                 DatabaseName = $RTMDatabaseName
             }
-            Import-NAVIdeModule -ShortVersion $ShortVersion
+            
             Convert-NAVDatabase @convertDBParam
             Start-NavServer -ServiceName $NAVServerInstance
 
@@ -134,6 +138,10 @@ function Install-NAV {
             Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
 
             Write-Log "Setp 10: Import FOB file"
+            if($Version -ne "NAV2015")
+            {
+                $Version = "Dynamics$Version"
+            }
             $demoDataPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\APPLICATION")
             Push-Location $demoDataPath
             $fobPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
