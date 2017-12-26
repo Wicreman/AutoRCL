@@ -34,9 +34,9 @@ General notes
 function Uninstall-NAVAll {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
         [string]
-        $LogPath,
+        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking"),
 
         [Parameter(Mandatory = $false)]
         [string]
@@ -51,9 +51,18 @@ function Uninstall-NAVAll {
         $DatabaseInstance = "NAVDEMO"
     )
     process {
+        if(-Not(Test-Path $LogPath))
+        {
+            $null = New-Item -ItemType Directory -Path $LogPath -Force
+        }
+        $LogPath = Join-Path $LogPath "Logs"
+        if(-Not(Test-Path $LogPath))
+        {
+            $null = New-Item -ItemType Directory -Path $LogPath -Force
+        }
         Write-Log "Looking for all NAV Component..."
         $allInstalledComponents = Get-WmiObject win32_product -Filter "Name Like '%NAV%'"
-        Write-Log "How many components are found: $allInstalledComponents.length"
+        Write-Log "How many components are found: $allInstalledComponents."
         if($allInstalledComponents -ne $null)
         {
             foreach($component in $allInstalledComponents)
@@ -61,6 +70,11 @@ function Uninstall-NAVAll {
                 $componentName = $component.Name
                 $IdentifyingNumber = $component.IdentifyingNumber
                 $LogFile = Join-Path $LogPath "UninstAllNAV.log"
+                if ((Test-Path -PathType Leaf $LogFile ) -eq $false)
+                {
+                    $null = New-Item -ItemType File -Path $LogPath -Force
+                }
+
                 Write-Log "Uninstalling NAV Component: $componentName : $IdentifyingNumber"
                 $ExitCode = (Start-Process -FilePath "msiexec.exe" -ArgumentList "/X $IdentifyingNumber REBOOT=ReallySuppress /qb-! /l*v $LogFile" -Wait -Passthru).ExitCode
                 if($ExitCode -eq 0)

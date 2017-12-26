@@ -1,5 +1,5 @@
 
-Get-module -name "NAVRCLAPI" | Remove-Module
+Get-module  -name "NAVRCLAPI" | Remove-Module
 Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Verbose -Force
 
 if(-Not(Get-Module -ListAvailable -Name "Pester"))

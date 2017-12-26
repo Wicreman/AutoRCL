@@ -1,44 +1,46 @@
-Import-Module -Name "NAVTool"
-Describe "TestCasesFor146968 NAV2017" {
 
-    $Version = "NAV2017"
-    $BuildDate = "2018-01"
-    BeforeEach { 
-        Uninstall-NAVAll
-    }
+$NAVRclApi = "NAVRCLAPI"
+Get-module  -name $NAVRclApi | Remove-Module
+Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) "NAVRCLAPI.psm1") -Verbose -Force
+
+if(-Not(Get-Module -ListAvailable -Name "Pester"))
+{
+    (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
+    Install-Module Pester 
+}
+
+InModuleScope -ModuleName $NAVRclApi {
+    Describe "TestCasesFor146968 NAV2017" {
+
+        $Version = "NAV2017"
+        $BuildDate = "2018-01"
+        BeforeEach { 
+            Uninstall-NAVAll
+        }
+        
+        It "DE" -test {
+            #Update Regional Formart
+            $language = "DE"
+            Update-RegionalFormat -Language "de-DE"
     
-    It "DE" -test {
-        #Update Regional Formart
-        $language = "DE"
-        Update-RegionalFormat -Language $Language
-
-        $paramDE = @{
-            Version = $Version
-            BuildDate = $buildDate
-            Language = $Language
+            $paramDE = @{
+                Version = $Version
+                BuildDate = $buildDate
+                Language = $Language
+            }
+    
+            Install-NAV @paramDE | Should Be 1
+    
         }
-
-        Install-NAV @paramDE | Should Be 1
-    }
-
-    It "AT" -test {
-        #Update Regional Formart
-        $language = "DE"
-        Update-RegionalFormat -Language $Language
-
-        $paramDE = @{
-            Version = $
-            BuildDate = $buildDate
-            Language = $Language
+    
+        
+    
+        AfterEach {
+            #Uninstall-NAVAll
         }
-
-        Install-NAV @paramDE | Should Be 1
-    }
-
-    AfterEach {
-        Uninstall-NAVAll
     }
 }
+
 
 # SIG # Begin signature block
 # MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
