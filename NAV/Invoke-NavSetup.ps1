@@ -67,10 +67,7 @@ function Invoke-NavSetup {
             $null = New-Item -ItemType Directory -Path $LogPath -Force
         }
         [string]$logFile = (Join-Path $LogPath  "Install-NAV.log")
-        if(-Not(Test-Path $logFile))
-        {
-            $null = New-Item -ItemType File -Path $LogPath -Force
-        }
+        
         [int]$i = 0
         while (Test-Path -PathType Leaf $logFile) {
             [int]$i = $i + 1

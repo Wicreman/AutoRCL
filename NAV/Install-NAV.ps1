@@ -44,7 +44,7 @@ function Install-NAV {
             $SQLServerInstance = "$DatabaseServer`\$DatabaseInstance"
         }
 
-        if(!$ShortVersion.Equals(""))
+        if($ShortVersion.Equals(""))
         {
             switch ($Version) {
                 "NAV2017" { 

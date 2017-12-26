@@ -48,8 +48,16 @@ Function Copy-NAVCU  {
         $rootPath = "\\vedfssrv01\DynNavFS\Releases\NAV\"
 
         switch -Wildcard($Version) {
+            "NAV2018" { 
+                $BuildFlavor = "_Cumulative Updates"
+                break
+            }
             "NAV2017" { 
-                $BuildFlavor = "_Cumulative_Updates"
+                $BuildFlavor = "_Cumulative Updates"
+                break
+            }
+            "NAV2016" { 
+                $BuildFlavor = "Cumulative_Updates"
                 break
             }
             "NAV2013*" { 
@@ -57,7 +65,7 @@ Function Copy-NAVCU  {
                 break
             }
             Default {
-                $BuildFlavor = "Cumulative_Updates"
+                $BuildFlavor = "Cumulative Updates"
             }
         }
 
