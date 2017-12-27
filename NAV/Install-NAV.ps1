@@ -35,7 +35,10 @@ function Install-NAV {
         [string]
         $ShortVersion
     )
-
+    
+    begin {
+        Import-SqlPsModule
+    }
     Process {
 
         $SQLServerInstance = $DatabaseServer;

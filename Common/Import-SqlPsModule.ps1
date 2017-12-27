@@ -12,22 +12,44 @@ function Import-SqlPsModule
 		{
 			$module = "sqlps"
 			$snapIn = "SqlServerCmdletSnapin100"
-			Import-Module $module -ErrorAction SilentlyContinue
 
-			if((Get-Module $module) -eq $null)
-			{
-				if ((Get-PSSnapin -Name $snapIn -ErrorAction SilentlyContinue) -eq $null)
-				{
-					if ((Get-PSSnapin -Registered $snapIn -ErrorAction SilentlyContinue) -eq $null)
-					{
-						Write-Error "SQL Server PowerShell cmdlets could not be loaded."                                            
-					}
-					else
-					{
-						Add-PSSnapin $snapIn            
+			$majorVersion = Get-InstalledSQLServerMajorVersion
+			$sqlServer2016MajorVersion = 13
+			if ($majorVersion -lt $sqlServer2016MajorVersion) {
+				if (-Not(Get-Module -Name SQLPS)) {
+					if (Get-Module -ListAvailable -Name SQLPS) {
+						Push-Location
+						Import-Module -Name SQLPS -DisableNameChecking
+						Pop-Location
 					}
 				}
-			}   
+
+				if((Get-Module $module) -eq $null)
+				{
+					if ((Get-PSSnapin -Name $snapIn -ErrorAction SilentlyContinue) -eq $null)
+					{
+						if ((Get-PSSnapin -Registered $snapIn -ErrorAction SilentlyContinue) -eq $null)
+						{
+							Write-Error "SQL Server PowerShell cmdlets could not be loaded."                                            
+						}
+						else
+						{
+							Add-PSSnapin $snapIn            
+						}
+					}
+				} 
+			}
+			else {
+				Get-module -Name SQLPS | Remove-Module
+
+				if (-Not(Get-Module -Name SqlServer)) {
+					if (Get-Module -ListAvailable -Name SqlServer) {
+						Push-Location
+						Import-Module -Name SqlServer -DisableNameChecking
+						Pop-Location
+					}
+				} 
+			}	  
 		}
 		finally
 		{
@@ -36,6 +58,20 @@ function Import-SqlPsModule
 	}
 }   
 Export-ModuleMember -Function Import-SqlPsModule
+
+function Get-InstalledSQLServerMajorVersion {
+    $installedInstances = (get-itemproperty 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server').InstalledInstances
+
+    if($installedInstances.Contains("MSSQLSERVER"))
+    {
+        $instanceKey = $inst[0]
+        $instanceValue = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL').$instanceKey
+        $sqlVersion = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\$instanceValue\Setup").Version
+        $majorVersion = $sqlVersion.Split('.')[0]   
+    }
+
+    return $majorVersion
+}
 
 # SIG # Begin signature block
 # MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

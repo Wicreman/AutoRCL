@@ -1,67 +1,93 @@
-
-$NAVRclApi = "NAVRCLAPI"
-Get-module  -name $NAVRclApi | Remove-Module
-Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) "NAVRCLAPI.psm1") -Verbose -Force
-
-if(-Not(Get-Module -ListAvailable -Name "Pester"))
-{
-    (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
-    Install-Module Pester 
-}
+<#
+.SYNOPSIS
+1. Set execution policy 
+2. Import NAVRCLAPI module
+3. Import Pester module
+#>
+Set-UnitTestEnviorment
 
 InModuleScope -ModuleName $NAVRclApi {
     Describe "TestCasesFor146968 NAV2017" {
-
-        $Version = "NAV2017"
-        $BuildDate = "2018-01"
         BeforeEach { 
             Uninstall-NAVAll
         }
+        Context "" {
+            $Version = "NAV2017"
+            $BuildDate = "2018-01"
         
-        It "DE" -test {
-            #Update Regional Formart
-            $language = "DE"
-            Update-RegionalFormat -Language "de-DE"
-    
-            $paramDE = @{
-                Version = $Version
-                BuildDate = $buildDate
-                Language = $Language
+            It "DE" -test {
+                #Update Regional Formart
+                $language = "DE"
+                Update-RegionalFormat -Language "de-DE"
+        
+                $paramDE = @{
+                    Version = $Version
+                    BuildDate = $buildDate
+                    Language = $Language
+                }
+        
+                Install-NAV @paramDE | Should Be 1
+        
             }
-    
-            Install-NAV @paramDE | Should Be 1
-    
         }
-    
-        
-    
         AfterEach {
             #Uninstall-NAVAll
         }
     }
 }
 
+<#
+.SYNOPSIS
+1. Set execution policy 
+2. Import NAVRCLAPI module
+3. Import Pester module
+#>
+function Set-UnitTestEnviorment {
+    # Run Get-ExecutionPolicy. If it returns Restricted, 
+    # then run Set-ExecutionPolicy AllSigned 
+    # or Set-ExecutionPolicy Bypass -Scope Process.
+    $policy = Get-ExecutionPolicy 
+    if ($policy -eq "Restricted")
+    {
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+    }
+
+    $NAVRclApi = "NAVRCLAPI"
+    Get-module  -name $NAVRclApi | Remove-Module
+    Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) "NAVRCLAPI.psm1") -Verbose -Force
+    <# TODO: below implemention will be used in product environment  
+    if(-Not(Get-Module -ListAvailable -Name $NAVRclApi))
+    {
+        Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) "NAVRCLAPI.psm1") -Verbose -Force
+    }
+    #>
+    if(-Not(Get-Module -ListAvailable -Name "Pester"))
+    {
+        (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
+        Install-Module Pester 
+    }
+}
 
 # SIG # Begin signature block
-# MIIDzQYJKoZIhvcNAQcCoIIDvjCCA7oCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# MIID2QYJKoZIhvcNAQcCoIIDyjCCA8YCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUfIWjTbAXd2zR7TVrIheDIWFO
-# 6OygggH1MIIB8TCCAV6gAwIBAgIQXzmgd4HWBJtM+inKVx0UhDAJBgUrDgMCHQUA
-# MA4xDDAKBgNVBAMTA25hdjAeFw0xNzEyMjIwNTI5MzBaFw0zOTEyMzEyMzU5NTla
-# MA4xDDAKBgNVBAMTA25hdjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAqLuf
-# pYPvuzFdbyl6pQhjk8/zCoF1ygEw6+hRkseKHXfWI7m6UbilXIpVXLx5Wwob+nw8
-# XuEFPfoDEXbt2vqiK66euLxQhaQCI2Q3S2O3/cDwLrNglIztikB3kVSALIjOE4iS
-# XFhVNp5O+YQglok26p+CaI3dUPt7Z968DSBtVUkCAwEAAaNYMFYwEwYDVR0lBAww
-# CgYIKwYBBQUHAwMwPwYDVR0BBDgwNoAQLppon05tRx+xRJW7RvDlzqEQMA4xDDAK
-# BgNVBAMTA25hdoIQXzmgd4HWBJtM+inKVx0UhDAJBgUrDgMCHQUAA4GBACWy/Vv0
-# Xsa5bZAiG2uRWKCyNcmq78zLx22xum+2BMczI/5G7+QzZfO7fNumxVzUNVIVGR0q
-# uK+Z+nq+CO12Wm8sTBhjFnLfh3mVzgGqPKfw1GjCDsEragQg77vla7jWtAcir64Y
-# iizE714eNtaO6tRAg7/sqrXC+anCUJjQK9ocMYIBQjCCAT4CAQEwIjAOMQwwCgYD
-# VQQDEwNuYXYCEF85oHeB1gSbTPopylcdFIQwCQYFKw4DAhoFAKB4MBgGCisGAQQB
-# gjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisGAQQBgjcCAQQwHAYK
-# KwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcNAQkEMRYEFEtUTyPQ
-# nwWgltiBc/+qymIUgQqEMA0GCSqGSIb3DQEBAQUABIGAlzhh7ftgg9RfdEoZR1tH
-# w8AAdp2TahLWvDDR0XQvsPY5FpXgWxdYVA59Rz2zVwb7+B+/gVkqdiBuBwY1/GG/
-# uv+sON7fcFymbrSstnJA3dxX4rblJTJZlfbuANFbB8wzpq9ZlJRsC/QP8XMd70vQ
-# Tcens6uCdak1dYRLGd6eZpY=
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUpRSwv977Q4011TDURLRiOtAt
+# aMugggH+MIIB+jCCAWegAwIBAgIQQOxXfO4MQJNA8TDp2dgD4TAJBgUrDgMCHQUA
+# MBExDzANBgNVBAMTBk5BVlJDTDAeFw0xNzEyMjcxMTUxMDlaFw0zOTEyMzEyMzU5
+# NTlaMBExDzANBgNVBAMTBk5BVlJDTDCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkC
+# gYEA3m9qUEauUeJ/ssE6Y7ArtMkGvc7ihxfhjLKMuOHDpKfupos436Dh632IHVrD
+# PxfbbkDZ4taLvVjDPXjaClBTlxsTeUI4bIlymFnlx8OYhd1lVyKYMa6ffE9yXpE2
+# /xHaDp819LyfkBMl1b/oV1ZTSjM6uPBCPmyDuzWXve2aXRECAwEAAaNbMFkwEwYD
+# VR0lBAwwCgYIKwYBBQUHAwMwQgYDVR0BBDswOYAQXxZRqoiFJtrDIudJq6L9+KET
+# MBExDzANBgNVBAMTBk5BVlJDTIIQQOxXfO4MQJNA8TDp2dgD4TAJBgUrDgMCHQUA
+# A4GBAFeNJDlB48Kf7Yhndhnre5wFLT/D8XB/YKJ+RBQqoY1UBjJX4KsHADhVyd8A
+# kI2j9X83VBXmuU5Sf0GoS9TbAlBfjyNG5AtoTC3/4Ann/eyqBSlZDUyu+hcV+Jqu
+# uoa9lvMUzuFszC5n3zvpyfNbXHW0RPXRq7Hbb/B92d3paJU7MYIBRTCCAUECAQEw
+# JTARMQ8wDQYDVQQDEwZOQVZSQ0wCEEDsV3zuDECTQPEw6dnYA+EwCQYFKw4DAhoF
+# AKB4MBgGCisGAQQBgjcCAQwxCjAIoAKAAKECgAAwGQYJKoZIhvcNAQkDMQwGCisG
+# AQQBgjcCAQQwHAYKKwYBBAGCNwIBCzEOMAwGCisGAQQBgjcCARUwIwYJKoZIhvcN
+# AQkEMRYEFNkyvjEb4iLfO/MwfzBXSOqYdhntMA0GCSqGSIb3DQEBAQUABIGAY+ur
+# 9tSxu3ig4p/xxgcEV1tFrhw0KDOYYMslLoQwssYIvGJRVSGOmMorKUU0iafT26RC
+# 0vaAT6Cui/0jLOrracgP2Eg+iYQfOjlOOyUVeRxTWGic5IYLwFX5a99AMDnALkXC
+# 4NkiksI8Zj3F/CeDsMZeaMU9opwlvmJWvi0Kyc8=
 # SIG # End signature block

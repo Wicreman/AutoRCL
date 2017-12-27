@@ -50,6 +50,9 @@ function Uninstall-NAVAll {
         [string]
         $DatabaseInstance = "NAVDEMO"
     )
+    begin {
+        Import-SqlPsModule
+    }
     process {
         if(-Not(Test-Path $LogPath))
         {
