@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="2" errors="0" failures="1" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2017-12-28" time="00:35:15">
+  <environment user="v-zehzha" machine-name="NAVSE-RCL-1" cwd="C:\Work\NAVTool" user-domain="FAREAST" platform="Microsoft Windows Server 2012 R2 Datacenter|C:\windows|\Device\Harddisk0\Partition2" nunit-version="2.5.8.0" os-version="6.3.9600" clr-version="4.0.30319.42000" />
+  <culture-info current-culture="de-AT" current-uiculture="en-US" />
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Failure" success="False" time="0.55" asserts="0" description="Pester">
+    <results>
+      <test-suite type="TestFixture" name="C:\Work\NAVTool\Tests\146968.Tests.ps1" executed="True" result="Failure" success="False" time="0.55" asserts="0" description="C:\Work\NAVTool\Tests\146968.Tests.ps1">
+        <results>
+          <test-suite type="TestFixture" name="TestCasesFor146968 NAV2017" executed="True" result="Failure" success="False" time="0.55" asserts="0" description="TestCasesFor146968 NAV2017">
+            <results>
+              <test-suite type="TestFixture" name="Given NAV 2017 " executed="True" result="Failure" success="False" time="0.55" asserts="0" description="Given NAV 2017 ">
+                <results>
+                  <test-case description="DE" name="TestCasesFor146968 NAV2017.Given NAV 2017 .DE" time="0.3652" asserts="0" success="False" result="Failure" executed="True">
+                    <failure>
+                      <message>Expected {1}, but got {0}.</message>
+                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Work\NAVTool\Tests\146968.Tests.ps1: line 32
+32:                 0 | Should Be 1</stack-trace>
+                    </failure>
+                  </test-case>
+                  <test-case description="US" name="TestCasesFor146968 NAV2017.Given NAV 2017 .US" time="0.1848" asserts="0" success="True" result="Success" executed="True" />
+                </results>
+              </test-suite>
+            </results>
+          </test-suite>
+        </results>
+      </test-suite>
+    </results>
+  </test-suite>
+</test-results>

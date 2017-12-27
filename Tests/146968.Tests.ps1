@@ -4,14 +4,15 @@
 2. Import NAVRCLAPI module
 3. Import Pester module
 #>
-Set-UnitTestEnviorment
+$NAVRclApi = "NAVRCLAPI"
+#Set-UnitTestEnviorment
 
 InModuleScope -ModuleName $NAVRclApi {
     Describe "TestCasesFor146968 NAV2017" {
         BeforeEach { 
-            Uninstall-NAVAll
+            #Uninstall-NAVAll
         }
-        Context "" {
+        Context "Given NAV 2017 $BuildDate" {
             $Version = "NAV2017"
             $BuildDate = "2018-01"
         
@@ -26,7 +27,26 @@ InModuleScope -ModuleName $NAVRclApi {
                     Language = $Language
                 }
         
-                Install-NAV @paramDE | Should Be 1
+                #Install-NAV @paramDE | Should Be 1
+
+                0 | Should Be 1
+        
+            }
+
+            It "US" -test {
+                #Update Regional Formart
+                $language = "DE"
+                Update-RegionalFormat -Language "de-DE"
+        
+                $paramDE = @{
+                    Version = $Version
+                    BuildDate = $buildDate
+                    Language = $Language
+                }
+        
+                #Install-NAV @paramDE | Should Be 1
+
+               1  | Should Be 1
         
             }
         }

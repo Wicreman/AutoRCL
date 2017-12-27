@@ -19,6 +19,18 @@ if(-Not(Get-Module -ListAvailable -Name "Pester"))
     Install-Module Pester 
 }
 
+$reportPath = Join-Path $PSScriptRoot "Reports"
+$reportFile = Join-Path $reportPath "RCLReport.xml"
+
+
+Set-Location $PSScriptRoot
+Invoke-Pester -OutputFile  $reportFile  -OutputFormat NUnitXml
+
+$reportUnitPath = Join-Path $PSScriptRoot "External"
+Push-Location $reportUnitPath
+& .\ReportUnit1-5.exe $reportFile 
+Pop-Location
+
 # SIG # Begin signature block
 # MIID2QYJKoZIhvcNAQcCoIIDyjCCA8YCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
