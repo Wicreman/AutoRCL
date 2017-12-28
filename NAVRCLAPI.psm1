@@ -7,6 +7,7 @@
 .(Join-Path $PSScriptRoot 'Common\Invoke-ProcessWithProgress.ps1')
 .(Join-Path $PSScriptRoot 'Common\Update-OSDisplayLanguage.ps1')
 .(Join-Path $PSScriptRoot 'Common\Update-RegionalFormat.ps1')
+.(Join-Path $PSScriptRoot 'Common\Send-UnitTestResult.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Copy-NAVCU.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Get-NAVRTMDemoData.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Find-NAVMgtModuleLoaded.ps1')

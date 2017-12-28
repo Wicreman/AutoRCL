@@ -22,10 +22,14 @@ if(-Not(Get-Module -ListAvailable -Name "Pester"))
 $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
 
-
+# Call invoke-pester to run all Unit Test cases
 Set-Location $PSScriptRoot
 Invoke-Pester -OutputFile  $reportFile  -OutputFormat NUnitXml
 
+#Send email
+Send-UnitTestResult -ReportPath $reportFile
+
+# Generate HTML report by using tool ReportUnit
 $reportUnitPath = Join-Path $PSScriptRoot "External"
 Push-Location $reportUnitPath
 & .\ReportUnit1-5.exe $reportFile 

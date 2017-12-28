@@ -4,8 +4,34 @@
 2. Import NAVRCLAPI module
 3. Import Pester module
 #>
+function Set-UnitTestEnviorment {
+    # Run Get-ExecutionPolicy. If it returns Restricted, 
+    # then run Set-ExecutionPolicy AllSigned 
+    # or Set-ExecutionPolicy Bypass -Scope Process.
+    $policy = Get-ExecutionPolicy 
+    if ($policy -eq "Restricted")
+    {
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+    }
+
+    $NAVRclApi = "NAVRCLAPI"
+    Get-module  -name $NAVRclApi | Remove-Module
+    Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) "NAVRCLAPI.psm1") -Verbose -Force
+    <# TODO: below implemention will be used in product environment  
+    if(-Not(Get-Module -ListAvailable -Name $NAVRclApi))
+    {
+        Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) "NAVRCLAPI.psm1") -Verbose -Force
+    }
+    #>
+    if(-Not(Get-Module -ListAvailable -Name "Pester"))
+    {
+        (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
+        Install-Module Pester 
+    }
+}
+
 $NAVRclApi = "NAVRCLAPI"
-#Set-UnitTestEnviorment
+Set-UnitTestEnviorment
 
 InModuleScope -ModuleName $NAVRclApi {
     Describe "TestCasesFor146968 NAV2017" {
@@ -49,6 +75,58 @@ InModuleScope -ModuleName $NAVRclApi {
                1  | Should Be 1
         
             }
+
+            It "US" -test {
+                #Update Regional Formart
+                $language = "DE"
+                Update-RegionalFormat -Language "de-DE"
+        
+                $paramDE = @{
+                    Version = $Version
+                    BuildDate = $buildDate
+                    Language = $Language
+                }
+        
+                #Install-NAV @paramDE | Should Be 1
+
+               1  | Should Be 1
+        
+            }
+
+            It "China" -test {
+                #Update Regional Formart
+                $language = "DE"
+                Update-RegionalFormat -Language "de-DE"
+        
+                $paramDE = @{
+                    Version = $Version
+                    BuildDate = $buildDate
+                    Language = $Language
+                }
+        
+                #Install-NAV @paramDE | Should Be 1
+
+               0  | Should Be 1
+        
+            }
+
+
+            It "aT" -test {
+                #Update Regional Formart
+                $language = "DE"
+                Update-RegionalFormat -Language "de-DE"
+        
+                $paramDE = @{
+                    Version = $Version
+                    BuildDate = $buildDate
+                    Language = $Language
+                }
+        
+                #Install-NAV @paramDE | Should Be 1
+
+               0  | Should Be 1
+        
+            }
         }
         AfterEach {
             #Uninstall-NAVAll
@@ -56,37 +134,7 @@ InModuleScope -ModuleName $NAVRclApi {
     }
 }
 
-<#
-.SYNOPSIS
-1. Set execution policy 
-2. Import NAVRCLAPI module
-3. Import Pester module
-#>
-function Set-UnitTestEnviorment {
-    # Run Get-ExecutionPolicy. If it returns Restricted, 
-    # then run Set-ExecutionPolicy AllSigned 
-    # or Set-ExecutionPolicy Bypass -Scope Process.
-    $policy = Get-ExecutionPolicy 
-    if ($policy -eq "Restricted")
-    {
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-    }
 
-    $NAVRclApi = "NAVRCLAPI"
-    Get-module  -name $NAVRclApi | Remove-Module
-    Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) "NAVRCLAPI.psm1") -Verbose -Force
-    <# TODO: below implemention will be used in product environment  
-    if(-Not(Get-Module -ListAvailable -Name $NAVRclApi))
-    {
-        Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) "NAVRCLAPI.psm1") -Verbose -Force
-    }
-    #>
-    if(-Not(Get-Module -ListAvailable -Name "Pester"))
-    {
-        (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
-        Install-Module Pester 
-    }
-}
 
 # SIG # Begin signature block
 # MIID2QYJKoZIhvcNAQcCoIIDyjCCA8YCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
