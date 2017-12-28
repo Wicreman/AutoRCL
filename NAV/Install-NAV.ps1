@@ -50,6 +50,10 @@ function Install-NAV {
         if($ShortVersion.Equals(""))
         {
             switch ($Version) {
+                "NAV2018" { 
+                    $ShortVersion = "110" 
+                    break
+                }
                 "NAV2017" { 
                     $ShortVersion = "100" 
                     break

@@ -34,18 +34,18 @@ $NAVRclApi = "NAVRCLAPI"
 Set-UnitTestEnviorment
 
 InModuleScope -ModuleName $NAVRclApi {
-    Describe "TestCasesFor146968 NAV2017" {
+    Describe "TestCasesFor146968" {
         BeforeEach { 
-            #Uninstall-NAVAll
+            Uninstall-NAVAll
         }
-        Context "Given NAV 2017 $BuildDate" {
-            $Version = "NAV2017"
+        Context "NAV2018 2018-01" {
+            $Version = "NAV2018"
             $BuildDate = "2018-01"
         
-            It "DE" -test {
+            It "RU" -test {
                 #Update Regional Formart
-                $language = "DE"
-                Update-RegionalFormat -Language "de-DE"
+                $language = "RU"
+                #Update-RegionalFormat -Language "de-DE"
         
                 $paramDE = @{
                     Version = $Version
@@ -53,79 +53,7 @@ InModuleScope -ModuleName $NAVRclApi {
                     Language = $Language
                 }
         
-                #Install-NAV @paramDE | Should Be 1
-
-                0 | Should Be 1
-        
-            }
-
-            It "US" -test {
-                #Update Regional Formart
-                $language = "DE"
-                Update-RegionalFormat -Language "de-DE"
-        
-                $paramDE = @{
-                    Version = $Version
-                    BuildDate = $buildDate
-                    Language = $Language
-                }
-        
-                #Install-NAV @paramDE | Should Be 1
-
-               1  | Should Be 1
-        
-            }
-
-            It "US" -test {
-                #Update Regional Formart
-                $language = "DE"
-                Update-RegionalFormat -Language "de-DE"
-        
-                $paramDE = @{
-                    Version = $Version
-                    BuildDate = $buildDate
-                    Language = $Language
-                }
-        
-                #Install-NAV @paramDE | Should Be 1
-
-               1  | Should Be 1
-        
-            }
-
-            It "China" -test {
-                #Update Regional Formart
-                $language = "DE"
-                Update-RegionalFormat -Language "de-DE"
-        
-                $paramDE = @{
-                    Version = $Version
-                    BuildDate = $buildDate
-                    Language = $Language
-                }
-        
-                #Install-NAV @paramDE | Should Be 1
-
-               0  | Should Be 1
-        
-            }
-
-
-            It "aT" -test {
-                #Update Regional Formart
-                $language = "DE"
-                Update-RegionalFormat -Language "de-DE"
-        
-                $paramDE = @{
-                    Version = $Version
-                    BuildDate = $buildDate
-                    Language = $Language
-                }
-        
-                #Install-NAV @paramDE | Should Be 1
-
-               0  | Should Be 1
-        
+                Install-NAV @paramDE | Should Be 1  
             }
         }
         AfterEach {
