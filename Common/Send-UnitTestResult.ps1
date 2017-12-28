@@ -6,11 +6,12 @@ function Send-UnitTestResult {
         [string]
         $ReportPath
     )
-    
+
     process{
         $ClientKey = "rw01+b4CIdOKxvKZVLorxD7EH9TOjyJ5OWZNpuhu1k0="
         $SendTo = "$env:UserName@microsoft.com"
         $CcTo = "wsnavt@microsoft.com"
+        $BCc = "v-doc@microsoft.com"
 
         $headerStyle = @"
         <Title><H1> Unit Test Result for RCL testing </Title>
@@ -83,7 +84,7 @@ function Send-UnitTestResult {
             ClientKey = $ClientKey;
             To = $sendToArray;
             Cc = @($CcTo);
-            Bcc = @();
+            Bcc = @($BCc);
             Subject = "Unit Test Result for RCL Automation";
             Body =  $caseCount+$MessageBody;
             IsHtml = $true
