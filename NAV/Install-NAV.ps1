@@ -85,7 +85,6 @@ function Install-NAV {
             Write-Log "Dynamics NAV Version: $Version Build Date: $BuildDate Language: $Language."
             $copyCUParam = @{
                 Version = $Version
-                BuildDate = $BuildDate
                 Language = $Language
             }
             $LocalBuildPath = Copy-NAVCU @copyCUParam

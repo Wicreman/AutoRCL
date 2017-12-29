@@ -21,10 +21,26 @@ if(-Not(Get-Module -ListAvailable -Name "Pester"))
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-
+$version = "NAV2017"
+$language = "DE"
 # Call invoke-pester to run all Unit Test cases
 Set-Location $PSScriptRoot
-Invoke-Pester -OutputFile  $reportFile  -OutputFormat NUnitXml
+$setupTestsPath = Join-Path $PSScriptRoot "Tests\NAVSetup.Tests.ps1"
+
+#run setup test cases
+Write-Log "Run NAV Setup test cases"
+$scriptParam = @{ 
+    Path = $setupTestsPath
+    Parameters = @{Version = $version; Language= $language}
+}
+
+Invoke-Pester -Script $scriptParam -OutputFile $reportFile -OutputFormat NUnitXml
+[xml]$report = Get-Content $reportFile
+$failedUTs = $report.SelectNodes("//test-case[@success='False']").Count
+if($failedUTs -gt 0)
+{
+    throw "Fail to setup NAV"
+}
 
 #Send email
 Send-UnitTestResult -ReportPath $reportFile
