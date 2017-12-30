@@ -64,7 +64,7 @@ function Get-InstalledSQLServerMajorVersion {
 
     if($installedInstances.Contains("MSSQLSERVER"))
     {
-        $instanceKey = $inst[0]
+        $instanceKey = $installedInstances[0]
         $instanceValue = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL').$instanceKey
         $sqlVersion = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\$instanceValue\Setup").Version
         $majorVersion = $sqlVersion.Split('.')[0]   
