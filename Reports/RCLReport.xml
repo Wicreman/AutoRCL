@@ -1,21 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="1" errors="0" failures="1" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2017-12-29" time="10:35:06">
-  <environment user="v-zehzha" machine-name="NAVSE-RCL-1" cwd="C:\Work\NAVTool" user-domain="FAREAST" platform="Microsoft Windows Server 2012 R2 Datacenter|C:\windows|\Device\Harddisk0\Partition2" nunit-version="2.5.8.0" os-version="6.3.9600" clr-version="4.0.30319.42000" />
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="1" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2017-12-30" time="02:57:12">
+  <environment user="v-zehzha" machine-name="NAVSE-RCL-1" cwd="C:\NAVWorking\DynamicsNAV2017\DE\RTM\Extracted\SQLDemoDatabase" user-domain="FAREAST" platform="Microsoft Windows Server 2012 R2 Datacenter|C:\windows|\Device\Harddisk0\Partition2" nunit-version="2.5.8.0" os-version="6.3.9600" clr-version="4.0.30319.42000" />
   <culture-info current-culture="de-DE" current-uiculture="en-US" />
-  <test-suite type="TestFixture" name="Pester" executed="True" result="Failure" success="False" time="0.7032" asserts="0" description="Pester">
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="1611.3169" asserts="0" description="Pester">
     <results>
-      <test-suite type="TestFixture" name="C:\Work\NAVTool\Tests\NAVSetup.Tests.ps1" executed="True" result="Failure" success="False" time="0.7032" asserts="0" description="C:\Work\NAVTool\Tests\NAVSetup.Tests.ps1">
+      <test-suite type="TestFixture" name="C:\Work\NAVTool\Tests\NAVSetup.Tests.ps1" executed="True" result="Success" success="True" time="1611.3169" asserts="0" description="C:\Work\NAVTool\Tests\NAVSetup.Tests.ps1">
         <results>
-          <test-suite type="TestFixture" name="Setup for " executed="True" result="Failure" success="False" time="0.7032" asserts="0" description="Setup for ">
+          <test-suite type="TestFixture" name="Setup for " executed="True" result="Success" success="True" time="1611.3169" asserts="0" description="Setup for ">
             <results>
-              <test-case description="DE" name="Setup for .DE" time="0.7032" asserts="0" success="False" result="Failure" executed="True">
-                <failure>
-                  <message>Cannot index into a null array.</message>
-                  <stack-trace>at &lt;ScriptBlock&gt;, C:\Work\NAVTool\NAV\Uninstall-NAVAll.ps1: line 54
-54:         Import-SqlPsModule
-</stack-trace>
-                </failure>
-              </test-case>
+              <test-case description="DE" name="Setup for .DE" time="1611.3169" asserts="0" success="True" result="Success" executed="True" />
             </results>
           </test-suite>
         </results>

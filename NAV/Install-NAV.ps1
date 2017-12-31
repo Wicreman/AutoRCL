@@ -8,10 +8,6 @@ function Install-NAV {
 
         [Parameter(Mandatory = $true)]
         [string]
-        $BuildDate,
-
-        [Parameter(Mandatory = $true)]
-        [string]
         $Language,
 
         [Parameter(Mandatory = $false)]
@@ -139,7 +135,7 @@ function Install-NAV {
             
             Convert-NAVDatabase @convertDBParam
             Start-NavServer -ServiceName $NAVServerInstance
-
+<#
             Write-Log "Setp 9: Sync the database"
             Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
 
@@ -176,7 +172,7 @@ function Install-NAV {
                 SQLServerInstance = $SQLServerInstance
             }
             Invoke-NAVCompile @compileParam
-
+#>
             return 1
         }
         Catch

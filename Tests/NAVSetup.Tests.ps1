@@ -56,7 +56,6 @@ InModuleScope -ModuleName $NAVRclApi {
     
             $paramDE = @{
                 Version = $Version
-                BuildDate = $buildDate
                 Language = $Language
             }
     
