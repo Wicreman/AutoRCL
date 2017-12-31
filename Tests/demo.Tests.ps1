@@ -2,11 +2,11 @@ param(
     # Product Version
     [Parameter(Mandatory = $true)]
     [string]
-    $ProductVersion
+    $Version
 )
 
-Describe "Setup for Dynamics $ProductVersion" {
-    $testCases = @( 
+Describe "Setup for Dynamics $ProductVersion"  -Tag "A" {
+    $testCases = @(  
         @{ language = 'AT'}
         @{ language = 'US'}
         @{ language = 'CZ'}
@@ -23,7 +23,7 @@ Describe "Setup for Dynamics $ProductVersion" {
     }
 }
 
-Describe "Dynamics $ProductVersion" {
+Describe "Dynamics $ProductVersion" -Tag "B"{
     $testCases = @( 
         @{ language = 'AT'}
         @{ language = 'US'}
@@ -37,18 +37,18 @@ Describe "Dynamics $ProductVersion" {
     It 'Test Language <language> ' -TestCases $testCases {
         param ($language)
 
-        $language | Should Not be 'AA'
+        $language | Should be 'AA'
     }
 
     It 'Other <language> ' -TestCases $testCases {
         param ($language)
 
-        $language | Should Not be 'AA'
+        $language | Should be 'AA'
     }
 
     It 'Third <language> ' -TestCases $testCases {
         param ($language)
 
-        $language | Should Not be 'AA'
+        $language | Should be 'AA'
     }
 }

@@ -48,7 +48,7 @@ function Restore-RTMDatabase
                 Throw $Message
             }
 
-            $navDataDir = join-path $env:HOMEDRIVE "navDataDir"
+            $navDataDir = join-path $env:HOMEDRIVE "NAVData"
             Write-Log "Preparing $navDataDir directory..."
             if (-Not(Test-Path $navDataDir)) {
                 if (-Not(Test-Path $navDataDir -IsValid)) {

@@ -85,13 +85,15 @@ function Install-NAV {
             }
             $LocalBuildPath = Copy-NAVCU @copyCUParam
 
-            Write-Log "Step 2: Install NAV by using setup.exe"
+            Write-Log "Step 2.1: Install NAV by using setup.exe"
             Write-Log "Running setup.exe to install $Version with $Language"
             Invoke-NavSetup -Path $LocalBuildPath -ShortVersion $ShortVersion
 
+            Write-Log "Step 2.2: Import NAV License"
+            Import-NAVLicense -ShortVersion $ShortVersion
+
             Write-Log "Setp 3: Get the RTM Database backup file"
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
-
 
             Write-Log "Setp 4: Restore RTM Database backup file as new database"
             $rtmParam = @{
@@ -135,9 +137,27 @@ function Install-NAV {
             
             Convert-NAVDatabase @convertDBParam
             Start-NavServer -ServiceName $NAVServerInstance
-<#
-            Write-Log "Setp 9: Sync the database"
-            Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+            if ($Version -like "NAV2013*") {
+                #Below steps are only for NAV2013 and NAV2013R2
+                $NSTPath =  (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\NST\*")
+                $WebClientPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\WEB CLIENT\*")
+                $RoleTailoredClienPath  = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\RTC\*")
+
+                $NAVInstalledNSTPath = (Join-Path $env:HOMEDRIVE  "Microsoft Dynamics NAV\Service")
+                $NAVInstalledWebClientPath = (Join-Path $env:HOMEDRIVE  "Microsoft Dynamics NAV\Web Client")
+                $NAVInstalledRTCPath = (Join-Path $env:HOMEDRIVE  "Microsoft Dynamics NAV\RoleTailored Client")
+
+                Copy-Item -Path $NSTPath -Destination $NAVInstalledNSTPath -Recurse -Force
+
+                Copy-Item -Path $WebClientPath -Destination $NAVInstalledWebClientPath -Recurse -Force
+
+                Copy-Item -Path $RoleTailoredClienPath -Destination $NAVInstalledRTCPath -Recurse -Force
+
+            }
+            else {
+                Write-Log "Setp 9: Sync the database"
+                Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+            }
 
             Write-Log "Setp 10: Import FOB file"
             if($Version -ne "NAV2015")
@@ -172,7 +192,7 @@ function Install-NAV {
                 SQLServerInstance = $SQLServerInstance
             }
             Invoke-NAVCompile @compileParam
-#>
+
             return 1
         }
         Catch

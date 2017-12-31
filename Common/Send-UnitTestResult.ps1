@@ -4,7 +4,15 @@ function Send-UnitTestResult {
         # Report file path
         [Parameter(Mandatory = $true)]
         [string]
-        $ReportPath
+        $ReportPath,
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Version,
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $Language
     )
 
     process{
@@ -85,7 +93,7 @@ function Send-UnitTestResult {
             To = $sendToArray;
             Cc = @($CcTo);
             Bcc = @($BCc);
-            Subject = "Unit Test Result for RCL Automation";
+            Subject = "RCL Unit Test Result for Dynamics$Version with $Language ";
             Body =  $caseCount+$MessageBody;
             IsHtml = $true
         }

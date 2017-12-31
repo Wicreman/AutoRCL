@@ -9,8 +9,8 @@ if ($policy -eq "Restricted")
 }
 
 # Import NAV RCL API module
-Get-module  -name "NAVRCLAPI" | Remove-Module
-Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Verbose -Force
+##Get-module  -name "NAVRCLAPI" | Remove-Module
+#Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Verbose -Force
 
 # Check if Pester is not installed, if no, we need to install it firstly
 if(-Not(Get-Module -ListAvailable -Name "Pester"))
@@ -21,60 +21,35 @@ if(-Not(Get-Module -ListAvailable -Name "Pester"))
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-$versions = "NAV2018", "NAV2017", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013"
-$languages = "AT", "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
-$Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
+$version = "NAV2017"
+$language = "DE"
 # Call invoke-pester to run all Unit Test cases
 Set-Location $PSScriptRoot
-$setupTestsPath = Join-Path $PSScriptRoot "Tests\RCL.Tests.ps1"
+$setupTestsPath = Join-Path $PSScriptRoot "Tests\demo.Tests.ps1"
 
-Write-Log "Start to batch run all unit test cases"
-foreach($version in $versions)
-{
-    foreach($language in $languages)
-    {
-        #run setup test cases
-        Write-Log "Run NAV Setup test cases"
-        $scriptParam = @{ 
-            Path = $setupTestsPath
-            Parameters = @{Version = $version; Language= $language}
-        }
-
-        Write-Log  "Starting to clean NAV test environment"
-        Invoke-Pester -Script $scriptParam -Tag $Tags.Clean
-        Write-Log  "Successfully clean NAV test environment"
-
-        Write-Log  "Starting Install and configure Dynamics$Version"
-        $failedUTs = Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup
-
-        if($failedUTs.FailedCount -gt 0){
-            Write-Error "Fail to setup NAV for Dynamics$version with $language " -ErrorAction Stop
-        }
-        else {
-            Write-Log  "Successfully Install and configure Dynamics$Version"
-            Write-Log  "Starting to run case for Dynamics$version with $language"
-            $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
-            Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -OutputFile $reportFile -OutputFormat NUnitXml
-            Write-Log  "Completed to run case for Dynamics$version with $language "
-
-            #Send email
-            $reportParm = @{
-                ReportPath = $reportFile
-                Version = $version
-                Language= $language
-            }
-            Send-UnitTestResult @reportParm
-        }
-
-    }
+#run setup test cases
+Write-Log "Run NAV Setup test cases"
+$scriptParam = @{ 
+    Path = $setupTestsPath
+    Parameters = @{Version = $version}
 }
-Write-Log "Completed to batch run all unit test cases"
 
-# Generate HTML report by using tool ReportUnit
+$failedUTs = Invoke-Pester  -PassThru -Script $scriptParam  -Tag "B" #-OutputFile $reportFile -OutputFormat NUnitXml
+if($failedUTs.FailedCount -gt 0)
+{
+    Write-Error "Fail to setup " -ErrorAction Stop
+}
+
+Write-Log "End test"
+#Send email
+#Send-UnitTestResult -ReportPath $reportFile
+
+<# Generate HTML report by using tool ReportUnit
 $reportUnitPath = Join-Path $PSScriptRoot "External"
 Push-Location $reportUnitPath
-& .\ReportUnit1-5.exe $reportPath
-Pop-Location
+& .\ReportUnit1-5.exe $reportFile 
+Pop-Location 
+#>
 
 # SIG # Begin signature block
 # MIID2QYJKoZIhvcNAQcCoIIDyjCCA8YCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
