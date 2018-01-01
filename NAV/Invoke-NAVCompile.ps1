@@ -16,7 +16,7 @@ function Invoke-NAVCompile{
     process{
         try
         {
-            $LogPath = Join-Path $LogPath "Compile$([GUID]::NewGuid().GUID)"
+            $LogPath = Join-Path $LogPath "Compile"
             if(-Not(Test-Path $LogPath))
             {
                 $null = New-Item -ItemType Directory -Path $LogPath -Force 

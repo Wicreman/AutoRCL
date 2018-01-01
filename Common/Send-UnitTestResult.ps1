@@ -78,14 +78,18 @@ function Send-UnitTestResult {
         </H3>
         <hr>
 "@
-        $messageBody = $report.SelectNodes("//test-case[@success='False']") `
-        | Select-Object `
-            @{ Name = "Test Case Name"; Expression = {$_.name}}, `
-            @{ Name = "Execution Time"; Expression = {$_.time}}, `
-            @{ Name = "Test Result"; Expression = {$_.result}},  `
-            @{ Name = "FailureLog"; Expression = {$_.InnerText}} `
-        | ConvertTo-Html -Head $headerStyle 
-
+        $messageBody = "<H2>All Unit Test cases are passed</H2>"
+        if($failedUTs -gt 0)
+        {
+            $messageBody = $report.SelectNodes("//test-case[@success='False']") `
+                | Select-Object `
+                    @{ Name = "Test Case Name"; Expression = {$_.name}}, `
+                    @{ Name = "Execution Time"; Expression = {$_.time}}, `
+                    @{ Name = "Test Result"; Expression = {$_.result}},  `
+                    @{ Name = "FailureLog"; Expression = {$_.InnerText}} `
+                | ConvertTo-Html -Head $headerStyle 
+        }
+        
         $sendToArray = $SendTo.Split(",")
 
         $body = @{

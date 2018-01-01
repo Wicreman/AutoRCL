@@ -69,21 +69,65 @@ $ShortVersionMap = @{
     NAV2013 = "70"
 }
 
+$LanguageTranslationMap = @{
+    AT = "DEA"
+    AU = "ENA"
+    BE = "FRB", "NLB"
+    CH = "DES", "ITS", "FRS"
+    CZ = "CSY"
+    DE = "DEU"
+    DK = "DAN"
+    ES = "ESP"
+    FI = "FIN"
+    FR = "FRA"
+    GB = "ENG"
+    IS = "ISL"
+    IT = "ITA"
+    NA = "ESM", "FRC", "ENC"
+    NL = "NLD"
+    NO = "NOR"
+    NZ = "ENZ"
+    RU = "RUS"
+    SE = "SVE"
+    W1 = "ENU"
+}
+
 $SQLServerInstance = $DatabaseServer;
 if (!$DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO"))
 {       
     $SQLServerInstance = "$DatabaseServer`\$DatabaseInstance"
 }
 
+$LogPath = Join-Path $env:HOMEDRIVE "NAVWorking\Logs"
+$ExpectedCommandLog = "The command completed successfully"
+
+if($Version -ne "NAV2015")
+{
+    $ProductVersion = "Dynamics$Version"
+}
+$demoDataPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$ProductVersion\$Language\Extracted\APPLICATION")
+
 #Set-UnitTestEnviorment
 
 
 InModuleScope -ModuleName $NAVRclApi {
     Describe "Clean NAV test environment" -Tag "CleanEnvironment" {
+        BeforeEach {
+            Import-SqlPsModule
+        }
+
+        # Given: Dynamics$Version with $Language
         It "Prepare test environment for Dynamics$Version with $Language" {
-            # Uninstall all NAV components and drop NAV database
+            
+            # When: Uninstall all NAV components and drop NAV database
             Uninstall-NAVAll
-            # TODO: check uninstalled log information to make sure all componest was uninstalled successfully.
+            $uninstallLogName = "UninstAllNAV.log"
+            $uninstallLog = Join-Path $LogPath $uninstallLogName
+
+            # Then: Uninstall Successfully
+            $expectedInformation = "Product: Microsoft Dynamics NAV Setup -- Removal failed."
+            $uninstallLog | Should -FileContentMatch $expectedInformation
+
             #Remove all NAV related directory
             $NAVWorkingDir  = Join-Path $env:HOMEDRIVE "NAVWorking"
             if(Test-Path $NAVWorkingDir)
@@ -92,20 +136,21 @@ InModuleScope -ModuleName $NAVRclApi {
                 Remove-Item $NAVWorkingDir -Force -Recurse
             }
 
+            $NAVWorkingDir | Should -Not -Exist
+
             $NAVInstalledDir  = Join-Path $env:HOMEDRIVE "Microsoft Dynamics NAV"
             if(Test-Path $NAVInstalledDir)
             {
                 Write-Log "$NAVInstalledDir exists. Deleting..."
                 Remove-Item $NAVInstalledDir -Force -Recurse
             }
+
+            $NAVInstalledDir | Should -Not -Exist
         }
     }
 
     
     Describe "Install and configure Dynamics$Version" -Tag "NAVSetup" {
-        BeforeEach {
-            Import-SqlPsModule
-        }
 
         It "$Language" {
     
@@ -115,7 +160,7 @@ InModuleScope -ModuleName $NAVRclApi {
             # Get NAV Server instance from short version
             $NAVServerInstance = "DynamicsNAV$ShortVersion"
 
-            Write-Log "Step 1: Copy CU build"
+            Write-Log "Step 1: Copy CU build" -foreground Green
             Write-Log "Dynamics NAV Version: $Version Language: $Language."
             $copyCUParam = @{
                 Version = $Version
@@ -123,17 +168,22 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             $LocalBuildPath = Copy-NAVCU @copyCUParam
 
-            Write-Log "Step 2.1: Install NAV by using setup.exe"
+            Write-Log "Step 2.1: Install NAV by using setup.exe" -foreground Green
             Write-Log "Running setup.exe to install $Version with $Language"
             Invoke-NavSetup -Path $LocalBuildPath -ShortVersion $ShortVersion
+            
+            $NavSetupLogName = "Install-NAV.log"
+            $NavSetupLog = Join-Path $LogPath $NavSetupLogName
+            $unexpectedSetupInfomation = "Error"
+            $NavSetupLog | Should -Not -FileContentMatch $unexpectedSetupInfomation
 
-            Write-Log "Step 2.2: Import NAV License"
+            Write-Log "Step 2.2: Import NAV License" -foreground Green
             Import-NAVLicense -ShortVersion $ShortVersion
 
-            Write-Log "Setp 3: Get the RTM Database backup file"
+            Write-Log "Setp 3: Get the RTM Database backup file" -foreground Green
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
 
-            Write-Log "Setp 4: Restore RTM Database backup file as new database"
+            Write-Log "Setp 4: Restore RTM Database backup file as new database" -foreground Green
             $RTMDatabaseName = "$RTMDatabaseName$ShortVersion"
             $rtmParam = @{
                 SQLServerInstance = $SQLServerInstance
@@ -143,7 +193,7 @@ InModuleScope -ModuleName $NAVRclApi {
             Stop-NAVServer -ServiceName $NAVServerInstance
             Restore-RTMDatabase @rtmParam
 
-            Write-Log "Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database "
+            Write-Log "Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database " -foreground Green
             $setServiceAccountParam = @{
                 NAVServerServiceAccount = $NAVServerServiceAccount
                 SqlServerInstance = $SQLServerInstance
@@ -151,11 +201,11 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             Set-NAVServerServiceAccount @setServiceAccountParam
 
-            Write-Log "Setp 6.1: Import NAV admin and development module"
+            Write-Log "Setp 6.1: Import NAV admin and development module" -foreground Green
             Import-NAVIdeModule -ShortVersion $ShortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
 
-            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database"
+            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database" -foreground Green
             $serverConfigParam = @{
                 ServerInstance = $NAVServerInstance  
                 KeyValue = $RTMDatabaseName
@@ -163,11 +213,11 @@ InModuleScope -ModuleName $NAVRclApi {
 
             Set-NewNAVServerConfiguration  @serverConfigParam
 
-            Write-Log "Setp 7: Restart NAV AOS"
+            Write-Log "Setp 7: Restart NAV AOS" -foreground Green
             Start-NavServer -ServiceName $NAVServerInstance
 
             Stop-NAVServer -ServiceName $NAVServerInstance
-            Write-Log "Setp 8: Convert the database"
+            Write-Log "Setp 8: Convert the database" -foreground Green
             $convertDBParam = @{
                 DatabaseServer = $DatabaseServer
                 DatabaseInstance = $DatabaseInstance
@@ -175,10 +225,12 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             
             Convert-NAVDatabase @convertDBParam
-            # TODO: Check convert db log
+
+            $convertDBLog = Join-Path $LogPath "Database Conversion\navcommandresult.txt" 
+            $convertDBLog | Should -FileContentMatch $ExpectedCommandLog
 
             if ($Version -like "NAV2013*") {
-                Write-Log "Setp 9: Copy required file for NST, RTC, Web Client"
+                Write-Log "Setp 9: Copy required file for NST, RTC, Web Client" -foreground Green
                 #Below steps are only for NAV2013 and NAV2013R2
                 $NSTPath =  (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\NST\*")
                 $WebClientPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\WEB CLIENT\*")
@@ -197,7 +249,7 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             else {
                 Start-NavServer -ServiceName $NAVServerInstance
-                Write-Log "Setp 9: Sync the database"
+                Write-Log "Setp 9: Sync the database" -foreground Green
                 Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
                 # TODO: Check sync db log
             }
@@ -205,59 +257,112 @@ InModuleScope -ModuleName $NAVRclApi {
     }
 
     Describe "Import and export process of FOB file " -Tag "UnitTestCase" {
-        It "Import fob file into Dynamcis$Version with $Language" {
-            if($Version -ne "NAV2015")
-            {
-                $Version = "Dynamics$Version"
-            }
-            $demoDataPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\APPLICATION")
+        Context "Verify Fob file can be imported or exported successfully" {
+
             Push-Location $demoDataPath
             $fobPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
             Pop-Location
-            $importFobParam = @{
-                Path = $fobPackge.FullName
-                SQLServerInstance = $SQLServerInstance
-                DatabaseName = $RTMDatabaseName
+
+            $expectedFob = (Get-FileHash $fobPackge.FullName).hash
+
+            It "Import fob file into Dynamcis$Version with $Language" {
+                
+                $importFobParam = @{
+                    Path = $fobPackge.FullName
+                    SQLServerInstance = $SQLServerInstance
+                    DatabaseName = $RTMDatabaseName
+                    FileType = "Fob"
+                }
+                Import-FobOrTxtFile @importFobParam 
+    
+                $importFobLog = Join-Path $LogPath "ImportFobOrTxt\Fob\navcommandresult.txt"
+                $importFobLog | Should -FileContentMatch $ExpectedCommandLog
+
+
             }
-            Import-FobOrTxtFile @importFobParam 
+    
+            It "Export txt file from Dynamcis$Version with $Language" {
+                $expectedTxtPackge = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
+                $exportedTxtFile = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version -FileType "txt"
+                $exportedTxtLog = Join-Path $LogPath "ExportFobOrTxt\txt\navcommandresult.txt"
 
-            # TODO: check import log
-        }
+                $exportedTxtLog | Should -FileContentMatch $ExpectedCommandLog
+                # Assert
+                $actualTxt = (Get-FileHash $exportedTxtFile).hash
+                $expectedTxt = (Get-FileHash  $expectedTxtPackge.FullName).hash
+                ($actualTxt -eq $expectedTxt) | Should -Be $true
+            }
 
-        It "Export fob file from Dynamcis$Version with $Language" {
-            # TODO: export module and check points
+            It "Export fob file from Dynamcis$Version with $Language" {
+                $exportedFobFile = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version
+                $exportedLog = Join-Path $LogPath "ExportFobOrTxt\fob\navcommandresult.txt"
+
+                $exportedLog | Should -FileContentMatch $ExpectedCommandLog
+                # Assert
+                $actualFob = (Get-FileHash $exportedFobFile).hash
+
+                ($actualFob -eq $expectedFob) | Should -Be $true
+            }
         }
+        
     }
 
-    Describe "Import and export process of TXT file " -Tag "UnitTestCase" {
-        It "Import txt file into Dynamcis$Version with $Language" {
+    Describe "Import process of TXT file " -Tag "UnitTestCase" {
+        Context "Verify Txt file can be imported successfully" {
             Push-Location $demoDataPath
             $txtPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
             Pop-Location
-            $importTxtParam = @{
-                Path = $txtPackge.FullName
-                SQLServerInstance = $SQLServerInstance
-                DatabaseName = $RTMDatabaseName
-            }
-            Import-FobOrTxtFile @importTxtParam
 
-            Write-Log "Compile txt file"
-            $compileParam = @{
-                DatabaseName = $RTMDatabaseName
-                SQLServerInstance = $SQLServerInstance
-            }
-            Invoke-NAVCompile @compileParam
+            It "Import txt file into Dynamcis$Version with $Language" {
+                
+                $importTxtParam = @{
+                    Path = $txtPackge.FullName
+                    SQLServerInstance = $SQLServerInstance
+                    DatabaseName = $RTMDatabaseName
+                    FileType = "Txt"
+                }
+                Import-FobOrTxtFile @importTxtParam
 
-            # TODO: check export and compile log
+                $importTxtLog = Join-Path $LogPath "ImportFobOrTxt\Txt\navcommandresult.txt"
+                $importTxtLog | Should -FileContentMatch $ExpectedCommandLog
+
+                Write-Log "Compile txt file"
+                $compileParam = @{
+                    DatabaseName = $RTMDatabaseName
+                    SQLServerInstance = $SQLServerInstance
+                }
+                Invoke-NAVCompile @compileParam
+
+                $compiledLog = Join-Path $LogPath "Compile\navcommandresult.txt"
+                $compiledLog | Should -FileContentMatch $ExpectedCommandLog
+            }
         }
+    }
 
-        It "Export txt file from Dynamcis$Version with $Language" {
-            # TODO: export module and check points
+    Describe "Validate objects translation" -Tag "UnitTestCase" {
+        It "Test all $LanguageTranslationMap.$language captions are all present" {
+            if($language -ne "W1")
+            {
+                Push-Location $demoDataPath
+                $txtPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
+                Pop-Location
+    
+                try {
+                    $translationParam = @{
+                        Source = $txtPackge.FullName
+                        LanguageId = $LanguageTranslationMap.$language
+                    }
+                    $translationResult = Test-NAVApplicationObjectLanguage @translationParam  -PassThru -ErrorAction Stop
+                    $translationResult | Should -BeNullOrEmpty
+                }
+                catch {
+                    Write-Log "One or more translations are missing for the $LanguageTranslationMap.$language language." -ForegroundColor Yellow
+                    Write-Excetion $_.Exception
+                }
+            }           
         }
     }
 }
-
-
 
 # SIG # Begin signature block
 # MIID2QYJKoZIhvcNAQcCoIIDyjCCA8YCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

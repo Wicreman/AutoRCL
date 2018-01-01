@@ -29,7 +29,7 @@ function Convert-NAVDatabase {
         }
         try
         {
-            $LogPath = Join-Path $LogPath "Database Conversion\$([GUID]::NewGuid().GUID)"
+            $LogPath = Join-Path $LogPath "Database Conversion"
             if(-Not(Test-Path $LogPath))
             {
                 $null = New-Item -ItemType Directory -Path $LogPath -Force 

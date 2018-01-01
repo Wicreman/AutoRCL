@@ -12,6 +12,7 @@
 .(Join-Path $PSScriptRoot 'NAV\Get-NAVRTMDemoData.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Find-NAVMgtModuleLoaded.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Import-FobOrTxtFile.ps1')
+.(Join-Path $PSScriptRoot 'NAV\Export-FobOrTxtFile.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Import-NAVLicense.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Invoke-NAVCompile.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Invoke-NavSetup.ps1')

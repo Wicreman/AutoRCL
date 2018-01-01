@@ -15,6 +15,10 @@ function Import-FobOrTxtFile{
 
         [Parameter(Mandatory = $false)]
         [string]
+        $FileType = "Fob",
+
+        [Parameter(Mandatory = $false)]
+        [string]
         $SynchronizeSchemaChanges = "Yes",
 
         [Parameter(Mandatory = $false)]
@@ -26,6 +30,7 @@ function Import-FobOrTxtFile{
         $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking\Logs")
 
     )
+
     process{
         try {
             Write-Log "Import file $Path"
@@ -35,7 +40,7 @@ function Import-FobOrTxtFile{
                 Write-Log $Message
                 Throw $Message
             }
-            $LogPath = Join-Path $LogPath "ImportFobOrTxt\$([GUID]::NewGuid().GUID)"
+            $LogPath = Join-Path $LogPath "ImportFobOrTxt\$FileType"
             if(-Not(Test-Path $LogPath))
             {
                 $null = New-Item -ItemType Directory -Path $LogPath -Force 
