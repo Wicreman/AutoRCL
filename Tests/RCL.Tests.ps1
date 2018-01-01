@@ -123,10 +123,12 @@ InModuleScope -ModuleName $NAVRclApi {
             Uninstall-NAVAll
             $uninstallLogName = "UninstAllNAV.log"
             $uninstallLog = Join-Path $LogPath $uninstallLogName
-
-            # Then: Uninstall Successfully
-            $expectedInformation = "Product: Microsoft Dynamics NAV Setup -- Removal failed."
-            $uninstallLog | Should -FileContentMatch $expectedInformation
+            if(Test-Path $uninstallLog)
+            {
+                # Then: Uninstall Successfully
+                $expectedInformation = "Product: Microsoft Dynamics NAV Setup -- Removal failed."
+                $uninstallLog | Should -FileContentMatch $expectedInformation
+            }
 
             #Remove all NAV related directory
             $NAVWorkingDir  = Join-Path $env:HOMEDRIVE "NAVWorking"
@@ -160,7 +162,7 @@ InModuleScope -ModuleName $NAVRclApi {
             # Get NAV Server instance from short version
             $NAVServerInstance = "DynamicsNAV$ShortVersion"
 
-            Write-Log "Step 1: Copy CU build" -foreground Green
+            Write-Log "Step 1: Copy CU build" 
             Write-Log "Dynamics NAV Version: $Version Language: $Language."
             $copyCUParam = @{
                 Version = $Version
@@ -168,7 +170,7 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             $LocalBuildPath = Copy-NAVCU @copyCUParam
 
-            Write-Log "Step 2.1: Install NAV by using setup.exe" -foreground Green
+            Write-Log "Step 2.1: Install NAV by using setup.exe" 
             Write-Log "Running setup.exe to install $Version with $Language"
             Invoke-NavSetup -Path $LocalBuildPath -ShortVersion $ShortVersion
             
@@ -177,13 +179,13 @@ InModuleScope -ModuleName $NAVRclApi {
             $unexpectedSetupInfomation = "Error"
             $NavSetupLog | Should -Not -FileContentMatch $unexpectedSetupInfomation
 
-            Write-Log "Step 2.2: Import NAV License" -foreground Green
+            Write-Log "Step 2.2: Import NAV License" 
             Import-NAVLicense -ShortVersion $ShortVersion
 
-            Write-Log "Setp 3: Get the RTM Database backup file" -foreground Green
+            Write-Log "Setp 3: Get the RTM Database backup file" 
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
 
-            Write-Log "Setp 4: Restore RTM Database backup file as new database" -foreground Green
+            Write-Log "Setp 4: Restore RTM Database backup file as new database" 
             $RTMDatabaseName = "$RTMDatabaseName$ShortVersion"
             $rtmParam = @{
                 SQLServerInstance = $SQLServerInstance
@@ -201,11 +203,11 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             Set-NAVServerServiceAccount @setServiceAccountParam
 
-            Write-Log "Setp 6.1: Import NAV admin and development module" -foreground Green
+            Write-Log "Setp 6.1: Import NAV admin and development module" 
             Import-NAVIdeModule -ShortVersion $ShortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
 
-            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database" -foreground Green
+            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database" 
             $serverConfigParam = @{
                 ServerInstance = $NAVServerInstance  
                 KeyValue = $RTMDatabaseName
@@ -213,11 +215,11 @@ InModuleScope -ModuleName $NAVRclApi {
 
             Set-NewNAVServerConfiguration  @serverConfigParam
 
-            Write-Log "Setp 7: Restart NAV AOS" -foreground Green
+            Write-Log "Setp 7: Restart NAV AOS" 
             Start-NavServer -ServiceName $NAVServerInstance
 
             Stop-NAVServer -ServiceName $NAVServerInstance
-            Write-Log "Setp 8: Convert the database" -foreground Green
+            Write-Log "Setp 8: Convert the database" 
             $convertDBParam = @{
                 DatabaseServer = $DatabaseServer
                 DatabaseInstance = $DatabaseInstance
@@ -230,7 +232,7 @@ InModuleScope -ModuleName $NAVRclApi {
             $convertDBLog | Should -FileContentMatch $ExpectedCommandLog
 
             if ($Version -like "NAV2013*") {
-                Write-Log "Setp 9: Copy required file for NST, RTC, Web Client" -foreground Green
+                Write-Log "Setp 9: Copy required file for NST, RTC, Web Client" 
                 #Below steps are only for NAV2013 and NAV2013R2
                 $NSTPath =  (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\NST\*")
                 $WebClientPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\WEB CLIENT\*")
@@ -249,7 +251,7 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             else {
                 Start-NavServer -ServiceName $NAVServerInstance
-                Write-Log "Setp 9: Sync the database" -foreground Green
+                Write-Log "Setp 9: Sync the database" 
                 Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
                 # TODO: Check sync db log
             }
