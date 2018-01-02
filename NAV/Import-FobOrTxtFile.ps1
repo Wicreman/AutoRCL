@@ -57,6 +57,7 @@ function Import-FobOrTxtFile{
         }
         catch {
             Write-Exception $_.Exception
+            $PSCmdlet.ThrowTerminatingError($PSItem)
         }
     }
 }

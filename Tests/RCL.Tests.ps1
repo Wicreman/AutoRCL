@@ -352,7 +352,9 @@ InModuleScope -ModuleName $NAVRclApi {
 
     Describe "Validate objects translation" -Tag "UnitTestCase" {
         BeforeEach {
-            Find-NAVMgtModuleLoaded -ShortVersion $ShortVersionMap.$Version
+            $shortVersion = $ShortVersionMap.$Version
+
+            Import-NAVIdeModule -ShortVersion $shortVersion
         }
         It "Test all $LanguageTranslationMap.$language captions are all present" {
             if($language -ne "W1")
@@ -362,9 +364,11 @@ InModuleScope -ModuleName $NAVRclApi {
                 Pop-Location
     
                 try {
+                    $languageIds = $LanguageTranslationMap.$language
+
                     $translationParam = @{
                         Source = $txtPackge.FullName
-                        LanguageId = $LanguageTranslationMap.$language
+                        LanguageId = $languageIds
                     }
                     $translationResult = Test-NAVApplicationObjectLanguage @translationParam  -PassThru -ErrorAction Stop
                     $translationResult | Should -BeNullOrEmpty
@@ -372,7 +376,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 catch {
                     Write-Log "One or more translations are missing for the $LanguageTranslationMap.$language language." -ForegroundColor Yellow
                     Write-Exception $_.Exception
-                    { Test-NAVApplicationObjectLanguage }| Should -Not -Throw
+                    $PSCmdlet.ThrowTerminatingError($PSItem)
                 }
             }           
         }

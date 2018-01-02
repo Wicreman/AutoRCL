@@ -91,6 +91,7 @@ function Export-FobOrTxtFile  {
         catch {
             Wirte-Log "Fail to export $FileType to $Path"
             Write-Exception $_.Exception
+            $PSCmdlet.ThrowTerminatingError($PSItem)
         }  
     }
 }

@@ -48,6 +48,7 @@ function Convert-NAVDatabase {
         {
             Write-Log "Fail to convert NAV Database $DatabaseName" + "For detailed information, please refer to $LogPath."
             Write-Exception $_.Exception
+            $PSCmdlet.ThrowTerminatingError($PSItem)
         }
     }
 }

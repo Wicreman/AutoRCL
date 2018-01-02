@@ -39,6 +39,7 @@ function Import-NAVLicense {
         catch
         {
             Write-Exception $_.Exception
+            $PSCmdlet.ThrowTerminatingError($PSItem)
         }     
     }
 }

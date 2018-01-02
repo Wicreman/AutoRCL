@@ -26,19 +26,11 @@ function Invoke-NAVCompile{
                 -DatabaseName $DatabaseName `
                 -DatabaseServer $SQLServerInstance `
                 -LogPath $LogPath
-
-            Write-Log "Searching the Compile log file for 'Error' under $LogPath"
-            [int]$errorCount = @(Select-String -Path $LogPath -Pattern "Error:").Count
-            if ($errorCount -ne 0) 
-            {
-                $Message = "Fail to compile application object. More details can be found in the log file: $LogPath."
-                Write-Log $Message
-                Throw $Message
-            }
         }
         catch
         {
             Write-Exception $_.Exception
+            $PSCmdlet.ThrowTerminatingError($PSItem)
         }
     }
     
