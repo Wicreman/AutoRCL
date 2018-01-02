@@ -15,7 +15,7 @@ Function Write-Log
 
         [Parameter(Mandatory = $false)]
         [String]
-        $ForegroundColor = "Black"
+        $ForegroundColor = "DarkYellow"
     )
     
     Process
