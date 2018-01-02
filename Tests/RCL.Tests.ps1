@@ -60,57 +60,61 @@ function Set-UnitTestEnviorment {
 }
 
 $NAVRclApi = "NAVRCLAPI"
-$ShortVersionMap = @{
-    NAV2018 = "110"
-    NAV2017 = "100"
-    NAV2016 = "90"
-    NAV2015 = "80"
-    NAV2013R2 = "71"
-    NAV2013 = "70"
-}
 
-$LanguageTranslationMap = @{
-    AT = "DEA"
-    AU = "ENA"
-    BE = "FRB", "NLB"
-    CH = "DES", "ITS", "FRS"
-    CZ = "CSY"
-    DE = "DEU"
-    DK = "DAN"
-    ES = "ESP"
-    FI = "FIN"
-    FR = "FRA"
-    GB = "ENG"
-    IS = "ISL"
-    IT = "ITA"
-    NA = "ESM", "FRC", "ENC"
-    NL = "NLD"
-    NO = "NOR"
-    NZ = "ENZ"
-    RU = "RUS"
-    SE = "SVE"
-    W1 = "ENU"
-}
 
-$SQLServerInstance = $DatabaseServer;
-if (!$DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO"))
-{       
-    $SQLServerInstance = "$DatabaseServer`\$DatabaseInstance"
-}
-
-$LogPath = Join-Path $env:HOMEDRIVE "NAVWorking\Logs"
-$ExpectedCommandLog = "The command completed successfully"
-
-if($Version -ne "NAV2015")
-{
-    $ProductVersion = "Dynamics$Version"
-}
-$demoDataPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$ProductVersion\$Language\Extracted\APPLICATION")
 
 #Set-UnitTestEnviorment
 
 
 InModuleScope -ModuleName $NAVRclApi {
+
+    $ShortVersionMap = @{
+        NAV2018 = "110"
+        NAV2017 = "100"
+        NAV2016 = "90"
+        NAV2015 = "80"
+        NAV2013R2 = "71"
+        NAV2013 = "70"
+    }
+    
+    $LanguageTranslationMap = @{
+        AT = "DEA"
+        AU = "ENA"
+        BE = "FRB", "NLB"
+        CH = "DES", "ITS", "FRS"
+        CZ = "CSY"
+        DE = "DEU"
+        DK = "DAN"
+        ES = "ESP"
+        FI = "FIN"
+        FR = "FRA"
+        GB = "ENG"
+        IS = "ISL"
+        IT = "ITA"
+        NA = "ESM", "FRC", "ENC"
+        NL = "NLD"
+        NO = "NOR"
+        NZ = "ENZ"
+        RU = "RUS"
+        SE = "SVE"
+        W1 = "ENU"
+    }
+    
+    $SQLServerInstance = $DatabaseServer;
+    if (!$DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO"))
+    {       
+        $SQLServerInstance = "$DatabaseServer`\$DatabaseInstance"
+    }
+    
+    $LogPath = Join-Path $env:HOMEDRIVE "NAVWorking\Logs"
+    $ExpectedCommandLog = "The command completed successfully"
+    
+    if($Version -ne "NAV2015")
+    {
+        $ProductVersion = "Dynamics$Version"
+    }
+    $demoDataPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$ProductVersion\$Language\Extracted\APPLICATION")
+
     Describe "Clean NAV test environment" -Tag "CleanEnvironment" {
         BeforeEach {
             Import-SqlPsModule
@@ -126,7 +130,7 @@ InModuleScope -ModuleName $NAVRclApi {
             if(Test-Path $uninstallLog)
             {
                 # Then: Uninstall Successfully
-                $expectedInformation = "Product: Microsoft Dynamics NAV Setup -- Removal failed."
+                $expectedInformation = "Removal completed successfully"
                 $uninstallLog | Should -FileContentMatch $expectedInformation
             }
 
@@ -135,6 +139,7 @@ InModuleScope -ModuleName $NAVRclApi {
             if(Test-Path $NAVWorkingDir)
             {
                 Write-Log "$NAVWorkingDir exists. Deleting..."
+                Get-ChildItem $NAVWorkingDir -Recurse | Remove-Item -Force 
                 Remove-Item $NAVWorkingDir -Force -Recurse
             }
 
@@ -144,6 +149,7 @@ InModuleScope -ModuleName $NAVRclApi {
             if(Test-Path $NAVInstalledDir)
             {
                 Write-Log "$NAVInstalledDir exists. Deleting..."
+                Get-ChildItem $NAVInstalledDir -Recurse | Remove-Item -Force 
                 Remove-Item $NAVInstalledDir -Force -Recurse
             }
 
@@ -162,7 +168,7 @@ InModuleScope -ModuleName $NAVRclApi {
             # Get NAV Server instance from short version
             $NAVServerInstance = "DynamicsNAV$ShortVersion"
 
-            Write-Log "Step 1: Copy CU build" 
+            Write-Log "Step 1: Copy CU build" -ForegroundColor "DarkGreen"
             Write-Log "Dynamics NAV Version: $Version Language: $Language."
             $copyCUParam = @{
                 Version = $Version
@@ -170,7 +176,7 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             $LocalBuildPath = Copy-NAVCU @copyCUParam
 
-            Write-Log "Step 2.1: Install NAV by using setup.exe" 
+            Write-Log "Step 2: Install NAV by using setup.exe"  -ForegroundColor "DarkGreen"
             Write-Log "Running setup.exe to install $Version with $Language"
             Invoke-NavSetup -Path $LocalBuildPath -ShortVersion $ShortVersion
             
@@ -179,13 +185,10 @@ InModuleScope -ModuleName $NAVRclApi {
             $unexpectedSetupInfomation = "Error"
             $NavSetupLog | Should -Not -FileContentMatch $unexpectedSetupInfomation
 
-            Write-Log "Step 2.2: Import NAV License" 
-            Import-NAVLicense -ShortVersion $ShortVersion
-
-            Write-Log "Setp 3: Get the RTM Database backup file" 
+            Write-Log "Setp 3: Get the RTM Database backup file"  -ForegroundColor "DarkGreen"
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
 
-            Write-Log "Setp 4: Restore RTM Database backup file as new database" 
+            Write-Log "Setp 4: Restore RTM Database backup file as new database"  -ForegroundColor "DarkGreen"
             $RTMDatabaseName = "$RTMDatabaseName$ShortVersion"
             $rtmParam = @{
                 SQLServerInstance = $SQLServerInstance
@@ -195,7 +198,7 @@ InModuleScope -ModuleName $NAVRclApi {
             Stop-NAVServer -ServiceName $NAVServerInstance
             Restore-RTMDatabase @rtmParam
 
-            Write-Log "Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database " -foreground Green
+            Write-Log "Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database "  -ForegroundColor "DarkGreen"
             $setServiceAccountParam = @{
                 NAVServerServiceAccount = $NAVServerServiceAccount
                 SqlServerInstance = $SQLServerInstance
@@ -203,11 +206,11 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             Set-NAVServerServiceAccount @setServiceAccountParam
 
-            Write-Log "Setp 6.1: Import NAV admin and development module" 
+            Write-Log "Setp 6.1: Import NAV admin and development module"  -ForegroundColor "DarkGreen"
             Import-NAVIdeModule -ShortVersion $ShortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
 
-            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database" 
+            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
             $serverConfigParam = @{
                 ServerInstance = $NAVServerInstance  
                 KeyValue = $RTMDatabaseName
@@ -215,11 +218,13 @@ InModuleScope -ModuleName $NAVRclApi {
 
             Set-NewNAVServerConfiguration  @serverConfigParam
 
-            Write-Log "Setp 7: Restart NAV AOS" 
+            Write-Log "Setp 7: Restart NAV AOS"  -ForegroundColor "DarkGreen"
             Start-NavServer -ServiceName $NAVServerInstance
+            Write-Log "Step 8: Import NAV License"   -ForegroundColor "DarkGreen"
+            Import-NAVLicense -ShortVersion $ShortVersion
 
             Stop-NAVServer -ServiceName $NAVServerInstance
-            Write-Log "Setp 8: Convert the database" 
+            Write-Log "Setp 9: Convert the database"  -ForegroundColor "DarkGreen"
             $convertDBParam = @{
                 DatabaseServer = $DatabaseServer
                 DatabaseInstance = $DatabaseInstance
@@ -232,7 +237,7 @@ InModuleScope -ModuleName $NAVRclApi {
             $convertDBLog | Should -FileContentMatch $ExpectedCommandLog
 
             if ($Version -like "NAV2013*") {
-                Write-Log "Setp 9: Copy required file for NST, RTC, Web Client" 
+                Write-Log "Setp 10: Copy required file for NST, RTC, Web Client"  -ForegroundColor "DarkGreen"
                 #Below steps are only for NAV2013 and NAV2013R2
                 $NSTPath =  (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\NST\*")
                 $WebClientPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\WEB CLIENT\*")
@@ -251,7 +256,7 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             else {
                 Start-NavServer -ServiceName $NAVServerInstance
-                Write-Log "Setp 9: Sync the database" 
+                Write-Log "Setp 10: Sync the database"  -ForegroundColor "DarkGreen"
                 Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
                 # TODO: Check sync db log
             }
@@ -260,11 +265,12 @@ InModuleScope -ModuleName $NAVRclApi {
 
     Describe "Import and export process of FOB file " -Tag "UnitTestCase" {
         Context "Verify Fob file can be imported or exported successfully" {
-
+            $shortVersion = $ShortVersionMap.$Version
+            Import-NAVIdeModule -ShortVersion $shortVersion
             Push-Location $demoDataPath
             $fobPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
             Pop-Location
-
+            $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
             $expectedFob = (Get-FileHash $fobPackge.FullName).hash
 
             It "Import fob file into Dynamcis$Version with $Language" {
@@ -311,10 +317,13 @@ InModuleScope -ModuleName $NAVRclApi {
 
     Describe "Import process of TXT file " -Tag "UnitTestCase" {
         Context "Verify Txt file can be imported successfully" {
+            $shortVersion = $ShortVersionMap.$Version
+
+            Import-NAVIdeModule -ShortVersion $shortVersion
             Push-Location $demoDataPath
             $txtPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
             Pop-Location
-
+            $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
             It "Import txt file into Dynamcis$Version with $Language" {
                 
                 $importTxtParam = @{
@@ -336,12 +345,15 @@ InModuleScope -ModuleName $NAVRclApi {
                 Invoke-NAVCompile @compileParam
 
                 $compiledLog = Join-Path $LogPath "Compile\navcommandresult.txt"
-                $compiledLog | Should -FileContentMatch $ExpectedCommandLog
+                $compiledLog | Should -FileContentMatchExactly $ExpectedCommandLog
             }
         }
     }
 
     Describe "Validate objects translation" -Tag "UnitTestCase" {
+        BeforeEach {
+            Find-NAVMgtModuleLoaded -ShortVersion $ShortVersionMap.$Version
+        }
         It "Test all $LanguageTranslationMap.$language captions are all present" {
             if($language -ne "W1")
             {
@@ -359,7 +371,8 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
                 catch {
                     Write-Log "One or more translations are missing for the $LanguageTranslationMap.$language language." -ForegroundColor Yellow
-                    Write-Excetion $_.Exception
+                    Write-Exception $_.Exception
+                    { Test-NAVApplicationObjectLanguage }| Should -Not -Throw
                 }
             }           
         }

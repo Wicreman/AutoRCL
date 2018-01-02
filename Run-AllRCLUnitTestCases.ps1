@@ -21,9 +21,13 @@ if(-Not(Get-Module -ListAvailable -Name "Pester"))
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-$versions = "NAV2018", "NAV2017", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013"
-$languages = "AT", "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
+$versions = "NAV2018"#, "NAV2017", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013"
+$languages = "AT"#, "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
 $Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
+$DatabaseServer = "localhost"
+$DatabaseInstance = "NAVDEMO"
+$RTMDatabaseName = "NAVRTMDB"
+$NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
 # Call invoke-pester to run all Unit Test cases
 Set-Location $PSScriptRoot
 $setupTestsPath = Join-Path $PSScriptRoot "Tests\RCL.Tests.ps1"
@@ -37,7 +41,14 @@ foreach($version in $versions)
         Write-Log "Run NAV Setup test cases"
         $scriptParam = @{ 
             Path = $setupTestsPath
-            Parameters = @{Version = $version; Language= $language}
+            Parameters = @{
+                Version = $version 
+                Language= $language
+                DatabaseServer = $DatabaseServer
+                DatabaseInstance = $DatabaseInstance
+                RTMDatabaseName = $RTMDatabaseName
+                NAVServerServiceAccount = $NAVServerServiceAccount
+            } 
         }
 
         Write-Log  "Starting to clean NAV test environment"

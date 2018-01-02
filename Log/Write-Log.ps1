@@ -11,13 +11,17 @@ Function Write-Log
     Param(
         [Parameter(Mandatory = $True)]
         [String]
-        $Message
+        $Message,
+
+        [Parameter(Mandatory = $false)]
+        [String]
+        $ForegroundColor = "Black"
     )
     
     Process
     {
         $MessageWithDate = "{0}: {1}" -f (Get-Date -format "yyyy-MM-dd HH:mm:ss"), $Message
-        Write-Host $MessageWithDate
+        Write-Host $MessageWithDate -ForegroundColor $ForegroundColor
     }
 }
 
