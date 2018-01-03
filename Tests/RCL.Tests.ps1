@@ -263,7 +263,7 @@ InModuleScope -ModuleName $NAVRclApi {
         }
     }
 
-    Describe "Import and export process of FOB file " -Tag "UnitTestCase" {
+    Describe "Import and export process of FOB file" -Tag "UnitTestCase" {
         Context "Verify Fob file can be imported or exported successfully" {
             $shortVersion = $ShortVersionMap.$Version
             # Get NAV Server instance from short version
@@ -272,13 +272,13 @@ InModuleScope -ModuleName $NAVRclApi {
             Import-NAVIdeModule -ShortVersion $shortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
 
-            Push-Location $demoDataPath
-            $fobPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
-            Pop-Location
             $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
-            $expectedFob = (Get-FileHash $fobPackge.FullName).hash
+            
+            BeforeEach {
 
-            It "Import fob file into Dynamcis$Version with $Language" {
+            }
+
+            It "Import fob file into Dynamcis$Version with $Language"  -Skip {
                 
                 $importFobParam = @{
                     Path = $fobPackge.FullName
@@ -299,23 +299,25 @@ InModuleScope -ModuleName $NAVRclApi {
     
             It "Export txt file from Dynamcis$Version with $Language" {
                 $expectedTxtPackge = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
-                $exportedTxtFile = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version -FileType "txt"
+                $actualTxtPackge = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version -FileType "txt"
                 $exportedTxtLog = Join-Path $LogPath "ExportFobOrTxt\txt\navcommandresult.txt"
 
                 $exportedTxtLog | Should -FileContentMatch $ExpectedCommandLog
                 # Assert
-                $actualTxt = (Get-FileHash $exportedTxtFile).hash
+                $actualTxt = (Get-FileHash $actualTxtPackge[0]).hash
                 $expectedTxt = (Get-FileHash  $expectedTxtPackge.FullName).hash
                 ($actualTxt -eq $expectedTxt) | Should -Be $true
             }
 
             It "Export fob file from Dynamcis$Version with $Language" {
-                $exportedFobFile = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version
+                $expectedFobPackage = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
+                $expectedFob = (Get-FileHash $expectedFobPackage.FullName).hash
+                $actualFobPackage = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version
                 $exportedLog = Join-Path $LogPath "ExportFobOrTxt\fob\navcommandresult.txt"
 
                 $exportedLog | Should -FileContentMatch $ExpectedCommandLog
                 # Assert
-                $actualFob = (Get-FileHash $exportedFobFile).hash
+                $actualFob = (Get-FileHash $actualFobPackage[0]).hash
 
                 ($actualFob -eq $expectedFob) | Should -Be $true
             }
@@ -323,7 +325,7 @@ InModuleScope -ModuleName $NAVRclApi {
         
     }
 
-    Describe "Import process of TXT file " -Tag "UnitTestCase" {
+    Describe "Import process of TXT file" -Tag "UnitTestCase" {
         Context "Verify Txt file can be imported successfully" {
             $shortVersion = $ShortVersionMap.$Version
 
@@ -366,7 +368,6 @@ InModuleScope -ModuleName $NAVRclApi {
         $languageNames = $LanguageTranslationMap.$language
         $shortVersion = $ShortVersionMap.$Version
         Import-NAVIdeModule -ShortVersion $shortVersion -Verbose
-        #Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
         
         It "Test all $languageNames captions are all present" {
             if($language -ne "W1")

@@ -32,13 +32,9 @@ function Export-FobOrTxtFile  {
             $null = New-Item -ItemType Directory -Path $Path -Force 
         }
         
-        $exportedFile = Join-Path $Path "$DatabaseName$ShortVersion_Exported.$FileType"
+        $exportedFile = Join-Path $Path "$DatabaseName$ShortVersion.$FileType"
         Write-Log "Export file to file $exportedFile"
-        if (-Not(Test-Path -PathType Leaf -Path $exportedFile))
-        {
-            $null = New-Item -ItemType File -Path $exportedFile -Force 
-        }
-        else 
+        if (Test-Path $exportedFile)
         {
             Remove-Item $exportedFile -Force -Recurse
         }
@@ -86,7 +82,7 @@ function Export-FobOrTxtFile  {
     
             Export-NAVApplicationObject @exportParm
 
-            return $exportedFile
+            return ,$exportedFile
         }
         catch {
             Wirte-Log "Fail to export $FileType to $Path"

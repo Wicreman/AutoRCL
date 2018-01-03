@@ -21,8 +21,8 @@ if(-Not(Get-Module -ListAvailable -Name "Pester"))
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-$versions = "NAV2018"#, "NAV2017", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013"
-$languages = "AT"#, "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
+$versions = "NAV2018", "NAV2017", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013"
+$languages = "AT", "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
 $Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
 $DatabaseServer = "localhost"
 $DatabaseInstance = "NAVDEMO"
@@ -52,11 +52,11 @@ foreach($version in $versions)
         }
 
         Write-Log  "Starting to clean NAV test environment"
-        #Invoke-Pester -Script $scriptParam -Tag $Tags.Clean
+        Invoke-Pester -Script $scriptParam -Tag $Tags.Clean
         Write-Log  "Successfully clean NAV test environment"
 
         Write-Log  "Starting Install and configure Dynamics$Version"
-        $failedUTs = 0 # Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup
+        $failedUTs =  Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup
 
         if($failedUTs.FailedCount -gt 0){
             Write-Error "Fail to setup NAV for Dynamics$version with $language " -ErrorAction Stop
@@ -65,7 +65,9 @@ foreach($version in $versions)
             Write-Log  "Successfully Install and configure Dynamics$Version"
             Write-Log  "Starting to run case for Dynamics$version with $language"
             $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
+        
             Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -OutputFile $reportFile -OutputFormat NUnitXml
+
             Write-Log  "Completed to run case for Dynamics$version with $language "
 
             #Send email
@@ -74,7 +76,7 @@ foreach($version in $versions)
                 Version = $version
                 Language= $language
             }
-            #Send-UnitTestResult @reportParm
+            Send-UnitTestResult @reportParm
         }
 
     }

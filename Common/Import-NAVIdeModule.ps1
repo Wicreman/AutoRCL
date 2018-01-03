@@ -48,7 +48,7 @@ function Import-NAVIdeModule{
             $IdePath = Join-Path $ModulePath "Microsoft.Dynamics.Nav.Ide.psm1" -ErrorAction Stop
             $FinSQLFile = Join-Path $ModulePath "finsql.exe" -ErrorAction Stop
     
-            Import-Module $IdePath -Global -Arg $FinSQLFile -ErrorVariable errorVariable -ErrorAction Stop
+            Import-Module $IdePath -Global -Arg $FinSQLFile -ErrorVariable errorVariable -ErrorAction Stop -Verbose
     
             if (!$errorVariable)
             {
@@ -57,7 +57,7 @@ function Import-NAVIdeModule{
 
             $NAVModelToolsPath = Join-Path $ModulePath "Microsoft.Dynamics.Nav.Model.Tools.psd1" -ErrorAction Stop
 
-            Import-Module $NAVModelToolsPath -ErrorVariable errorVariableTool -ErrorAction Stop
+            Import-Module $NAVModelToolsPath -ErrorVariable errorVariableTool -ErrorAction Stop -Verbose
     
             if (!$errorVariableTool)
             {
