@@ -21,8 +21,8 @@ if(-Not(Get-Module -ListAvailable -Name "Pester"))
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-$versions = "NAV2016"#, "NAV2017", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013"
-$languages = "BE"#, "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
+$versions = "NAV2018"#, "NAV2017", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013"
+$languages = "AT"#, "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
 $Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
 $DatabaseServer = "localhost"
 $DatabaseInstance = "NAVDEMO"

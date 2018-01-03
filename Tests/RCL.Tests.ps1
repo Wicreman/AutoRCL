@@ -266,7 +266,12 @@ InModuleScope -ModuleName $NAVRclApi {
     Describe "Import and export process of FOB file " -Tag "UnitTestCase" {
         Context "Verify Fob file can be imported or exported successfully" {
             $shortVersion = $ShortVersionMap.$Version
+            # Get NAV Server instance from short version
+            $NAVServerInstance = "DynamicsNAV$ShortVersion"
+
             Import-NAVIdeModule -ShortVersion $shortVersion
+            Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
+
             Push-Location $demoDataPath
             $fobPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
             Pop-Location
@@ -279,9 +284,12 @@ InModuleScope -ModuleName $NAVRclApi {
                     Path = $fobPackge.FullName
                     SQLServerInstance = $SQLServerInstance
                     DatabaseName = $RTMDatabaseName
+                    NavServerInstance = $NAVServerInstance
                     FileType = "Fob"
                 }
                 Import-FobOrTxtFile @importFobParam 
+
+                Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
     
                 $importFobLog = Join-Path $LogPath "ImportFobOrTxt\Fob\navcommandresult.txt"
                 $importFobLog | Should -FileContentMatch $ExpectedCommandLog
@@ -320,6 +328,9 @@ InModuleScope -ModuleName $NAVRclApi {
             $shortVersion = $ShortVersionMap.$Version
 
             Import-NAVIdeModule -ShortVersion $shortVersion
+            Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
+
+
             Push-Location $demoDataPath
             $txtPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
             Pop-Location
@@ -329,6 +340,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 $importTxtParam = @{
                     Path = $txtPackge.FullName
                     SQLServerInstance = $SQLServerInstance
+                    NavServerInstance = "DynamicsNAV$shortVersion"
                     DatabaseName = $RTMDatabaseName
                     FileType = "Txt"
                 }
@@ -355,6 +367,7 @@ InModuleScope -ModuleName $NAVRclApi {
             $shortVersion = $ShortVersionMap.$Version
 
             Import-NAVIdeModule -ShortVersion $shortVersion
+            Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
         }
         It "Test all $LanguageTranslationMap.$language captions are all present" {
             if($language -ne "W1")
@@ -376,7 +389,6 @@ InModuleScope -ModuleName $NAVRclApi {
                 catch {
                     Write-Log "One or more translations are missing for the $LanguageTranslationMap.$language language." -ForegroundColor Yellow
                     Write-Exception $_.Exception
-                    $PSCmdlet.ThrowTerminatingError($PSItem)
                 }
             }           
         }
