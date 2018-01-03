@@ -45,8 +45,8 @@ function Import-NAVIdeModule{
             }
     
             $ModulePath = [System.Environment]::ExpandEnvironmentVariables($ModulePath)
-            $IdePath = Join-Path $ModulePath "Microsoft.Dynamics.Nav.Ide.psm1" -ErrorAction SilentlyContinue
-            $FinSQLFile = Join-Path $ModulePath "finsql.exe" -ErrorAction SilentlyContinue
+            $IdePath = Join-Path $ModulePath "Microsoft.Dynamics.Nav.Ide.psm1" -ErrorAction Stop
+            $FinSQLFile = Join-Path $ModulePath "finsql.exe" -ErrorAction Stop
     
             Import-Module $IdePath -Global -Arg $FinSQLFile -ErrorVariable errorVariable -ErrorAction Stop
     
@@ -54,7 +54,18 @@ function Import-NAVIdeModule{
             {
                 Write-Verbose "The module was successfully imported from $ModulePath -Arg $FinSQLFile."
             }
+
+            $NAVModelToolsPath = Join-Path $ModulePath "Microsoft.Dynamics.Nav.Model.Tools.psd1" -ErrorAction Stop
+
+            Import-Module $NAVModelToolsPath -ErrorVariable errorVariableTool -ErrorAction Stop
+    
+            if (!$errorVariableTool)
+            {
+                Write-Verbose "The module was successfully imported from $ModulePath -Arg $NAVModelToolsPath."
+            }
         }
+
+
 
         
     }

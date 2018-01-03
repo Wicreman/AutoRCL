@@ -363,33 +363,34 @@ InModuleScope -ModuleName $NAVRclApi {
     }
 
     Describe "Validate objects translation" -Tag "UnitTestCase" {
-        BeforeEach {
-            $shortVersion = $ShortVersionMap.$Version
-
-            Import-NAVIdeModule -ShortVersion $shortVersion
-            Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
-        }
-        It "Test all $LanguageTranslationMap.$language captions are all present" {
+        $languageNames = $LanguageTranslationMap.$language
+        $shortVersion = $ShortVersionMap.$Version
+        Import-NAVIdeModule -ShortVersion $shortVersion -Verbose
+        #Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
+        
+        It "Test all $languageNames captions are all present" {
             if($language -ne "W1")
             {
                 Push-Location $demoDataPath
                 $txtPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
                 Pop-Location
     
-                try {
-                    $languageIds = $LanguageTranslationMap.$language
+                $languageIds = $LanguageTranslationMap.$language
 
-                    $translationParam = @{
-                        Source = $txtPackge.FullName
-                        LanguageId = $languageIds
+                $translationParam = @{
+                    Source = $txtPackge.FullName
+                    LanguageId = $languageIds
+                }
+                $translationResult = Test-NAVApplicationObjectLanguage @translationParam  -PassThru -ErrorAction Stop
+                if($translationResult)
+                {
+                    foreach($result in $translationResult)
+                    {
+                        $message = "Caption in $languageNames are missing ----- ObjectType:"+ $result.ObjectType + "  Id:" + $result.Id + " LCID:" + $result.LCID 
+                        Write-Log $message -ForegroundColor "Red"
                     }
-                    $translationResult = Test-NAVApplicationObjectLanguage @translationParam  -PassThru -ErrorAction Stop
-                    $translationResult | Should -BeNullOrEmpty
                 }
-                catch {
-                    Write-Log "One or more translations are missing for the $LanguageTranslationMap.$language language." -ForegroundColor Yellow
-                    Write-Exception $_.Exception
-                }
+                $translationResult | Should -BeNullOrEmpty
             }           
         }
     }
