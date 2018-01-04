@@ -139,8 +139,8 @@ InModuleScope -ModuleName $NAVRclApi {
             if(Test-Path $NAVWorkingDir)
             {
                 Write-Log "$NAVWorkingDir exists. Deleting..."
-                Get-ChildItem $NAVWorkingDir -Recurse | Remove-Item -Force 
-                Remove-Item $NAVWorkingDir -Force -Recurse
+                Get-ChildItem $NAVWorkingDir -Recurse | Remove-Item -Force -ErrorAction SilentlyContinue -Confirm:$false
+                Remove-Item $NAVWorkingDir -Force -Recurse -ErrorAction SilentlyContinue -Confirm:$false
             }
 
             $NAVWorkingDir | Should -Not -Exist
@@ -149,8 +149,8 @@ InModuleScope -ModuleName $NAVRclApi {
             if(Test-Path $NAVInstalledDir)
             {
                 Write-Log "$NAVInstalledDir exists. Deleting..."
-                Get-ChildItem $NAVInstalledDir -Recurse | Remove-Item -Force 
-                Remove-Item $NAVInstalledDir -Force -Recurse
+                Get-ChildItem $NAVInstalledDir -Recurse | Remove-Item -Force -ErrorAction SilentlyContinue -Confirm:$false
+                Remove-Item $NAVInstalledDir -Force -Recurse -ErrorAction SilentlyContinue -Confirm:$false
             }
 
             $NAVInstalledDir | Should -Not -Exist

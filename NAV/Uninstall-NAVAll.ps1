@@ -73,10 +73,6 @@ function Uninstall-NAVAll {
                 $componentName = $component.Name
                 $IdentifyingNumber = $component.IdentifyingNumber
                 $LogFile = Join-Path $LogPath "UninstAllNAV.log"
-                if ((Test-Path -PathType Leaf $LogFile ) -eq $false)
-                {
-                    $null = New-Item -ItemType File -Path $LogPath -Force
-                }
 
                 Write-Log "Uninstalling NAV Component: $componentName : $IdentifyingNumber"
                 $ExitCode = (Start-Process -FilePath "msiexec.exe" -ArgumentList "/X $IdentifyingNumber REBOOT=ReallySuppress /qb-! /l*v $LogFile" -Wait -Passthru).ExitCode

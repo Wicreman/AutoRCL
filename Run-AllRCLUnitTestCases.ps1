@@ -76,7 +76,7 @@ foreach($version in $versions)
                 Version = $version
                 Language= $language
             }
-            Send-UnitTestResult @reportParm
+           Send-UnitTestResult @reportParm
         }
 
     }
