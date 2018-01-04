@@ -130,8 +130,8 @@ InModuleScope -ModuleName $NAVRclApi {
             if(Test-Path $uninstallLog)
             {
                 # Then: Uninstall Successfully
-                $expectedInformation = "Removal completed successfully"
-                $uninstallLog | Should -FileContentMatch $expectedInformation
+                $expectedInformation = "Removal failed"
+                $uninstallLog | Should -Not -FileContentMatch $expectedInformation
             }
 
             #Remove all NAV related directory

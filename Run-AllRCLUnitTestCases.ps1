@@ -52,32 +52,40 @@ foreach($version in $versions)
         }
 
         Write-Log  "Starting to clean NAV test environment"
-        Invoke-Pester -Script $scriptParam -Tag $Tags.Clean
+        $cleanUTs = Invoke-Pester -Script -PassThru $scriptParam -Tag $Tags.Clean
         Write-Log  "Successfully clean NAV test environment"
 
-        Write-Log  "Starting Install and configure Dynamics$Version"
-        $failedUTs =  Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup
+        if(cleanUTs.FailedCount -eq 0)
+        {
+            Write-Log  "Starting Install and configure Dynamics$Version"
+            $failedUTs =  Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup
 
-        if($failedUTs.FailedCount -gt 0){
-            Write-Error "Fail to setup NAV for Dynamics$version with $language " -ErrorAction Stop
-        }
-        else {
-            Write-Log  "Successfully Install and configure Dynamics$Version"
-            Write-Log  "Starting to run case for Dynamics$version with $language"
-            $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
-        
-            Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -OutputFile $reportFile -OutputFormat NUnitXml
-
-            Write-Log  "Completed to run case for Dynamics$version with $language "
-
-            #Send email
-            $reportParm = @{
-                ReportPath = $reportFile
-                Version = $version
-                Language= $language
+            if($failedUTs.FailedCount -gt 0){
+                Write-Error "Fail to setup NAV for Dynamics$version with $language " -ErrorAction Stop
             }
-           Send-UnitTestResult @reportParm
+            else {
+                Write-Log  "Successfully Install and configure Dynamics$Version"
+                Write-Log  "Starting to run case for Dynamics$version with $language"
+                $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
+            
+                Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -OutputFile $reportFile -OutputFormat NUnitXml
+
+                Write-Log "Completed to run case for Dynamics$version with $language "
+
+                #Send email
+                $reportParm = @{
+                    ReportPath = $reportFile
+                    Version = $version
+                    Language= $language
+                }
+                Send-UnitTestResult @reportParm
+            }
         }
+        else
+        {
+            Write-Log "Clean NAV test environment for Dynamics$version with $language"
+        }
+        
 
     }
 }

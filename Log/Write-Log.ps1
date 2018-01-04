@@ -15,13 +15,29 @@ Function Write-Log
 
         [Parameter(Mandatory = $false)]
         [String]
-        $ForegroundColor = "DarkYellow"
+        $ForegroundColor = "DarkYellow",
+
+        [Parameter(Mandatory = $false)]
+        [String]
+        $DeployLogPath = "Join-Path $env:HOMEDRIVE "Deploy")"
     )
     
     Process
     {
-        $MessageWithDate = "{0}: {1}" -f (Get-Date -format "yyyy-MM-dd HH:mm:ss"), $Message
-        Write-Host $MessageWithDate -ForegroundColor $ForegroundColor
+        $Stamp = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
+        $MessageWithDate = "{0}: {1}" -f $Stamp, $Message
+        if (-Not(Test-Path $DeployLogPath)) {
+            $null = New-Item -ItemType Directory $DeployLogPath -Force
+        }
+        $DeployLog = Join-Path $DeployLogPath "DeployLog.log"
+        if (-Not(Test-Path $DeployLog))
+        {
+            $Null = New-Item -ItemType File -Path $DeployLog -Force
+        }
+        
+        Add-Content $DeployLog -Force -Encoding UTF8
+        
+        #Write-Host $MessageWithDate -ForegroundColor $ForegroundColor
     }
 }
 
