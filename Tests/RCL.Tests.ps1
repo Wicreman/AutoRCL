@@ -131,7 +131,7 @@ InModuleScope -ModuleName $NAVRclApi {
             {
                 # Then: Uninstall Successfully
                 $expectedInformation = "Removal failed"
-                $uninstallLog | Should -Not -FileContentMatch $expectedInformation
+                #$uninstallLog | Should -Not -FileContentMatch $expectedInformation
             }
 
             #Remove all NAV related directory
@@ -260,6 +260,8 @@ InModuleScope -ModuleName $NAVRclApi {
                 Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
                 # TODO: Check sync db log
             }
+            Write-Log "Setp 11: Update region format"  
+            Update-RegionalFormat $Language
         }
     }
 
@@ -274,10 +276,6 @@ InModuleScope -ModuleName $NAVRclApi {
 
             $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
             
-            BeforeEach {
-
-            }
-
             It "Import fob file into Dynamcis$Version with $Language"  -Skip {
                 
                 $importFobParam = @{
