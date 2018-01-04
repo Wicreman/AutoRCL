@@ -19,12 +19,13 @@ Function Write-Log
 
         [Parameter(Mandatory = $false)]
         [String]
-        $DeployLogPath = "Join-Path $env:HOMEDRIVE "Deploy")"
+        $DeployLogPath = (Join-Path $env:HOMEDRIVE "Deploy")
     )
     
     Process
     {
         $Stamp = (Get-Date).toString("yyyy/MM/dd HH:mm:ss")
+
         $MessageWithDate = "{0}: {1}" -f $Stamp, $Message
         if (-Not(Test-Path $DeployLogPath)) {
             $null = New-Item -ItemType Directory $DeployLogPath -Force
@@ -35,7 +36,7 @@ Function Write-Log
             $Null = New-Item -ItemType File -Path $DeployLog -Force
         }
         
-        Add-Content $DeployLog -Force -Encoding UTF8
+        Add-Content -Path $DeployLog -Value $MessageWithDate -Force -Encoding UTF8
         
         #Write-Host $MessageWithDate -ForegroundColor $ForegroundColor
     }
