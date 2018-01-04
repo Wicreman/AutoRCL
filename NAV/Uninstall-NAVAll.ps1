@@ -63,30 +63,53 @@ function Uninstall-NAVAll {
         {
             $null = New-Item -ItemType Directory -Path $LogPath -Force
         }
-        Write-Log "Looking for all NAV Component..."
-        $allInstalledComponents = Get-WmiObject win32_product -Filter "Name Like '%NAV%'"
-        Write-Log "How many components are found: $allInstalledComponents."
-        if($allInstalledComponents -ne $null)
+        $nvaWorkingPath = "C:\NAVWorking"
+        if(Test-Path $nvaWorkingPath)
         {
-            foreach($component in $allInstalledComponents)
+            $LogFile = Join-Path $LogPath "UninstAllNAV.log"
+            Write-Log "Starting to uninstall all NAV componets by using setup.exe..."
+            Write-Log "Looking for Seup.exe file"
+            $dvdpath = Get-ChildItem C:\NAVWorking -recurse | Where-Object {$_.PSIsContainer -eq $true -and $_.Name -match "DVD"}
+            if($dvdpath)
             {
-                $componentName = $component.Name
-                $IdentifyingNumber = $component.IdentifyingNumber
-                $LogFile = Join-Path $LogPath "UninstAllNAV.log"
+                $navSetupExe = Join-Path $dvdpath.FullName "setup.exe"
+                if(Test-Path $navSetupExe)
+                {
+                    Write-Log "Found Seup.exe file under $navSetupExe"
+                    [string]$argumentList = "-uninstall -quiet -log `"$logFile`""
 
-                Write-Log "Uninstalling NAV Component: $componentName : $IdentifyingNumber"
-                $ExitCode = (Start-Process -FilePath "msiexec.exe" -ArgumentList "/X $IdentifyingNumber REBOOT=ReallySuppress /qb-! /l*v $LogFile" -Wait -Passthru).ExitCode
-                if($ExitCode -eq 0)
-                {
-                    Write-Log "Finsihed Uninstalling NAV Component: $componentName : $IdentifyingNumber"
+                    Write-Log "Running Setup.exe to install NAV.."
+                    Invoke-ProcessWithProgress -FilePath $navSetupExe -ArgumentList $argumentList -TimeOutSeconds 6000
                 }
-                else
+            }
+            else
+            {
+                Write-Log "Looking for all NAV Component..."
+                $allInstalledComponents = Get-WmiObject win32_product -Filter "Name Like '%NAV%'"
+                Write-Log "How many components are found: $allInstalledComponents."
+                if($allInstalledComponents -ne $null)
                 {
-                    Write-Log "Fail to Uninstalling NAV Component: $componentName : $IdentifyingNumber with exit code: $ExitCode"
+                    foreach($component in $allInstalledComponents)
+                    {
+                        $componentName = $component.Name
+                        $IdentifyingNumber = $component.IdentifyingNumber
+                        $LogFile = Join-Path $LogPath "UninstAllNAV.log"
+        
+                        Write-Log "Uninstalling NAV Component: $componentName : $IdentifyingNumber"
+                        $ExitCode = (Start-Process -FilePath "msiexec.exe" -ArgumentList "/X $IdentifyingNumber REBOOT=ReallySuppress /qb-! /l*v $LogFile" -Wait -Passthru).ExitCode
+                        if($ExitCode -eq 0)
+                        {
+                            Write-Log "Finsihed Uninstalling NAV Component: $componentName : $IdentifyingNumber"
+                        }
+                        else
+                        {
+                            Write-Log "Fail to Uninstalling NAV Component: $componentName : $IdentifyingNumber with exit code: $ExitCode"
+                        }
+                    } 
                 }
-            } 
+            }
         }
-
+       
         # Uninstall NAV Database.
         Write-Log "Looking for all NAV Database ..."
         $queryStr = "select name from sys.databases where name like $CustomQueryFilter"
