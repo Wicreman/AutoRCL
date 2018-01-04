@@ -55,7 +55,7 @@ foreach($version in $versions)
         $cleanUTs = Invoke-Pester -Script $scriptParam -Tag $Tags.Clean -PassThru 
         Write-Log  "Successfully clean NAV test environment"
 
-        if(cleanUTs.FailedCount -eq 0)
+        if($cleanUTs.FailedCount -eq 0)
         {
             Write-Log  "Starting Install and configure Dynamics$Version"
             $failedUTs =  Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup
