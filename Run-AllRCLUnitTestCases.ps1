@@ -52,7 +52,7 @@ foreach($version in $versions)
         }
 
         Write-Log  "Starting to clean NAV test environment"
-        $cleanUTs = Invoke-Pester -Script -PassThru $scriptParam -Tag $Tags.Clean
+        $cleanUTs = Invoke-Pester -Script $scriptParam -Tag $Tags.Clean -PassThru 
         Write-Log  "Successfully clean NAV test environment"
 
         if(cleanUTs.FailedCount -eq 0)
