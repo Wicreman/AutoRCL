@@ -21,76 +21,75 @@ if(-Not(Get-Module -ListAvailable -Name "Pester"))
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-$versions = "NAV2017", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013", "NAV2018"
-$languages = "AT", "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
+$version = "NAV2017"#, "NAV2016", "NAV2015", "NAV2013R2", "NAV2013", "NAV2018"
+$language = "AT"#, "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
 $Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
 $DatabaseServer = "localhost"
 $DatabaseInstance = "NAVDEMO"
 $RTMDatabaseName = "NAVRTMDB"
 $NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
+
+# debug parameter
+$debugClean = $false
+$debugSetup = $false
+$debugFob = $true
+$debugTxt = $false
+$debugTranslation = $false
+$debugAll = $false
+
+
 # Call invoke-pester to run all Unit Test cases
 Set-Location $PSScriptRoot
 $setupTestsPath = Join-Path $PSScriptRoot "Tests\RCL.Tests.ps1"
 
-Write-Log "Start to batch run all unit test cases"
-foreach($version in $versions)
-{
-    foreach($language in $languages)
-    {
-        #run setup test cases
-        Write-Log "Run NAV Setup test cases"
-        $scriptParam = @{ 
-            Path = $setupTestsPath
-            Parameters = @{
-                Version = $version 
-                Language= $language
-                DatabaseServer = $DatabaseServer
-                DatabaseInstance = $DatabaseInstance
-                RTMDatabaseName = $RTMDatabaseName
-                NAVServerServiceAccount = $NAVServerServiceAccount
-            } 
-        }
-
-        Write-Log  "Starting to clean NAV test environment"
-        $cleanUTs = Invoke-Pester -Script $scriptParam -Tag $Tags.Clean -PassThru 
-        Write-Log  "Successfully clean NAV test environment"
-
-        if($cleanUTs.FailedCount -eq 0)
-        {
-            Write-Log  "Starting Install and configure Dynamics$Version"
-            $reportFileSetup = Join-Path $reportPath "RCLReport-$Version-$language-Setup.xml"
-            $failedUTs =  Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup -OutputFile $reportFileSetup -OutputFormat NUnitXml
-
-            if($failedUTs.FailedCount -gt 0){
-                Write-Error "Fail to setup NAV for Dynamics$version with $language " -ErrorAction Stop
-            }
-            else {
-                Write-Log  "Successfully Install and configure Dynamics$Version"
-                Write-Log  "Starting to run case for Dynamics$version with $language"
-                $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
-            
-                Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -OutputFile $reportFile -OutputFormat NUnitXml
-
-                Write-Log "Completed to run case for Dynamics$version with $language "
-
-                #Send email
-                $reportParm = @{
-                    ReportPath = $reportFile
-                    Version = $version
-                    Language= $language
-                }
-                Send-UnitTestResult @reportParm
-            }
-        }
-        else
-        {
-            Write-Log "Clean NAV test environment for Dynamics$version with $language"
-        }
-        
-
-    }
+Write-Log "Debug UTC"
+#run setup test cases
+$scriptParam = @{ 
+    Path = $setupTestsPath
+    Parameters = @{
+        Version = $version 
+        Language= $language
+        DatabaseServer = $DatabaseServer
+        DatabaseInstance = $DatabaseInstance
+        RTMDatabaseName = $RTMDatabaseName
+        NAVServerServiceAccount = $NAVServerServiceAccount
+    } 
 }
-Write-Log "Completed to batch run all unit test cases"
+
+# update the region format
+Update-RegionalFormat $language
+# Starting to clean NAV test environment
+if ($debugClean) {
+    Invoke-Pester -Script $scriptParam -Tag $Tags.Clean -PassThru
+}
+
+# Starting Install and configure
+if ($debugSetup) {
+    $reportFileSetup = Join-Path $reportPath "RCLReport-$Version-$language-Setup.xml"
+    Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup -OutputFile $reportFileSetup -OutputFormat NUnitXml
+}
+
+$reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
+
+# UTC: Import and export process of FOB file
+if ($debugFob) {
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Import and export process of FOB file" -OutputFile $reportFile -OutputFormat NUnitXml
+}
+
+#Import process of TXT file
+if ($debugTxt) {
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Import process of TXT file" -OutputFile $reportFile -OutputFormat NUnitXml
+}
+
+# Validate objects translation
+if ($debugTranslation) {
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Validate objects translation" -OutputFile $reportFile -OutputFormat NUnitXml
+}
+
+# All
+if ($debugAll) {
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -OutputFile $reportFile -OutputFormat NUnitXml
+}
 
 # Generate HTML report by using tool ReportUnit
 $reportUnitPath = Join-Path $PSScriptRoot "External"

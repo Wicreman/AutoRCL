@@ -38,7 +38,7 @@ Function Write-Log
         
         Add-Content -Path $DeployLog -Value $MessageWithDate -Force -Encoding UTF8
         
-        #Write-Host $MessageWithDate -ForegroundColor $ForegroundColor
+        Write-Host $MessageWithDate -ForegroundColor $ForegroundColor
     }
 }
 
