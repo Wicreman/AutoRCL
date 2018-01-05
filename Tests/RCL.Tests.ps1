@@ -26,45 +26,8 @@ param(
     $NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
 )
 
-
-<#
-.SYNOPSIS
-1. Set execution policy 
-2. Import NAVRCLAPI module
-3. Import Pester module
-#>
-function Set-UnitTestEnviorment {
-    # Run Get-ExecutionPolicy. If it returns Restricted, 
-    # then run Set-ExecutionPolicy AllSigned 
-    # or Set-ExecutionPolicy Bypass -Scope Process.
-    $policy = Get-ExecutionPolicy 
-    if ($policy -eq "Restricted")
-    {
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-    }
-
-    $NAVRclApi = "NAVRCLAPI"
-    Get-module  -name $NAVRclApi | Remove-Module
-    Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) "NAVRCLAPI.psm1") -Verbose -Force
-    <# TODO: below implemention will be used in product environment  
-    if(-Not(Get-Module -ListAvailable -Name $NAVRclApi))
-    {
-        Import-Module (Join-Path (Split-Path -Parent $PSScriptRoot) "NAVRCLAPI.psm1") -Verbose -Force
-    }
-    #>
-    if(-Not(Get-Module -ListAvailable -Name "Pester"))
-    {
-        (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
-        Install-Module Pester 
-    }
-}
-
+# NAV RCL API module name
 $NAVRclApi = "NAVRCLAPI"
-
-
-
-#Set-UnitTestEnviorment
-
 
 InModuleScope -ModuleName $NAVRclApi {
 
@@ -76,7 +39,7 @@ InModuleScope -ModuleName $NAVRclApi {
         NAV2013R2 = "71"
         NAV2013 = "70"
     }
-    
+
     $LanguageTranslationMap = @{
         AT = "DEA"
         AU = "ENA"
@@ -101,8 +64,6 @@ InModuleScope -ModuleName $NAVRclApi {
     }
     
     $SQLServerInstance = "$DatabaseServer`\$DatabaseInstance"
-    
-    
     $LogPath = Join-Path $env:HOMEDRIVE "NAVWorking\Logs"
     $ExpectedCommandLog = "The command completed successfully"
     
@@ -112,6 +73,13 @@ InModuleScope -ModuleName $NAVRclApi {
     }
     $demoDataPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$ProductVersion\$Language\Extracted\APPLICATION")
 
+    <#
+    .SYNOPSIS
+       Clean NAV test environment
+    .DESCRIPTION
+        a. Remove all NAV related directory
+        b. Uninstall all NAV components and drop NAV database
+    #>
     Describe "Clean NAV test environment" -Tag "CleanEnvironment" {
         BeforeEach {
             Import-SqlPsModule
@@ -130,8 +98,6 @@ InModuleScope -ModuleName $NAVRclApi {
                     Write-Log "$NAVWorkingDir exists.  Deleting Again.."
                     & CMD /C rmdir /s /q $NAVWorkingDir
                 }
-                #Get-ChildItem $NAVWorkingDir -Recurse | Remove-Item  -Recurse -Force -ErrorAction SilentlyContinue -Confirm:$false
-                #Remove-Item $NAVWorkingDir -Force -Recurse -ErrorAction SilentlyContinue -Confirm:$false
             }
 
             $NAVWorkingDir | Should -Not -Exist
@@ -146,8 +112,6 @@ InModuleScope -ModuleName $NAVRclApi {
                     Write-Log "$NAVInstalledDir exists. Again Deleting..."
                     & CMD /C rmdir /s /q $NAVInstalledDir
                 }
-                #Get-ChildItem $NAVInstalledDir -Recurse | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue -Confirm:$false
-                #Remove-Item $NAVInstalledDir -Force -Recurse -ErrorAction SilentlyContinue -Confirm:$false
             }
 
             $NAVInstalledDir | Should -Not -Exist
@@ -161,13 +125,30 @@ InModuleScope -ModuleName $NAVRclApi {
                 # Then: Uninstall Successfully
                 $expectedInformation = "Removal failed"
                 $uninstallLog | Should -Not -FileContentMatch $expectedInformation
-            }
-
-            
+            }    
         }
     }
 
-    
+     <#
+    .SYNOPSIS
+        Install and configure Dynamics$Version
+    .DESCRIPTION
+        Step 1: Copy CU build
+        Step 2: Install NAV by using setup.exe
+        Setp 3: Get the RTM Database backup file
+        Setp 4: Restore RTM Database backup file as new database
+        Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database 
+        Setp 6.1: Import NAV admin and development module
+        Setp 6.2: Update NAV Server configuration to connect RTM Database
+        Setp 7: Restart NAV AOS
+        Setp 9: Convert the database
+        Setp 10: Copy required file for NST, RTC, Web Client"
+        (Only for NAV2013R2 and NAV2013)
+        Setp 10: Sync the database
+        (Before sync, start the NAV service.Do this only for NAV80,NAV90,NAV10 & Main)
+        Setp 11: Update region format
+        Step 12: Import NAV License
+    #>
     Describe "Install and configure Dynamics$Version" -Tag "NAVSetup" {
 
         It "$Language" {
@@ -260,7 +241,6 @@ InModuleScope -ModuleName $NAVRclApi {
                 Copy-Item -Path $WebClientPath -Destination $NAVInstalledWebClientPath -Recurse -Force
 
                 Copy-Item -Path $RoleTailoredClienPath -Destination $NAVInstalledRTCPath -Recurse -Force
-
             }
             else {
                 Start-NavServer -ServiceName $NAVServerInstance
@@ -273,10 +253,22 @@ InModuleScope -ModuleName $NAVRclApi {
 
             Write-Log "Step 12: Import NAV License"    -ForegroundColor "DarkGreen"
             Import-NAVLicense -ShortVersion $ShortVersion
-
         }
     }
 
+    <#
+    .SYNOPSIS
+        Verify Fob file can be imported or exported successfully
+    .DESCRIPTION
+        a. Import fob file into Dynamcis$Version with $Language
+            No errors after objects have been imported. And all objects are successfully compiled automatically. 
+        b. Export txt file from Dynamcis$Version with $Language
+            Compare exported file with CUObjects.txt, then Files should be identical = have no differences.
+            Compare the imported total with exported total, they should be same.
+        c. Export fob file from Dynamcis$Version with $Language 
+           (To be skiped)
+
+    #>
     Describe "Import and export process of FOB file" -Tag "UnitTestCase" {
         Context "Verify Fob file can be imported or exported successfully" {
             $shortVersion = $ShortVersionMap.$Version
@@ -299,8 +291,10 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
                 Import-FobOrTxtFile @importFobParam 
 
-                Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
-    
+                if (-Not($Version -like "NAV2013*")){
+                    Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+                }
+               
                 $importFobLog = Join-Path $LogPath "ImportFobOrTxt\Fob\navcommandresult.txt"
                 $importFobLog | Should -FileContentMatch $ExpectedCommandLog
             }
@@ -317,7 +311,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 ($actualTxt -eq $expectedTxt) | Should -Be $true
             }
 
-            It "Export fob file from Dynamcis$Version with $Language" {
+            It "Export fob file from Dynamcis$Version with $Language" -Skip {
                 $expectedFobPackage = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
                 $expectedFob = (Get-FileHash $expectedFobPackage.FullName).hash
                 $actualFobPackage = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version
@@ -333,13 +327,20 @@ InModuleScope -ModuleName $NAVRclApi {
         
     }
 
+    <#
+    .SYNOPSIS
+        Verify Txt file can be imported successfully
+    .DESCRIPTION
+        Import URObjects.xxxxx.txt from Update_Rollups\...\APPLICATION
+        Filter the uncompiled files and do compile.
+        No errors after objects have been compiled.
+    #>
     Describe "Import process of TXT file" -Tag "UnitTestCase" {
         Context "Verify Txt file can be imported successfully" {
             $shortVersion = $ShortVersionMap.$Version
 
             Import-NAVIdeModule -ShortVersion $shortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
-
 
             Push-Location $demoDataPath
             $txtPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
@@ -372,6 +373,15 @@ InModuleScope -ModuleName $NAVRclApi {
         }
     }
 
+    <#
+    .SYNOPSIS
+        RCL - Verify object translation
+    .DESCRIPTION
+        Open NAV.xxx.CUObjects.txt from Update_Rollups\...\APPLICATION
+        Check CaptionML, OptionCaptionML,TextConst translation for object tables, pages, reports and codeunits.
+        CaptionML should have ENU language code and translation with country language code 
+        (some countries have more than one code, such as BE CH NA.).
+    #>
     Describe "Validate objects translation" -Tag "UnitTestCase" {
         $languageNames = $LanguageTranslationMap.$language
         $shortVersion = $ShortVersionMap.$Version

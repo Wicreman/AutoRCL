@@ -1,32 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="2" errors="0" failures="2" not-run="0" inconclusive="0" ignored="1" skipped="0" invalid="0" date="2018-01-05" time="070219">
+<test-results xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="nunit_schema_2.5.xsd" name="Pester" total="1" errors="0" failures="0" not-run="0" inconclusive="0" ignored="0" skipped="0" invalid="0" date="2018-01-05" time="083552">
   <environment user="v-zehzha" machine-name="NAVSE-RCL-1" cwd="C:\Work\NAVTool" user-domain="FAREAST" platform="Microsoft Windows Server 2012 R2 Datacenter|C:\windows|\Device\Harddisk0\Partition2" nunit-version="2.5.8.0" os-version="6.3.9600" clr-version="4.0.30319.42000" />
   <culture-info current-culture="da-DK" current-uiculture="en-US" />
-  <test-suite type="TestFixture" name="Pester" executed="True" result="Failure" success="False" time="361.1963" asserts="0" description="Pester">
+  <test-suite type="TestFixture" name="Pester" executed="True" result="Success" success="True" time="24.4272" asserts="0" description="Pester">
     <results>
-      <test-suite type="TestFixture" name="C:\Work\NAVTool\Tests\RCL.Tests.ps1" executed="True" result="Failure" success="False" time="361.1963" asserts="0" description="C:\Work\NAVTool\Tests\RCL.Tests.ps1">
+      <test-suite type="TestFixture" name="C:\Work\NAVTool\Tests\RCL.Tests.ps1" executed="True" result="Success" success="True" time="24.4272" asserts="0" description="C:\Work\NAVTool\Tests\RCL.Tests.ps1">
         <results>
-          <test-suite type="TestFixture" name="Import and export process of FOB file" executed="True" result="Failure" success="False" time="361.1963" asserts="0" description="Import and export process of FOB file">
+          <test-suite type="TestFixture" name="Validate objects translation" executed="True" result="Success" success="True" time="24.4272" asserts="0" description="Validate objects translation">
             <results>
-              <test-suite type="TestFixture" name="Verify Fob file can be imported or exported successfully" executed="True" result="Failure" success="False" time="361.1963" asserts="0" description="Verify Fob file can be imported or exported successfully">
-                <results>
-                  <test-case description="Import fob file into DynamcisNAV2017 with AT" name="Import and export process of FOB file.Verify Fob file can be imported or exported successfully.Import fob file into DynamcisNAV2017 with AT" time="0.4363" asserts="0" success="True" result="Ignored" executed="False" />
-                  <test-case description="Export txt file from DynamcisNAV2017 with AT" name="Import and export process of FOB file.Verify Fob file can be imported or exported successfully.Export txt file from DynamcisNAV2017 with AT" time="289.2413" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected {True}, but got {False}.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Work\NAVTool\Tests\RCL.Tests.ps1: line 319
-319:                 ($actualTxt -eq $expectedTxt) | Should -Be $true</stack-trace>
-                    </failure>
-                  </test-case>
-                  <test-case description="Export fob file from DynamcisNAV2017 with AT" name="Import and export process of FOB file.Verify Fob file can be imported or exported successfully.Export fob file from DynamcisNAV2017 with AT" time="71.5187" asserts="0" success="False" result="Failure" executed="True">
-                    <failure>
-                      <message>Expected {True}, but got {False}.</message>
-                      <stack-trace>at &lt;ScriptBlock&gt;, C:\Work\NAVTool\Tests\RCL.Tests.ps1: line 332
-332:                 ($actualFob -eq $expectedFob) | Should -Be $true</stack-trace>
-                    </failure>
-                  </test-case>
-                </results>
-              </test-suite>
+              <test-case description="Test all DEA captions are all present" name="Validate objects translation.Test all DEA captions are all present" time="24.4272" asserts="0" success="True" result="Success" executed="True" />
             </results>
           </test-suite>
         </results>

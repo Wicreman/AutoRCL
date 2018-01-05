@@ -32,9 +32,9 @@ $NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
 # debug parameter
 $debugClean = $false
 $debugSetup = $false
-$debugFob = $true
+$debugFob = $false
 $debugTxt = $false
-$debugTranslation = $false
+$debugTranslation = $true
 $debugAll = $false
 
 
