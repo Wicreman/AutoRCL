@@ -13,11 +13,17 @@ Get-module  -name "NAVRCLAPI" | Remove-Module
 Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Verbose -Force
 
 # Check if Pester is not installed, if no, we need to install it firstly
-$PesterVersion = Get-Module -ListAvailable -Name "Pester" | Where-Object { $_.Version.Major -lt 4 }
-if($PesterVersion)
+$PesterVersion = Get-Module -ListAvailable -Name "Pester" | Where-Object { $_.Version.Major -ge 4 }
+if (-Not($PesterVersion))
 {
-    (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
-    Install-Module Pester -Force -SkipPublisherCheck
+    if ([System.Environment]::OSVersion.Version.Major -ge 10)
+    {
+        Install-Module Pester -Force -SkipPublisherCheck
+    }
+    else {
+        (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
+        Install-Module Pester
+    }  
 }
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
