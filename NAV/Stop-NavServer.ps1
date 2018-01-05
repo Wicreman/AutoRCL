@@ -34,7 +34,7 @@ Function Stop-NAVServer
         
         [Parameter(Mandatory = $False)]
         [Timespan]
-        $WaitTimeout = (New-Object Timespan 0, 5, 0)
+        $WaitTimeout = (New-Object Timespan 0, 2, 0)
     )
     
     Process

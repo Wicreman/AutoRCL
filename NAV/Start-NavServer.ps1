@@ -36,7 +36,7 @@ function Start-NavServer {
 		
 		[Parameter(Mandatory = $false)]
         [Timespan]
-        $WaitTimeout = (New-Object Timespan 0, 5, 0),
+        $WaitTimeout = (New-Object Timespan 0, 3, 0),
 
         [Parameter(Mandatory = $false)]
         [String]
