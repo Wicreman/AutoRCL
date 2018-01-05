@@ -100,11 +100,8 @@ InModuleScope -ModuleName $NAVRclApi {
         W1 = "ENU"
     }
     
-    $SQLServerInstance = $DatabaseServer;
-    if (!$DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO"))
-    {       
-        $SQLServerInstance = "$DatabaseServer`\$DatabaseInstance"
-    }
+    $SQLServerInstance = "$DatabaseServer`\$DatabaseInstance"
+    
     
     $LogPath = Join-Path $env:HOMEDRIVE "NAVWorking\Logs"
     $ExpectedCommandLog = "The command completed successfully"
@@ -180,7 +177,7 @@ InModuleScope -ModuleName $NAVRclApi {
             # Get NAV Server instance from short version
             $NAVServerInstance = "DynamicsNAV$ShortVersion"
 
-            Write-Log "Step 1: Copy CU build" -ForegroundColor "DarkGreen"
+            Write-Log "Step 1: Copy CU build"  
             Write-Log "Dynamics NAV Version: $Version Language: $Language."
             $copyCUParam = @{
                 Version = $Version
@@ -188,7 +185,7 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             $LocalBuildPath = Copy-NAVCU @copyCUParam
 
-            Write-Log "Step 2: Install NAV by using setup.exe"  -ForegroundColor "DarkGreen"
+            Write-Log "Step 2: Install NAV by using setup.exe"   
             Write-Log "Running setup.exe to install $Version with $Language"
             Invoke-NavSetup -Path $LocalBuildPath -ShortVersion $ShortVersion
             
@@ -197,10 +194,10 @@ InModuleScope -ModuleName $NAVRclApi {
             $unexpectedSetupInfomation = "Error"
             $NavSetupLog | Should -Not -FileContentMatch $unexpectedSetupInfomation
 
-            Write-Log "Setp 3: Get the RTM Database backup file"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 3: Get the RTM Database backup file"   
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
 
-            Write-Log "Setp 4: Restore RTM Database backup file as new database"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 4: Restore RTM Database backup file as new database"   
             $RTMDatabaseName = "$RTMDatabaseName$ShortVersion"
             $rtmParam = @{
                 SQLServerInstance = $SQLServerInstance
@@ -210,7 +207,7 @@ InModuleScope -ModuleName $NAVRclApi {
             Stop-NAVServer -ServiceName $NAVServerInstance
             Restore-RTMDatabase @rtmParam
 
-            Write-Log "Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database "  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database "   
             $setServiceAccountParam = @{
                 NAVServerServiceAccount = $NAVServerServiceAccount
                 SqlServerInstance = $SQLServerInstance
@@ -218,11 +215,11 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             Set-NAVServerServiceAccount @setServiceAccountParam
 
-            Write-Log "Setp 6.1: Import NAV admin and development module"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 6.1: Import NAV admin and development module"   
             Import-NAVIdeModule -ShortVersion $ShortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
 
-            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database"   
             $serverConfigParam = @{
                 ServerInstance = $NAVServerInstance  
                 KeyValue = $RTMDatabaseName
@@ -230,26 +227,24 @@ InModuleScope -ModuleName $NAVRclApi {
 
             Set-NewNAVServerConfiguration  @serverConfigParam
 
-            Write-Log "Setp 7: Restart NAV AOS"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 7: Restart NAV AOS" 
+            Stop-NAVServer -ServiceName $NAVServerInstance  
             Start-NavServer -ServiceName $NAVServerInstance
-            Write-Log "Step 8: Import NAV License"   -ForegroundColor "DarkGreen"
-            Import-NAVLicense -ShortVersion $ShortVersion
-
-            Stop-NAVServer -ServiceName $NAVServerInstance
-            Write-Log "Setp 9: Convert the database"  -ForegroundColor "DarkGreen"
+            
+            Write-Log "Setp 9: Convert the database"  
             $convertDBParam = @{
                 DatabaseServer = $DatabaseServer
                 DatabaseInstance = $DatabaseInstance
                 DatabaseName = $RTMDatabaseName
             }
-            
+            Stop-NAVServer -ServiceName $NAVServerInstance
             Convert-NAVDatabase @convertDBParam
 
             $convertDBLog = Join-Path $LogPath "Database Conversion\navcommandresult.txt" 
             $convertDBLog | Should -FileContentMatch $ExpectedCommandLog
 
             if ($Version -like "NAV2013*") {
-                Write-Log "Setp 10: Copy required file for NST, RTC, Web Client"  -ForegroundColor "DarkGreen"
+                Write-Log "Setp 10: Copy required file for NST, RTC, Web Client"   
                 #Below steps are only for NAV2013 and NAV2013R2
                 $NSTPath =  (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\NST\*")
                 $WebClientPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\WEB CLIENT\*")
@@ -268,12 +263,16 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             else {
                 Start-NavServer -ServiceName $NAVServerInstance
-                Write-Log "Setp 10: Sync the database"  -ForegroundColor "DarkGreen"
+                Write-Log "Setp 10: Sync the database"   
                 Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
-                # TODO: Check sync db log
             }
+            
             Write-Log "Setp 11: Update region format"  
             Update-RegionalFormat $Language
+
+            Write-Log "Step 12: Import NAV License"    
+            Import-NAVLicense -ShortVersion $ShortVersion
+
         }
     }
 

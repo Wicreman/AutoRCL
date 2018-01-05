@@ -16,7 +16,7 @@
   <Parameter Id="TargetPath" Value="C:\Microsoft Dynamics NAV\" />
   <Parameter Id="TargetPathX64" Value="C:\Microsoft Dynamics NAV\" />
   <Parameter Id="NavServiceServerName" Value="localhost" />
-  <Parameter Id="NavServiceInstanceName" Value="DynamicsNAV110" />
+  <Parameter Id="NavServiceInstanceName" Value="DynamicsNAV100" />
   <Parameter Id="NavServiceAccount" Value="NT AUTHORITY\NETWORK SERVICE" />
   <Parameter Id="NavServiceAccountPassword" IsHidden="yes" Value="" />
   <Parameter Id="ManagementServiceServerPort" Value="7045" />
