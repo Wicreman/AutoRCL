@@ -86,7 +86,6 @@ function Uninstall-NAVAll {
             {
                 Write-Log "Looking for all NAV Component..."
                 $allInstalledComponents = Get-WmiObject win32_product -Filter "Name Like '%NAV%'"
-                Write-Log "How many components are found: $allInstalledComponents."
                 if($allInstalledComponents -ne $null)
                 {
                     foreach($component in $allInstalledComponents)
