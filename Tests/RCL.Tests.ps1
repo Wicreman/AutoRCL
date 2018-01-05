@@ -288,7 +288,7 @@ InModuleScope -ModuleName $NAVRclApi {
 
             $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
             
-            It "Import fob file into Dynamcis$Version with $Language"  -Skip {
+            It "Import fob file into Dynamcis$Version with $Language" {
                 
                 $importFobParam = @{
                     Path = $fobPackge.FullName
