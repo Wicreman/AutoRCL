@@ -87,6 +87,17 @@ InModuleScope -ModuleName $NAVRclApi {
 
         # Given: Dynamics$Version with $Language
         It "Prepare test environment for Dynamics$Version with $Language" { 
+            # When: Uninstall all NAV components and drop NAV database
+            Uninstall-NAVAll
+            $uninstallLogName = "UninstAllNAV.log"
+            $uninstallLog = Join-Path $LogPath $uninstallLogName
+            if(Test-Path $uninstallLog)
+            {
+                # Then: Uninstall Successfully
+                $expectedInformation = "Removal failed"
+                $uninstallLog | Should -Not -FileContentMatch $expectedInformation
+            }  
+
             #Remove all NAV related directory
             $NAVWorkingDir  = Join-Path $env:HOMEDRIVE "NAVWorking"
             if(Test-Path $NAVWorkingDir)
@@ -114,18 +125,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
             }
 
-            $NAVInstalledDir | Should -Not -Exist
-
-            # When: Uninstall all NAV components and drop NAV database
-            Uninstall-NAVAll
-            $uninstallLogName = "UninstAllNAV.log"
-            $uninstallLog = Join-Path $LogPath $uninstallLogName
-            if(Test-Path $uninstallLog)
-            {
-                # Then: Uninstall Successfully
-                $expectedInformation = "Removal failed"
-                $uninstallLog | Should -Not -FileContentMatch $expectedInformation
-            }    
+            $NAVInstalledDir | Should -Not -Exist              
         }
     }
 
