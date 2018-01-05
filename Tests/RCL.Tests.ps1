@@ -89,12 +89,13 @@ InModuleScope -ModuleName $NAVRclApi {
         It "Prepare test environment for Dynamics$Version with $Language" { 
             # When: Uninstall all NAV components and drop NAV database
             Uninstall-NAVAll
-            $uninstallLogName = "UninstAllNAV.log"
+            $uninstallLogName = "UninstallNAVBySetup.log"
             $uninstallLog = Join-Path $LogPath $uninstallLogName
             if(Test-Path $uninstallLog)
             {
                 # Then: Uninstall Successfully
                 $expectedInformation = "Removal failed"
+                Write-Log (Get-Content $uninstallLog) -ForegroundColor "Red"
                 #$uninstallLog | Should -Not -FileContentMatch $expectedInformation
             }  
 

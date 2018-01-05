@@ -66,12 +66,13 @@ function Uninstall-NAVAll {
         $nvaWorkingPath = "C:\NAVWorking"
         if(Test-Path $nvaWorkingPath)
         {
-            $LogFile = Join-Path $LogPath "UninstAllNAV.log"
+            
             Write-Log "Starting to uninstall all NAV componets by using setup.exe..."
             Write-Log "Looking for Seup.exe file"
-            $dvdpath = Get-ChildItem C:\NAVWorking -recurse | Where-Object {$_.PSIsContainer -eq $true -and $_.Name -match "DVD"}
+            $dvdpath = Get-ChildItem $nvaWorkingPath -recurse | Where-Object {$_.PSIsContainer -eq $true -and $_.Name -match "DVD"}
             if($dvdpath)
             {
+                $LogFile = Join-Path $LogPath "UninstallNAVBySetup.log"
                 $navSetupExe = Join-Path $dvdpath.FullName "setup.exe"
                 if(Test-Path $navSetupExe)
                 {
@@ -84,29 +85,11 @@ function Uninstall-NAVAll {
             }
             else
             {
-                Write-Log "Looking for all NAV Component..."
-                $allInstalledComponents = Get-WmiObject win32_product -Filter "Name Like '%NAV%'"
-                if($allInstalledComponents -ne $null)
-                {
-                    foreach($component in $allInstalledComponents)
-                    {
-                        $componentName = $component.Name
-                        $IdentifyingNumber = $component.IdentifyingNumber
-                        $LogFile = Join-Path $LogPath "UninstAllNAV.log"
-        
-                        Write-Log "Uninstalling NAV Component: $componentName : $IdentifyingNumber"
-                        $ExitCode = (Start-Process -FilePath "msiexec.exe" -ArgumentList "/X $IdentifyingNumber REBOOT=ReallySuppress /qb-! /l*v $LogFile" -Wait -Passthru).ExitCode
-                        if($ExitCode -eq 0)
-                        {
-                            Write-Log "Finsihed Uninstalling NAV Component: $componentName : $IdentifyingNumber"
-                        }
-                        else
-                        {
-                            Write-Log "Fail to Uninstalling NAV Component: $componentName : $IdentifyingNumber with exit code: $ExitCode"
-                        }
-                    } 
-                }
+                Uninstall-ByMSIExec
             }
+        }
+        else {
+            Uninstall-ByMSIExec
         }
        
         # Uninstall NAV Database.
@@ -138,6 +121,31 @@ function Uninstall-NAVAll {
             Write-Exception $_.Exception
         }
         
+    }
+}
+
+function Uninstall-ByMSIExec {
+    Write-Log "Looking for all NAV Component..."
+    $allInstalledComponents = Get-WmiObject win32_product -Filter "Name Like '%NAV%'"
+    if($allInstalledComponents -ne $null)
+    {
+        foreach($component in $allInstalledComponents)
+        {
+            $componentName = $component.Name
+            $IdentifyingNumber = $component.IdentifyingNumber
+            $LogFile = Join-Path $LogPath "UninstallNAVByMsi.log"
+
+            Write-Log "Uninstalling NAV Component: $componentName : $IdentifyingNumber"
+            $ExitCode = (Start-Process -FilePath "msiexec.exe" -ArgumentList "/X $IdentifyingNumber REBOOT=ReallySuppress /qb-! /l*v $LogFile" -Wait -Passthru).ExitCode
+            if($ExitCode -eq 0)
+            {
+                Write-Log "Finsihed Uninstalling NAV Component: $componentName : $IdentifyingNumber"
+            }
+            else
+            {
+                Write-Log "Fail to Uninstalling NAV Component: $componentName : $IdentifyingNumber with exit code: $ExitCode"
+            }
+        } 
     }
 }
 
