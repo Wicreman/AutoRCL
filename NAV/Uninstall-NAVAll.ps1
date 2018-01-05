@@ -140,7 +140,7 @@ function Uninstall-BySetup ([string]$LogPath) {
                 Write-Log "Found Seup.exe file under $navSetupExe"
                 [string]$argumentList = "-uninstall -quiet -log `"$logFile`""
 
-                Write-Log "Running Setup.exe to install NAV.."
+                Write-Log "Running Setup.exe to uninstall NAV.."
                 Invoke-ProcessWithProgress -FilePath $navSetupExe -ArgumentList $argumentList -TimeOutSeconds 6000
             }
         }
