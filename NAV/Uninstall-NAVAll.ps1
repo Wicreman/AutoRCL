@@ -63,35 +63,10 @@ function Uninstall-NAVAll {
         {
             $null = New-Item -ItemType Directory -Path $LogPath -Force
         }
-        $nvaWorkingPath = "C:\NAVWorking"
-        if(Test-Path $nvaWorkingPath)
-        {
-            
-            Write-Log "Starting to uninstall all NAV componets by using setup.exe..."
-            Write-Log "Looking for Seup.exe file"
-            $dvdpath = Get-ChildItem $nvaWorkingPath -recurse | Where-Object {$_.PSIsContainer -eq $true -and $_.Name -match "DVD"}
-            if($dvdpath)
-            {
-                $LogFile = Join-Path $LogPath "UninstallNAVBySetup.log"
-                $navSetupExe = Join-Path $dvdpath.FullName "setup.exe"
-                if(Test-Path $navSetupExe)
-                {
-                    Write-Log "Found Seup.exe file under $navSetupExe"
-                    [string]$argumentList = "-uninstall -quiet -log `"$logFile`""
-
-                    Write-Log "Running Setup.exe to install NAV.."
-                    Invoke-ProcessWithProgress -FilePath $navSetupExe -ArgumentList $argumentList -TimeOutSeconds 6000
-                }
-            }
-            else
-            {
-                Uninstall-ByMSIExec
-            }
-        }
-        else {
-            Uninstall-ByMSIExec
-        }
-       
+        
+        Uninstall-ByMSIExec $LogPath
+        Uninstall-BySetup $LogPath
+        
         # Uninstall NAV Database.
         Write-Log "Looking for all NAV Database ..."
         $queryStr = "select name from sys.databases where name like $CustomQueryFilter"
@@ -124,8 +99,8 @@ function Uninstall-NAVAll {
     }
 }
 
-function Uninstall-ByMSIExec {
-    Write-Log "Looking for all NAV Component..."
+function Uninstall-ByMSIExec ([string]$LogPath) {
+    Write-Log "Looking for al NAV Component..."
     $allInstalledComponents = Get-WmiObject win32_product -Filter "Name Like '%NAV%'"
     if($allInstalledComponents -ne $null)
     {
@@ -147,6 +122,30 @@ function Uninstall-ByMSIExec {
             }
         } 
     }
+}
+
+function Uninstall-BySetup ([string]$LogPath) {
+    $nvaWorkingPath = (Join-Path $env:HOMEDRIVE "NAVWorking")
+    if(Test-Path $nvaWorkingPath) {
+            
+        Write-Log "Starting to uninstall all NAV componets by using setup.exe..."
+        Write-Log "Looking for Seup.exe file"
+        $dvdpath = Get-ChildItem $nvaWorkingPath -recurse | Where-Object {$_.PSIsContainer -eq $true -and $_.Name -match "DVD"}
+        if($dvdpath)
+        {
+            $LogFile = Join-Path $LogPath "UninstallNAVBySetup.log"
+            $navSetupExe = Join-Path $dvdpath.FullName "setup.exe"
+            if(Test-Path $navSetupExe)
+            {
+                Write-Log "Found Seup.exe file under $navSetupExe"
+                [string]$argumentList = "-uninstall -quiet -log `"$logFile`""
+
+                Write-Log "Running Setup.exe to install NAV.."
+                Invoke-ProcessWithProgress -FilePath $navSetupExe -ArgumentList $argumentList -TimeOutSeconds 6000
+            }
+        }
+    }
+       
 }
 
 Export-ModuleMember -Function Uninstall-NAVAll

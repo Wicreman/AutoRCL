@@ -36,7 +36,7 @@ function Start-NavServer {
 		
 		[Parameter(Mandatory = $false)]
         [Timespan]
-        $WaitTimeout = (New-Object Timespan 0, 3, 0),
+        $WaitTimeout = (New-Object Timespan 0, 2, 0),
 
         [Parameter(Mandatory = $false)]
         [String]
@@ -76,7 +76,7 @@ function Start-NavServer {
                 
                 If ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::StopPending)
                 {
-                    Write-Log "Service '$Name': Status is pending stop. Waiting for up to 5 minutes..."
+                    Write-Log "Service '$Name': Status is pending stop. Waiting for up to 2 minutes..."
                     Try
                     {
                         $Service.WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Stopped, $WaitTimeout)
@@ -89,7 +89,7 @@ function Start-NavServer {
                 
                 If ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::PausePending)
                 {
-                    Write-Log "Service '$Name': Status is pending pause. Waiting for up to 5 minutes..."
+                    Write-Log "Service '$Name': Status is pending pause. Waiting for up to 2 minutes..."
                     Try
                     {
                         $Service.WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Paused, $WaitTimeout)
@@ -121,7 +121,7 @@ function Start-NavServer {
                 If (($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::StartPending) `
                 -Or ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::ContinuePending))
                 {
-                    Write-Log "Service '$Name': Status is pending start ($ServiceStatus). Waiting for up to 5 minutes..."
+                    Write-Log "Service '$Name': Status is pending start ($ServiceStatus). Waiting for up to 2 minutes..."
                     Try
                     {
                         $Service.WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Running, $WaitTimeout)
@@ -148,7 +148,7 @@ function Start-NavServer {
                     ProviderName = $NavServerInstanceNum 
                 }
 
-                Get-WinEvent -FilterHashtable $LogFilter | Select TimeCreated, Id, LevelDisplayName, Message | Export-Csv $NavServerEventLogFilePath -NoTypeInformation
+                Get-WinEvent -FilterHashtable @LogFilter | Select-Object TimeCreated, Id, LevelDisplayName, Message | Export-Csv $NavServerEventLogFilePath -NoTypeInformation
 
                 $Message = "Expected service '$Name' to be running but it is $ServiceStatus!"
                 Write-Log $Message

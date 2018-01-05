@@ -95,8 +95,7 @@ InModuleScope -ModuleName $NAVRclApi {
             {
                 # Then: Uninstall Successfully
                 $expectedInformation = "Removal failed"
-                Write-Log (Get-Content $uninstallLog) -ForegroundColor "Red"
-                #$uninstallLog | Should -Not -FileContentMatch $expectedInformation
+               # $uninstallLog | Should -Not -FileContentMatch $expectedInformation
             }  
 
             #Remove all NAV related directory
@@ -139,9 +138,9 @@ InModuleScope -ModuleName $NAVRclApi {
         Setp 3: Get the RTM Database backup file
         Setp 4: Restore RTM Database backup file as new database
         Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database 
-        Setp 6.1: Import NAV admin and development module
-        Setp 6.2: Update NAV Server configuration to connect RTM Database
-        Setp 7: Restart NAV AOS
+        Setp 6: Import NAV admin and development module
+        Setp 7: Update NAV Server configuration to connect RTM Database
+        Setp 8: Restart NAV AOS
         Setp 9: Convert the database
         Setp 10: Copy required file for NST, RTC, Web Client"
         (Only for NAV2013R2 and NAV2013)
@@ -198,20 +197,19 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             Set-NAVServerServiceAccount @setServiceAccountParam
 
-            Write-Log "Setp 6.1: Import NAV admin and development module"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 6: Import NAV admin and development module"  -ForegroundColor "DarkGreen"
             Import-NAVIdeModule -ShortVersion $ShortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
 
-            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 7: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
             $serverConfigParam = @{
                 ServerInstance = $NAVServerInstance  
                 KeyValue = $RTMDatabaseName
             }
 
             Set-NewNAVServerConfiguration  @serverConfigParam
-
-            Write-Log "Setp 7: Restart NAV AOS" -ForegroundColor "DarkGreen"
-            Stop-NAVServer -ServiceName $NAVServerInstance  
+            
+            Write-Log "Setp 8: Restart NAV AOS" -ForegroundColor "DarkGreen"
             Start-NavServer -ServiceName $NAVServerInstance
             
             Write-Log "Setp 9: Convert the database" -ForegroundColor "DarkGreen" 
