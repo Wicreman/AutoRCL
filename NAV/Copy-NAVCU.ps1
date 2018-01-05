@@ -156,7 +156,7 @@ Function Copy-NAVCU  {
         }
 
         Push-Location $BuildDropPath
-        $BuilPackge = Get-ChildItem * | where { $_.Name -match ".*NAV.*\.zip"}
+        $BuilPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*NAV.*\.zip"}
         Pop-Location
 
         if($BuilPackge -eq $null)
