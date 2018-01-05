@@ -281,7 +281,7 @@ InModuleScope -ModuleName $NAVRclApi {
             $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
             
             It "Import fob file into Dynamcis$Version with $Language" {
-                
+                $fobPackge = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
                 $importFobParam = @{
                     Path = $fobPackge.FullName
                     SQLServerInstance = $SQLServerInstance

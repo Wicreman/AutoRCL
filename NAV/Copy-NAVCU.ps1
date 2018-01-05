@@ -188,7 +188,7 @@ Function Copy-NAVCU  {
         $ExtractToDVDPath = Join-Path $ExtractToPath "DVD"
 
         Push-Location $ExtractToPath
-        $BuilDVDPackge = Get-ChildItem * | where { $_.Name -match ".*DVD.*\.zip"}
+        $BuilDVDPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*DVD.*\.zip"}
         if($BuilDVDPackge -eq $null)
         {
             $Message = ("Could not find any DVD package in path '{0}'!" -f $ExtractToPath)

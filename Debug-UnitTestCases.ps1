@@ -34,8 +34,8 @@ $debugClean = $false
 $debugSetup = $false
 $debugFob = $false
 $debugTxt = $false
-$debugTranslation = $true
-$debugAll = $false
+$debugTranslation = $false
+$debugAll = $true
 
 
 # Call invoke-pester to run all Unit Test cases
