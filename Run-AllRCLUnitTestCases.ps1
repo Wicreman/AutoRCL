@@ -13,15 +13,16 @@ Get-module  -name "NAVRCLAPI" | Remove-Module
 Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Verbose -Force
 
 # Check if Pester is not installed, if no, we need to install it firstly
-if(-Not(Get-Module -ListAvailable -Name "Pester"))
+$PesterVersion = Get-Module -ListAvailable -Name "Pester" | Where-Object { $_.Version.Major -lt 4 }
+if($PesterVersion)
 {
     (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
-    Install-Module Pester 
+    Install-Module Pester -Force -SkipPublisherCheck
 }
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-$versions = "NAV2017", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013", "NAV2018"
+$versions = "NAV2017", "NAV2016", "NAV2015", "NAV2018" #"NAV2013R2", "NAV2013",
 $languages = "AT", "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
 $Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
 $DatabaseServer = "localhost"

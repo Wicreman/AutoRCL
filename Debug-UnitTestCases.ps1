@@ -13,10 +13,11 @@ Get-module  -name "NAVRCLAPI" | Remove-Module
 Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Verbose -Force
 
 # Check if Pester is not installed, if no, we need to install it firstly
-if(-Not(Get-Module -ListAvailable -Name "Pester"))
+$PesterVersion = Get-Module -ListAvailable -Name "Pester" | Where-Object { $_.Version.Major -lt 4 }
+if($PesterVersion)
 {
     (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
-    Install-Module Pester 
+    Install-Module Pester -Force -SkipPublisherCheck
 }
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
@@ -32,10 +33,10 @@ $NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
 # debug parameter
 $debugClean = $false
 $debugSetup = $false
-$debugFob = $false
+$debugFob = $true
 $debugTxt = $false
 $debugTranslation = $false
-$debugAll = $true
+$debugAll = $false
 
 
 # Call invoke-pester to run all Unit Test cases
