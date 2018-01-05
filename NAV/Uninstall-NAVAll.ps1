@@ -63,9 +63,9 @@ function Uninstall-NAVAll {
         {
             $null = New-Item -ItemType Directory -Path $LogPath -Force
         }
-        
-        Uninstall-ByMSIExec $LogPath
+
         Uninstall-BySetup $LogPath
+        Uninstall-ByMSIExec $LogPath
         
         # Uninstall NAV Database.
         Write-Log "Looking for all NAV Database ..."
