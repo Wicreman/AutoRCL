@@ -32,13 +32,9 @@ Function Copy-NAVCU  {
 
         [Parameter(Mandatory = $true)]
         [string]
-        $BuildDate,
-
-        [Parameter(Mandatory = $true)]
-        [string]
         $Language,
 
-        [Parameter(Mandatory = $False)]
+        [Parameter(Mandatory = $false)]
         [String]
         $Destination = (Join-Path $env:HOMEDRIVE "NAVWorking")
     )
@@ -125,6 +121,12 @@ Function Copy-NAVCU  {
 
         $BuildFlavorPath = Join-Path $BuildDropPath $BuildFlavor
 
+        # Get the latest build
+        $BuildDate = Get-ChildItem $BuildFlavorPath `
+            | Where-Object {$_.PSIsContainer }  `
+            | Sort-Object CreationTime -Descending `
+            | Select-Object -First 1
+
         if (-Not ([String]::IsNullOrEmpty($BuildDate)))
         {
             $BuildDatePath = Join-Path $BuildFlavorPath $BuildDate
@@ -133,11 +135,12 @@ Function Copy-NAVCU  {
             {
                 $BuildDropPath = $BuildDatePath
             }
-            else 
-            {
-
-                Write-Log ("Build Date '{0}' in build drop path '{1}' cannot be found! Assuming that it is already included..." -f $BuildDate, $BuildDropPath)
-            }
+            
+        }
+        else 
+        {
+            Write-Log ("Build Date '{0}' in build drop path '{1}' cannot be found! Assuming that it is already included..." -f $BuildDate, $BuildDropPath)
+            throw $_.Exception
         }
 
         if (-Not ([String]::IsNullOrEmpty($Language)))
@@ -153,7 +156,7 @@ Function Copy-NAVCU  {
         }
 
         Push-Location $BuildDropPath
-        $BuilPackge = Get-ChildItem * | where { $_.Name -match ".*NAV.*\.zip"}
+        $BuilPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*NAV.*\.zip"}
         Pop-Location
 
         if($BuilPackge -eq $null)
@@ -185,7 +188,7 @@ Function Copy-NAVCU  {
         $ExtractToDVDPath = Join-Path $ExtractToPath "DVD"
 
         Push-Location $ExtractToPath
-        $BuilDVDPackge = Get-ChildItem * | where { $_.Name -match ".*DVD.*\.zip"}
+        $BuilDVDPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*DVD.*\.zip"}
         if($BuilDVDPackge -eq $null)
         {
             $Message = ("Could not find any DVD package in path '{0}'!" -f $ExtractToPath)

@@ -36,13 +36,13 @@ function Invoke-ProcessWithProgress
             }
 
             Write-Progress `
-                -Activity "Installing..." `
+                -Activity "Running NAV Setup..." `
                 -PercentComplete $percent `
                 -CurrentOperation "$percent% complete" `
                 -Status "Please wait."
         }
 
-        Write-Progress -Activity "Sucessfully installed NAV " -PercentComplete 100 -Status "Done."
+        Write-Progress -Activity "Sucessfully Running  NAV setup " -PercentComplete 100 -Status "Done."
         }
         catch {
             Write-Exception $_

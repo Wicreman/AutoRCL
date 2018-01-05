@@ -40,7 +40,7 @@ function Start-NavServer {
 
         [Parameter(Mandatory = $false)]
         [String]
-        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking\Logs")
+        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking")
     )
     process {
 

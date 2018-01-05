@@ -16,7 +16,7 @@ function Invoke-NAVCompile{
     process{
         try
         {
-            $LogPath = Join-Path $LogPath "Compile$([GUID]::NewGuid().GUID)"
+            $LogPath = Join-Path $LogPath "Compile"
             if(-Not(Test-Path $LogPath))
             {
                 $null = New-Item -ItemType Directory -Path $LogPath -Force 
@@ -26,11 +26,11 @@ function Invoke-NAVCompile{
                 -DatabaseName $DatabaseName `
                 -DatabaseServer $SQLServerInstance `
                 -LogPath $LogPath
-            # TODO: 
         }
         catch
         {
             Write-Exception $_.Exception
+            $PSCmdlet.ThrowTerminatingError($PSItem)
         }
     }
     

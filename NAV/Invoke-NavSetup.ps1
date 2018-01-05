@@ -68,11 +68,11 @@ function Invoke-NavSetup {
         }
         [string]$logFile = (Join-Path $LogPath  "Install-NAV.log")
         
-        [int]$i = 0
+        <#[int]$i = 0
         while (Test-Path -PathType Leaf $logFile) {
             [int]$i = $i + 1
             $logFile = (Join-Path $LogPath  "Install-NAV$i.log")
-        }
+        }#>
 
         [string]$argumentList = "-quiet -config `"$ConfigFile`" -log `"$logFile`""
 

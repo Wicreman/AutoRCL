@@ -10,17 +10,7 @@ function Find-NAVMgtModuleLoaded  {
         }
         else {
             Import-NAVMgmtModule -ShortVersion $ShortVersion
-        }
-
-        # FIXME: To add one condtion to check SQL Server Version
-        <#	
-        if (-not(Get-Module -Name SQLPS)) {
-            if (Get-Module -ListAvailable -Name SQLPS) {
-                Push-Location
-                Import-Module -Name SQLPS -DisableNameChecking
-                Pop-Location
-            }
-        }#>
+        } 
     }
 }
 

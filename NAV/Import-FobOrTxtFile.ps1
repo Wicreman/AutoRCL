@@ -15,7 +15,11 @@ function Import-FobOrTxtFile{
 
         [Parameter(Mandatory = $false)]
         [string]
-        $SynchronizeSchemaChanges = "Yes",
+        $FileType = "Fob",
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $SynchronizeSchemaChanges = "NO",
 
         [Parameter(Mandatory = $false)]
         [string]
@@ -23,9 +27,22 @@ function Import-FobOrTxtFile{
 
         [Parameter(Mandatory = $false)]
         [string]
-        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking\Logs")
+        $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking\Logs"),
+
+        [Parameter(Mandatory = $true)]
+        [string]
+        $NavServerInstance = "DynamicsNAV",
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $NavServerManagementPort = "7045",
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $NavServerName = "localhost"
 
     )
+
     process{
         try {
             Write-Log "Import file $Path"
@@ -35,23 +52,29 @@ function Import-FobOrTxtFile{
                 Write-Log $Message
                 Throw $Message
             }
-            $LogPath = Join-Path $LogPath "ImportFobOrTxt\$([GUID]::NewGuid().GUID)"
+            $LogPath = Join-Path $LogPath "ImportFobOrTxt\$FileType"
             if(-Not(Test-Path $LogPath))
             {
                 $null = New-Item -ItemType Directory -Path $LogPath -Force 
             }
 
-            Import-NAVApplicationObject `
-                -Path $Path `
-                -DatabaseName $DatabaseName `
-                -DatabaseServer $SQLServerInstance `
-                -LogPath $LogPath `
-                -ImportAction $ImportAction `
-                -SynchronizeSchemaChanges $SynchronizeSchemaChanges `
-                -Confirm:$false 
+            $importParam = @{
+                Path = $Path
+                DatabaseName = $DatabaseName 
+                DatabaseServer = $SQLServerInstance 
+                LogPath = $LogPath
+                ImportAction = $ImportAction 
+                SynchronizeSchemaChanges = $SynchronizeSchemaChanges
+                NavServerName = $NavServerName
+                NavServerInstance = $NavServerInstance
+                NavServerManagementPort = $NavServerManagementPort
+                Confirm = $false
+            }
+            Import-NAVApplicationObject @importParam
         }
         catch {
             Write-Exception $_.Exception
+            $PSCmdlet.ThrowTerminatingError($_)
         }
     }
 }

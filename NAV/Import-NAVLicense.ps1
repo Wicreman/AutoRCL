@@ -3,11 +3,7 @@ function Import-NAVLicense {
     param(
         [Parameter(Mandatory = $true)]
         [string]
-        $NAVServerInstance,
-
-        [Parameter(Mandatory = $true)]
-        [string]
-        $LicenseFile,
+        $ShortVersion,
 
         [Parameter(Mandatory = $false)]
         [string]
@@ -16,20 +12,35 @@ function Import-NAVLicense {
     process{
         try
         {
+            $NAVServerInstance = "DynamicsNAV$ShortVersion"
             Write-Log "Looking for NAV Server instance $NAVServerInstance"
             if ((Get-NAVServerInstance $NAVServerInstance) -eq $null)
             {
                 Write-Error "The Microsoft Dynamics NAV Server instance $NAVServerInstance does not exist."
                 return
             }
-    
+            [string]$LicenseFile = Join-Path $PSScriptRoot  "Data\NAVDemoLicense.flf"
+            Write-Log "Looking  for NAV demo licence file in $LicenseFile"
+            if ((Test-Path -PathType Leaf $LicenseFile) -eq $false) 
+            {
+                $Message = "NAV license file cannot be found in directory!"
+                Write-Log $Message
+                Throw $Message
+            }
             Write-Log "Import the new version license into the application database, and restart the server in order for the license to be loaded"
-            Import-NAVServerLicense -ServerInstance $NAVServerInstance -LicenseFile $LicenseFile -Database $LicenseDatabase 
-            Set-NAVServerInstance -ServerInstance $NAVServerInstance -Restart  
+            $licenseParam = @{
+                ServerInstance = $NAVServerInstance
+                LicenseFile = $LicenseFile
+                Database = $LicenseDatabase
+            }
+            Start-NavServer -ServiceName $NAVServerInstance
+            Import-NAVServerLicense @licenseParam
+            Start-NavServer -ServiceName $NAVServerInstance
         }
         catch
         {
             Write-Exception $_.Exception
+            $PSCmdlet.ThrowTerminatingError($PSItem)
         }     
     }
 }
