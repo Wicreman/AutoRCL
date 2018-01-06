@@ -111,7 +111,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
             }
 
-            $NAVWorkingDir | Should -Not -Exist
+            #$NAVWorkingDir | Should -Not -Exist
 
             $NAVInstalledDir  = Join-Path $env:HOMEDRIVE "Microsoft Dynamics NAV"
             if(Test-Path $NAVInstalledDir)
@@ -125,7 +125,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
             }
 
-            $NAVInstalledDir | Should -Not -Exist              
+            #$NAVInstalledDir | Should -Not -Exist              
         }
     }
 
@@ -139,9 +139,9 @@ InModuleScope -ModuleName $NAVRclApi {
         Setp 4: Restore RTM Database backup file as new database
         Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database 
         Setp 6: Import NAV admin and development module
-        Setp 7: Update NAV Server configuration to connect RTM Database
-        Setp 8: Restart NAV AOS
-        Setp 9: Convert the database
+        Setp 7: Stop NAV AOS
+        Setp 8: Convert the database
+        Setp 9: Update NAV Server configuration to connect RTM Database
         Setp 10: Copy required file for NST, RTC, Web Client"
         (Only for NAV2013R2 and NAV2013)
         Setp 10: Sync the database
@@ -186,6 +186,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 DatabaseName = $RTMDatabaseName
                 BackupFile = $RTMDataBaseBackupFile
             }
+
             Stop-NAVServer -ServiceName $NAVServerInstance
             Restore-RTMDatabase @rtmParam
 
@@ -201,28 +202,27 @@ InModuleScope -ModuleName $NAVRclApi {
             Import-NAVIdeModule -ShortVersion $ShortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
 
-            Write-Log "Setp 7: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 7: Stop NAV AOS before converting the database" -ForegroundColor "DarkGreen"
+            Stop-NAVServer -ServiceName $NAVServerInstance
+            
+            Write-Log "Setp 8: Convert the database" -ForegroundColor "DarkGreen" 
+            $convertDBParam = @{
+                DatabaseServer = $DatabaseServer
+                DatabaseInstance = $DatabaseInstance
+                DatabaseName = $RTMDatabaseName
+            }
+            Convert-NAVDatabase @convertDBParam
+
+            $convertDBLog = Join-Path $LogPath "Database Conversion\navcommandresult.txt" 
+            $convertDBLog | Should -FileContentMatch $ExpectedCommandLog
+
+            Write-Log "Setp 9: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
             $serverConfigParam = @{
                 ServerInstance = $NAVServerInstance  
                 KeyValue = $RTMDatabaseName
             }
 
             Set-NewNAVServerConfiguration  @serverConfigParam
-            
-            Write-Log "Setp 8: Restart NAV AOS" -ForegroundColor "DarkGreen"
-            Start-NavServer -ServiceName $NAVServerInstance
-            
-            Write-Log "Setp 9: Convert the database" -ForegroundColor "DarkGreen" 
-            $convertDBParam = @{
-                DatabaseServer = $DatabaseServer
-                DatabaseInstance = $DatabaseInstance
-                DatabaseName = $RTMDatabaseName
-            }
-            Stop-NAVServer -ServiceName $NAVServerInstance
-            Convert-NAVDatabase @convertDBParam
-
-            $convertDBLog = Join-Path $LogPath "Database Conversion\navcommandresult.txt" 
-            $convertDBLog | Should -FileContentMatch $ExpectedCommandLog
 
             if ($Version -like "NAV2013*") {
                 Write-Log "Setp 10: Copy required file for NST, RTC, Web Client"  -ForegroundColor "DarkGreen" 

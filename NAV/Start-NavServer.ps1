@@ -140,15 +140,16 @@ function Start-NavServer {
             If ($ServiceStatus -Ne [System.ServiceProcess.ServiceControllerStatus]::Running)
             {
                 $NavServerInstanceNum = $Name.Split('$')[1]
-                $NavServerEventLogFileName = "$Name-EventLog-{0}.log" -f (Get-Date).ToString("yyyyMMddHHmmss")
+                $NavServerEventLogFileName = "NAV-AOS-EventLog-{0}.csv" -f (Get-Date).ToString("yyyyMMddHHmmss")
                 $NavServerEventLogFilePath = Join-Path $LogPath $NavServerEventLogFileName
 
                 $LogFilter = @{
                     LogName = 'Application'
                     ProviderName = $NavServerInstanceNum 
+                    Level = 2
                 }
 
-                Get-WinEvent -FilterHashtable @LogFilter | Select-Object TimeCreated, Id, LevelDisplayName, Message | Export-Csv $NavServerEventLogFilePath -NoTypeInformation
+                Get-WinEvent -FilterHashtable $LogFilter | Select-Object TimeCreated, Id, LevelDisplayName, Message | Export-Csv $NavServerEventLogFilePath -NoTypeInformation
 
                 $Message = "Expected service '$Name' to be running but it is $ServiceStatus!"
                 Write-Log $Message
