@@ -52,6 +52,7 @@ function Set-NewNAVServerConfiguration  {
             }
 
             Set-NAVServerConfiguration @params
+            Set-NAVServerInstance -ServerInstance $ServerInstance -Restart
         }
         catch  {
             Write-Error "Fail to udpate NAV Server configuration!"

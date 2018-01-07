@@ -187,7 +187,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 BackupFile = $RTMDataBaseBackupFile
             }
 
-            Stop-NAVServer -ServiceName $NAVServerInstance
+            # Stop-NAVServer -ServiceName $NAVServerInstance
             Restore-RTMDatabase @rtmParam
 
             Write-Log "Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database " -ForegroundColor "DarkGreen"   
@@ -198,24 +198,36 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             Set-NAVServerServiceAccount @setServiceAccountParam
 
-            Start-NavServer -ServiceName $NAVServerInstance
-            
+            # Start-NavServer -ServiceName $NAVServerInstance
+
             Write-Log "Setp 6: Import NAV admin and development module"  -ForegroundColor "DarkGreen"
             Import-NAVIdeModule -ShortVersion $ShortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
 
             Write-Log "Setp 7: Stop NAV AOS before converting the database" -ForegroundColor "DarkGreen"
             Stop-NAVServer -ServiceName $NAVServerInstance
-            
+         
             Write-Log "Setp 8: Convert the database" -ForegroundColor "DarkGreen" 
+            
             $convertDBParam = @{
                 DatabaseServer = $DatabaseServer
                 DatabaseInstance = $DatabaseInstance
                 DatabaseName = $RTMDatabaseName
             }
+            Remove-SqlConnectionsToDatabase @convertDBParam
             Convert-NAVDatabase @convertDBParam
 
             $convertDBLog = Join-Path $LogPath "Database Conversion\navcommandresult.txt" 
+            $convertErrorLog = Join-Path $LogPath "Database Conversion\naverrorlog.txt"
+           
+            if(Test-Path $convertErrorLog)
+            { 
+                Write-Log "Fail to convert db, so try again."
+                Start-NavServer -ServiceName $NAVServerInstance
+                Stop-NAVServer -ServiceName $NAVServerInstance
+                Convert-NAVDatabase @convertDBParam
+            }
+
             $convertDBLog | Should -FileContentMatch $ExpectedCommandLog
 
             Write-Log "Setp 9: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
@@ -225,6 +237,9 @@ InModuleScope -ModuleName $NAVRclApi {
             }
 
             Set-NewNAVServerConfiguration  @serverConfigParam
+
+            Write-Log "Step 10: Import NAV License"    -ForegroundColor "DarkGreen"
+            Import-NAVLicense -ShortVersion $ShortVersion
 
             if ($Version -like "NAV2013*") {
                 Write-Log "Setp 10: Copy required file for NST, RTC, Web Client"  -ForegroundColor "DarkGreen" 
@@ -245,15 +260,12 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             else {
                 Start-NavServer -ServiceName $NAVServerInstance
-                Write-Log "Setp 10: Sync the database"   -ForegroundColor "DarkGreen"
+                Write-Log "Setp 11: Sync the database"   -ForegroundColor "DarkGreen"
                 Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
             }
             
-            Write-Log "Setp 11: Update region format"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 12: Update region format"  -ForegroundColor "DarkGreen"
             Update-RegionalFormat $Language
-
-            Write-Log "Step 12: Import NAV License"    -ForegroundColor "DarkGreen"
-            Import-NAVLicense -ShortVersion $ShortVersion
         }
     }
 

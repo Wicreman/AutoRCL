@@ -35,8 +35,7 @@ function Import-NAVLicense {
             }
             Start-NavServer -ServiceName $NAVServerInstance
             Import-NAVServerLicense @licenseParam
-            Stop-NAVServer -ServiceName $NAVServerInstance
-            Start-NavServer -ServiceName $NAVServerInstance
+            Set-NAVServerInstance -ServerInstance $NAVServerInstance -Restart   
         }
         catch
         {
