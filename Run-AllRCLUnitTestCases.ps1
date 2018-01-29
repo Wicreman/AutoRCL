@@ -3,7 +3,7 @@
 # then run Set-ExecutionPolicy AllSigned 
 # or Set-ExecutionPolicy Bypass -Scope Process.
 $policy = Get-ExecutionPolicy 
-if ($policy -eq "Restricted")
+if ($policy -eq "Restricted" -or $policy -eq "RemoteSigned")
 {
     Set-ExecutionPolicy Bypass -Scope Process -Force
 }
@@ -28,8 +28,8 @@ if (-Not($PesterVersion))
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-$versions = "NAV2017", "NAV2016", "NAV2015", "NAV2018" #"NAV2013R2", "NAV2013",
-$languages =   "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
+$versions = "NAV2016" #"NAV2017", "NAV2016", "NAV2015", "NAV2018" #"NAV2013R2", "NAV2013",
+$languages = "DK" #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
 $Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
 $DatabaseServer = "localhost"
 $DatabaseInstance = "NAVDEMO"
@@ -44,6 +44,9 @@ foreach($version in $versions)
 {
     foreach($language in $languages)
     {
+        # update the region format
+        Update-RegionalFormat $language
+        
         #run setup test cases
         Write-Log "Run NAV Setup test cases"
         $scriptParam = @{ 
