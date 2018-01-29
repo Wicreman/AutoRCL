@@ -8,6 +8,7 @@ function Update-RegionalFormat {
         $aGroupDMY = "AT", "FI", "CH", "IS", "CZ", "DE", "NO", "RU"
         $bGroupDMY = "ES", "FR", "BE", "GB", "IT"
         $cGroupDYM = "DK", "NL", "W1"
+        $dGroupMDY = "IN", "NA"
         $TimeFormat = "HH:mm:ss"
         switch($Language)
         {
@@ -46,7 +47,7 @@ function Update-RegionalFormat {
                 Update-RegkeyValue $ShortDate $nzTimeFormat $am $pm
                 break
              }
-             "NA" {
+             {$dGroupMDY -contains $_} {
                 $ShortDate = "MM/dd/yy"
                 $naTimeFormat = "HH:mm:ss tt"
                 Update-RegkeyValue $ShortDate $naTimeFormat
