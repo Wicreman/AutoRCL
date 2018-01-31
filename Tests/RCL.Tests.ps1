@@ -71,6 +71,11 @@ InModuleScope -ModuleName $NAVRclApi {
     {
         $ProductVersion = "Dynamics$Version"
     }
+    else 
+    {
+        $ProductVersion = $Version
+    }
+
     $demoDataPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$ProductVersion\$Language\Extracted\APPLICATION")
 
     <#
@@ -169,7 +174,7 @@ InModuleScope -ModuleName $NAVRclApi {
 
             Write-Log "Step 2: Install NAV by using setup.exe"   -ForegroundColor "DarkGreen"
             Write-Log "Running setup.exe to install $Version with $Language"
-            Invoke-NavSetup -Path $LocalBuildPath -ShortVersion $ShortVersion
+            Invoke-NavSetup -Path $LocalBuildPath -ShortVersion $ShortVersion -DatabaseInstance $DatabaseInstance
             
             $NavSetupLogName = "Install-NAV.log"
             $NavSetupLog = Join-Path $LogPath $NavSetupLogName

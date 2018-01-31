@@ -30,11 +30,13 @@ $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
 $versions = "NAV2016" #"NAV2017", "NAV2016", "NAV2015", "NAV2018" #"NAV2013R2", "NAV2013",
 $languages = "DK" #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
-$Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
-$DatabaseServer = "localhost"
+# Please update your database intance name like NAVDEMO22, NAVDEMO33
 $DatabaseInstance = "NAVDEMO"
 $RTMDatabaseName = "NAVRTMDB"
 $NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
+$Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
+$DatabaseServer = "localhost"
+
 # Call invoke-pester to run all Unit Test cases
 Set-Location $PSScriptRoot
 $setupTestsPath = Join-Path $PSScriptRoot "Tests\RCL.Tests.ps1"

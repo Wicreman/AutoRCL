@@ -30,11 +30,13 @@ $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
 $version = "NAV2017"#, "NAV2016", "NAV2015", "NAV2013R2", "NAV2013", "NAV2018"
 $language = "AU"#, "AT", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
-$Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
-$DatabaseServer = "localhost"
+# Please update your database intance name like NAVDEMO22, NAVDEMO33
 $DatabaseInstance = "NAVDEMO"
+
 $RTMDatabaseName = "NAVRTMDB"
 $NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
+$Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
+$DatabaseServer = "localhost"
 
 # debug parameter
 $debugClean = $false

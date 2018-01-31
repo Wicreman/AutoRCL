@@ -38,7 +38,7 @@ function Install-NAV {
     Process {
 
         $SQLServerInstance = $DatabaseServer;
-        if (!$DatabaseInstance.Equals("") -or $DatabaseInstance.Equals("NAVDEMO"))
+        if (!$DatabaseInstance.Equals("") -or $DatabaseInstance.Contains("NAVDEMO")
         {       
             $SQLServerInstance = "$DatabaseServer`\$DatabaseInstance"
         }
