@@ -22,6 +22,11 @@ function Invoke-NavSetup {
         [string]
         $ShortVersion,
 
+        # Specifies the instance of the Dynamics NAV database
+        [Parameter(Mandatory = $false)]
+        [string]
+        $DatabaseInstance = "NAVDEMO", 
+
         [Parameter(Mandatory = $false)]
         [string]
         $LogPath = (Join-Path $env:HOMEDRIVE "NAVWorking")
@@ -56,6 +61,17 @@ function Invoke-NavSetup {
                 SetupConfigFile = $ConfigFile;
                 ParameterId = "NavServiceInstanceName";
                 ParameterValue = "DynamicsNAV$ShortVersion"
+            }
+
+            Set-NavInstallerConfiguration @configParams
+        }
+
+        if($DatabaseInstance -ne "NAVDEMO")
+        {
+            $configParams = @{
+                SetupConfigFile = $ConfigFile;
+                ParameterId = "SQLInstanceName";
+                ParameterValue = $DatabaseInstance
             }
 
             Set-NavInstallerConfiguration @configParams

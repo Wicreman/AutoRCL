@@ -34,7 +34,7 @@ Function Stop-NAVServer
         
         [Parameter(Mandatory = $False)]
         [Timespan]
-        $WaitTimeout = (New-Object Timespan 0, 5, 0)
+        $WaitTimeout = (New-Object Timespan 0, 2, 0)
     )
     
     Process
@@ -65,7 +65,7 @@ Function Stop-NAVServer
                 
                 If ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::StopPending)
                 {
-                    Write-Log "Service '$Name': Status is pending stop. Waiting for up to 5 minutes..."
+                    Write-Log "Service '$Name': Status is pending stop. Waiting for up to 2 minutes..."
                     Try
                     {
                         $Service.WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Stopped, $WaitTimeout)
@@ -78,7 +78,7 @@ Function Stop-NAVServer
                 
                 If ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::PausePending)
                 {
-                    Write-Log "Service '$Name': Status is pending pause. Waiting for up to 5 minutes..."
+                    Write-Log "Service '$Name': Status is pending pause. Waiting for up to 2 minutes..."
                     Try
                     {
                         $Service.WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Paused, $WaitTimeout)
@@ -109,7 +109,7 @@ Function Stop-NAVServer
                 $ServiceStatus = $Service.Status
                 If (($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::StopPending))
                 {
-                    Write-Log "Service '$Name': Status is pending stop ($ServiceStatus). Waiting for up to 5 minutes..."
+                    Write-Log "Service '$Name': Status is pending stop ($ServiceStatus). Waiting for up to 2 minutes..."
                     Try
                     {
                         $Service.WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Running, $WaitTimeout)

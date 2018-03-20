@@ -3,7 +3,7 @@
 # then run Set-ExecutionPolicy AllSigned 
 # or Set-ExecutionPolicy Bypass -Scope Process.
 $policy = Get-ExecutionPolicy 
-if ($policy -eq "Restricted")
+if ($policy -eq "Restricted" -or $policy -eq "RemoteSigned")
 {
     Set-ExecutionPolicy Bypass -Scope Process -Force
 }
@@ -13,21 +13,30 @@ Get-module  -name "NAVRCLAPI" | Remove-Module
 Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Verbose -Force
 
 # Check if Pester is not installed, if no, we need to install it firstly
-if(-Not(Get-Module -ListAvailable -Name "Pester"))
+$PesterVersion = Get-Module -ListAvailable -Name "Pester" | Where-Object { $_.Version.Major -ge 4 }
+if (-Not($PesterVersion))
 {
-    (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
-    Install-Module Pester 
+    if ([System.Environment]::OSVersion.Version.Major -ge 10)
+    {
+        Install-Module Pester -Force -SkipPublisherCheck
+    }
+    else {
+        (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
+        Install-Module Pester
+    }  
 }
 
 $reportPath = Join-Path $PSScriptRoot "Reports"
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-$versions = "NAV2017", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013", "NAV2018"
-$languages = "AT", "AU", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
-$Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
-$DatabaseServer = "localhost"
+$versions = "NAV2016" #"NAV2017", "NAV2016", "NAV2015", "NAV2018" #"NAV2013R2", "NAV2013",
+$languages = "DK" #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
+# Please update your database intance name like NAVDEMO22, NAVDEMO33
 $DatabaseInstance = "NAVDEMO"
 $RTMDatabaseName = "NAVRTMDB"
 $NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
+$Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
+$DatabaseServer = "localhost"
+
 # Call invoke-pester to run all Unit Test cases
 Set-Location $PSScriptRoot
 $setupTestsPath = Join-Path $PSScriptRoot "Tests\RCL.Tests.ps1"
@@ -37,6 +46,9 @@ foreach($version in $versions)
 {
     foreach($language in $languages)
     {
+        # update the region format
+        Update-RegionalFormat $language
+        
         #run setup test cases
         Write-Log "Run NAV Setup test cases"
         $scriptParam = @{ 

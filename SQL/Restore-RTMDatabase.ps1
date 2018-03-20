@@ -87,7 +87,7 @@ function Restore-RTMDatabase
                         Move '$rtmLdf' TO '$newLdf'
                         "
 
-            Invoke-Sqlcmd $updateSQL -ServerInstance $SQLServerInstance
+            Invoke-Sqlcmd $updateSQL -ServerInstance $SQLServerInstance -QueryTimeout 0
         }
         catch
         {

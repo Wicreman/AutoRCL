@@ -71,6 +71,11 @@ InModuleScope -ModuleName $NAVRclApi {
     {
         $ProductVersion = "Dynamics$Version"
     }
+    else 
+    {
+        $ProductVersion = $Version
+    }
+
     $demoDataPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$ProductVersion\$Language\Extracted\APPLICATION")
 
     <#
@@ -87,6 +92,17 @@ InModuleScope -ModuleName $NAVRclApi {
 
         # Given: Dynamics$Version with $Language
         It "Prepare test environment for Dynamics$Version with $Language" { 
+            # When: Uninstall all NAV components and drop NAV database
+            Uninstall-NAVAll
+            $uninstallLogName = "UninstallNAVBySetup.log"
+            $uninstallLog = Join-Path $LogPath $uninstallLogName
+            if(Test-Path $uninstallLog)
+            {
+                # Then: Uninstall Successfully
+                $expectedInformation = "Removal failed"
+               # $uninstallLog | Should -Not -FileContentMatch $expectedInformation
+            }  
+
             #Remove all NAV related directory
             $NAVWorkingDir  = Join-Path $env:HOMEDRIVE "NAVWorking"
             if(Test-Path $NAVWorkingDir)
@@ -100,7 +116,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
             }
 
-            $NAVWorkingDir | Should -Not -Exist
+            #$NAVWorkingDir | Should -Not -Exist
 
             $NAVInstalledDir  = Join-Path $env:HOMEDRIVE "Microsoft Dynamics NAV"
             if(Test-Path $NAVInstalledDir)
@@ -114,18 +130,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
             }
 
-            $NAVInstalledDir | Should -Not -Exist
-
-            # When: Uninstall all NAV components and drop NAV database
-            Uninstall-NAVAll
-            $uninstallLogName = "UninstAllNAV.log"
-            $uninstallLog = Join-Path $LogPath $uninstallLogName
-            if(Test-Path $uninstallLog)
-            {
-                # Then: Uninstall Successfully
-                $expectedInformation = "Removal failed"
-                $uninstallLog | Should -Not -FileContentMatch $expectedInformation
-            }    
+            #$NAVInstalledDir | Should -Not -Exist              
         }
     }
 
@@ -138,10 +143,10 @@ InModuleScope -ModuleName $NAVRclApi {
         Setp 3: Get the RTM Database backup file
         Setp 4: Restore RTM Database backup file as new database
         Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database 
-        Setp 6.1: Import NAV admin and development module
-        Setp 6.2: Update NAV Server configuration to connect RTM Database
-        Setp 7: Restart NAV AOS
-        Setp 9: Convert the database
+        Setp 6: Import NAV admin and development module
+        Setp 7: Stop NAV AOS
+        Setp 8: Convert the database
+        Setp 9: Update NAV Server configuration to connect RTM Database
         Setp 10: Copy required file for NST, RTC, Web Client"
         (Only for NAV2013R2 and NAV2013)
         Setp 10: Sync the database
@@ -169,7 +174,7 @@ InModuleScope -ModuleName $NAVRclApi {
 
             Write-Log "Step 2: Install NAV by using setup.exe"   -ForegroundColor "DarkGreen"
             Write-Log "Running setup.exe to install $Version with $Language"
-            Invoke-NavSetup -Path $LocalBuildPath -ShortVersion $ShortVersion
+            Invoke-NavSetup -Path $LocalBuildPath -ShortVersion $ShortVersion -DatabaseInstance $DatabaseInstance
             
             $NavSetupLogName = "Install-NAV.log"
             $NavSetupLog = Join-Path $LogPath $NavSetupLogName
@@ -186,7 +191,8 @@ InModuleScope -ModuleName $NAVRclApi {
                 DatabaseName = $RTMDatabaseName
                 BackupFile = $RTMDataBaseBackupFile
             }
-            Stop-NAVServer -ServiceName $NAVServerInstance
+
+            # Stop-NAVServer -ServiceName $NAVServerInstance
             Restore-RTMDatabase @rtmParam
 
             Write-Log "Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database " -ForegroundColor "DarkGreen"   
@@ -197,11 +203,39 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             Set-NAVServerServiceAccount @setServiceAccountParam
 
-            Write-Log "Setp 6.1: Import NAV admin and development module"  -ForegroundColor "DarkGreen"
+            # Start-NavServer -ServiceName $NAVServerInstance
+
+            Write-Log "Setp 6: Import NAV admin and development module"  -ForegroundColor "DarkGreen"
             Import-NAVIdeModule -ShortVersion $ShortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
 
-            Write-Log "Setp 6.2: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 7: Stop NAV AOS before converting the database" -ForegroundColor "DarkGreen"
+            Stop-NAVServer -ServiceName $NAVServerInstance
+         
+            Write-Log "Setp 8: Convert the database" -ForegroundColor "DarkGreen" 
+            
+            $convertDBParam = @{
+                DatabaseServer = $DatabaseServer
+                DatabaseInstance = $DatabaseInstance
+                DatabaseName = $RTMDatabaseName
+            }
+            Remove-SqlConnectionsToDatabase @convertDBParam
+            Convert-NAVDatabase @convertDBParam
+
+            $convertDBLog = Join-Path $LogPath "Database Conversion\navcommandresult.txt" 
+            $convertErrorLog = Join-Path $LogPath "Database Conversion\naverrorlog.txt"
+           
+            if(Test-Path $convertErrorLog)
+            { 
+                Write-Log "Fail to convert db, so try again."
+                Start-NavServer -ServiceName $NAVServerInstance
+                Stop-NAVServer -ServiceName $NAVServerInstance
+                Convert-NAVDatabase @convertDBParam
+            }
+
+            $convertDBLog | Should -FileContentMatch $ExpectedCommandLog
+
+            Write-Log "Setp 9: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
             $serverConfigParam = @{
                 ServerInstance = $NAVServerInstance  
                 KeyValue = $RTMDatabaseName
@@ -209,21 +243,8 @@ InModuleScope -ModuleName $NAVRclApi {
 
             Set-NewNAVServerConfiguration  @serverConfigParam
 
-            Write-Log "Setp 7: Restart NAV AOS" -ForegroundColor "DarkGreen"
-            Stop-NAVServer -ServiceName $NAVServerInstance  
-            Start-NavServer -ServiceName $NAVServerInstance
-            
-            Write-Log "Setp 9: Convert the database" -ForegroundColor "DarkGreen" 
-            $convertDBParam = @{
-                DatabaseServer = $DatabaseServer
-                DatabaseInstance = $DatabaseInstance
-                DatabaseName = $RTMDatabaseName
-            }
-            Stop-NAVServer -ServiceName $NAVServerInstance
-            Convert-NAVDatabase @convertDBParam
-
-            $convertDBLog = Join-Path $LogPath "Database Conversion\navcommandresult.txt" 
-            $convertDBLog | Should -FileContentMatch $ExpectedCommandLog
+            Write-Log "Step 10: Import NAV License"    -ForegroundColor "DarkGreen"
+            Import-NAVLicense -ShortVersion $ShortVersion
 
             if ($Version -like "NAV2013*") {
                 Write-Log "Setp 10: Copy required file for NST, RTC, Web Client"  -ForegroundColor "DarkGreen" 
@@ -244,15 +265,12 @@ InModuleScope -ModuleName $NAVRclApi {
             }
             else {
                 Start-NavServer -ServiceName $NAVServerInstance
-                Write-Log "Setp 10: Sync the database"   -ForegroundColor "DarkGreen"
+                Write-Log "Setp 11: Sync the database"   -ForegroundColor "DarkGreen"
                 Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
             }
             
-            Write-Log "Setp 11: Update region format"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 12: Update region format"  -ForegroundColor "DarkGreen"
             Update-RegionalFormat $Language
-
-            Write-Log "Step 12: Import NAV License"    -ForegroundColor "DarkGreen"
-            Import-NAVLicense -ShortVersion $ShortVersion
         }
     }
 
