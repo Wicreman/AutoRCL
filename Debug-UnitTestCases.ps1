@@ -3,7 +3,7 @@
 # then run Set-ExecutionPolicy AllSigned 
 # or Set-ExecutionPolicy Bypass -Scope Process.
 $policy = Get-ExecutionPolicy 
-if ($policy -eq "Restricted")
+if ($policy -eq "Restricted" -or $policy -eq "RemoteSigned")
 {
     Set-ExecutionPolicy Bypass -Scope Process -Force
 }

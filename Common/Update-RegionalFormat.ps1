@@ -27,6 +27,12 @@ function Update-RegionalFormat {
                 Update-RegkeyValue $ShortDate $TimeFormat
                 break
              }
+             "IT" {
+                $ShortDate = "dd/MM/yy"
+                $itTimeFormat = "HH.mm.ss tt"
+                Update-RegkeyValue $ShortDate $itTimeFormat
+                break
+             }
              "SE" {
                 $ShortDate = "yy-MM-dd"
                 Update-RegkeyValue $ShortDate $TimeFormat

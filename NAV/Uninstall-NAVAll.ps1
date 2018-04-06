@@ -52,6 +52,10 @@ function Uninstall-NAVAll {
     )
     begin {
         Import-SqlPsModule
+        if(!(Get-Module WebAdministration))
+        {
+            Import-Module WebAdministration -ErrorAction SilentlyContinue
+        }
     }
     process {
         if(-Not(Test-Path $LogPath))
@@ -66,6 +70,9 @@ function Uninstall-NAVAll {
 
         Uninstall-BySetup $LogPath
         Uninstall-ByMSIExec $LogPath
+
+        # Revmove IIS Sites
+        Remove-AllNAVWebSites
         
         # Uninstall NAV Database.
         Write-Log "Looking for all NAV Database ..."
@@ -146,6 +153,28 @@ function Uninstall-BySetup ([string]$LogPath) {
         }
     }
        
+}
+
+function Remove-AllNAVWebSites
+{
+    Write-Log "Remove all nav web sites"
+    $allNAVSites = Get-ChildItem "IIS:\Sites"  | Where-Object {$_.Name -match "NAV"}
+    foreach($navSite in $allNAVSites)
+    {
+        Write-Log "Remove web sites:  $navSite.name"
+        [System.IO.Directory]::Delete($navSite.PhysicalPath, $true)
+        Remove-Website -Name $navSite.name
+    }
+
+    Write-Log "Remove all nave web application pools"
+    $allNAVAppPools = Get-ChildItem "IIS:\AppPools" | Where-Object {$_.Name -match "NAV"} 
+    foreach($navAppPool in $allNAVAppPools)
+    {
+        Write-Log "Remove nav web app pool: $navAppPool.name"
+        Remove-WebAppPool -Name $navAppPool.name 
+    }
+
+    IISReset
 }
 
 Export-ModuleMember -Function Uninstall-NAVAll
