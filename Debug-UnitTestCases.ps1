@@ -26,7 +26,10 @@ if (-Not($PesterVersion))
     }  
 }
 
-$reportPath = Join-Path $PSScriptRoot "Reports"
+$reportPath = Join-Path $env:HOMEDRIVE "NAVReports"
+if (-Not(Test-Path $reportPath)) {
+    $null = New-Item -ItemType Directory $reportPath -Force
+}
 $reportFile = Join-Path $reportPath "RCLReport.xml"
 $version = "NAV2017"#, "NAV2016", "NAV2015", "NAV2013R2", "NAV2013", "NAV2018"
 $language = "AU"#, "AT", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
