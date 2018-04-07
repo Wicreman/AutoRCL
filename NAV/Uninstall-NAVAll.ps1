@@ -155,6 +155,7 @@ function Remove-AllNAVWebSites
 {
     if(!(Get-Module WebAdministration))
     {
+        Import-Module ServerManager; Add-WindowsFeature Web-Scripting-Tools
         Import-Module WebAdministration -ErrorAction SilentlyContinue
     }
 

@@ -287,7 +287,7 @@ InModuleScope -ModuleName $NAVRclApi {
            (To be skiped)
 
     #>
-    Describe "Import and export process of FOB file" -Tag "UnitTestCase" {
+    Describe "FOB" -Tag "UnitTestCase" {
         Context "Verify Fob file can be imported or exported successfully" {
             $shortVersion = $ShortVersionMap.$Version
             # Get NAV Server instance from short version
@@ -298,7 +298,7 @@ InModuleScope -ModuleName $NAVRclApi {
 
             $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
             
-            It "Import fob file into Dynamcis$Version with $Language" {
+            It "Import fob file into Dynamcis$Version with $Language"  -Skip {
                 $fobPackge = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
                 $importFobParam = @{
                     Path = $fobPackge.FullName
@@ -326,33 +326,22 @@ InModuleScope -ModuleName $NAVRclApi {
                 # Assert
                 $actualTxt = (Get-FileHash $actualTxtPackge[0]).hash
                 $expectedTxt = (Get-FileHash  $expectedTxtPackge.FullName).hash
-                ($actualTxt -eq $expectedTxt) | Should -Be $true
-        
+
                 if($actualTxt -ne  $expectedTxt)
                 {
                     $navReports = Join-Path $env:HOMEDRIVE "NAVReports"
                     #backup actual result.
                     Copy-Item -Path  $actualTxtPackge[0] -Destination $navReports -PassThru |
-                    Rename-Item -NewName {"CUObjects" + $Version + $Language + ".AcutalResult" + ".txt"}
+                    Rename-Item -NewName {"CUObjects" + $Version + $Language + ".AcutalResult" + ".txt"} -Force
                 }
-            }
 
-            It "Export fob file from Dynamcis$Version with $Language" -Skip {
-                $expectedFobPackage = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
-                $expectedFob = (Get-FileHash $expectedFobPackage.FullName).hash
-                $actualFobPackage = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version
-                $exportedLog = Join-Path $LogPath "ExportFobOrTxt\fob\navcommandresult.txt"
-
-                $exportedLog | Should -FileContentMatch $ExpectedCommandLog
-                # Assert
-                $actualFob = (Get-FileHash $actualFobPackage[0]).hash
-
-                ($actualFob -eq $expectedFob) | Should -Be $true
+                ($actualTxt -eq $expectedTxt) | Should -Be $true
             }
         }
         
     }
 
+    
     <#
     .SYNOPSIS
         Verify Txt file can be imported successfully
@@ -361,7 +350,7 @@ InModuleScope -ModuleName $NAVRclApi {
         Filter the uncompiled files and do compile.
         No errors after objects have been compiled.
     #>
-    Describe "Import process of TXT file" -Tag "UnitTestCase" {
+    Describe "TXT" -Tag "UnitTestCase" {
         Context "Verify Txt file can be imported successfully" {
             $shortVersion = $ShortVersionMap.$Version
 
