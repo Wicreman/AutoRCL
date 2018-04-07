@@ -27,6 +27,12 @@ function Update-RegionalFormat {
                 Update-RegkeyValue $ShortDate $TimeFormat
                 break
              }
+             {$dGroupMDY -contains $_} {
+                $ShortDate = "MM/dd/yy"
+                $naTimeFormat = "HH:mm:ss tt"
+                Update-RegkeyValue $ShortDate $naTimeFormat
+                break
+             }
              "IT" {
                 $ShortDate = "dd/MM/yy"
                 $itTimeFormat = "HH.mm.ss tt"
@@ -53,12 +59,7 @@ function Update-RegionalFormat {
                 Update-RegkeyValue $ShortDate $nzTimeFormat $am $pm
                 break
              }
-             {$dGroupMDY -contains $_} {
-                $ShortDate = "MM/dd/yy"
-                $naTimeFormat = "HH:mm:ss tt"
-                Update-RegkeyValue $ShortDate $naTimeFormat
-                break
-             }
+             
         }
         if(-Not(Get-WinCultureFromLanguageListOptOut))
         {

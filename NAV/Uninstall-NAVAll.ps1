@@ -52,7 +52,6 @@ function Uninstall-NAVAll {
     )
     begin {
         Import-SqlPsModule
-        
     }
     process {
         if(-Not(Test-Path $LogPath))

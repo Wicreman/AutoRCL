@@ -327,6 +327,14 @@ InModuleScope -ModuleName $NAVRclApi {
                 $actualTxt = (Get-FileHash $actualTxtPackge[0]).hash
                 $expectedTxt = (Get-FileHash  $expectedTxtPackge.FullName).hash
                 ($actualTxt -eq $expectedTxt) | Should -Be $true
+        
+                if($actualTxt -ne  $expectedTxt)
+                {
+                    $navReports = Join-Path $env:HOMEDRIVE "NAVReports"
+                    #backup actual result.
+                    Copy-Item -Path  $actualTxtPackge[0] -Destination $navReports -PassThru |
+                    Rename-Item -NewName {"CUObjects" + $Version + $Language + ".AcutalResult" + ".txt"}
+                }
             }
 
             It "Export fob file from Dynamcis$Version with $Language" -Skip {
