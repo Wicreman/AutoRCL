@@ -6,7 +6,7 @@ function Update-RegionalFormat {
     )
     process{
         $aGroupDMY = "AT", "FI", "CH", "IS", "CZ", "DE", "NO", "RU"
-        $bGroupDMY = "ES", "FR", "BE", "GB", "IT"
+        $bGroupDMY = "ES", "FR", "BE", "GB"
         $cGroupDYM = "DK", "NL", "W1"
         $dGroupMDY = "IN", "NA"
         $TimeFormat = "HH:mm:ss"
