@@ -183,7 +183,6 @@ InModuleScope -ModuleName $NAVRclApi {
             {
                 $webClientError = "Package Web Server Components failed with error"
                 Write-Log $webClientError
-                $NavSetupLog | Should -FileContentMatch $webClientError
             }
             else 
             {
