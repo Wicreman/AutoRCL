@@ -178,9 +178,19 @@ InModuleScope -ModuleName $NAVRclApi {
             
             $NavSetupLogName = "Install-NAV.log"
             $NavSetupLog = Join-Path $LogPath $NavSetupLogName
-            $unexpectedSetupInfomation = "Error"
-            $NavSetupLog | Should -Not -FileContentMatch $unexpectedSetupInfomation
-
+            $NavLogContent = Get-Content $NavSetupLog
+            if ($NavLogContent -match "Package Web Server Components failed with error")
+            {
+                $webClientError = "Package Web Server Components failed with error"
+                Write-Log $webClientError
+                $NavSetupLog | Should -FileContentMatch $webClientError
+            }
+            else 
+            {
+                $unexpectedSetupInfomation = "Error"
+                $NavSetupLog | Should -Not -FileContentMatch $unexpectedSetupInfomation     
+            }
+            
             Write-Log "Setp 3: Get the RTM Database backup file"  -ForegroundColor "DarkGreen" 
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
 
@@ -298,7 +308,7 @@ InModuleScope -ModuleName $NAVRclApi {
 
             $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
             
-            It "Import fob file into Dynamcis$Version with $Language"  -Skip {
+            It "Import fob file into Dynamcis$Version with $Language" {
                 $fobPackge = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
                 $importFobParam = @{
                     Path = $fobPackge.FullName
