@@ -85,12 +85,12 @@ $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
 
 # UTC: Import and export process of FOB file
 if ($debugFob) {
-    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Import and export process of FOB file" -OutputFile $reportFile -OutputFormat NUnitXml
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "FOB" -OutputFile $reportFile -OutputFormat NUnitXml
 }
 
 #Import process of TXT file
 if ($debugTxt) {
-    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Import process of TXT file" -OutputFile $reportFile -OutputFormat NUnitXml
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "TXT" -OutputFile $reportFile -OutputFormat NUnitXml
 }
 
 # Validate objects translation

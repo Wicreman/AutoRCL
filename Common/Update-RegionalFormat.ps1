@@ -61,6 +61,19 @@ function Update-RegionalFormat {
              }
              
         }
+
+        # Update the decimal 
+        $commaDecimal = "AT", "FI", "CZ",  `
+            "DE", "DK", "BE", "ES", "FR",  `
+            "IS", "IT", "NA", "NL", "NO", `
+            "RU", "SE"
+
+        if ($commaDecimal -contains $Language)
+        {
+            $comma = ","
+            Update-Decimal $comma
+        }
+
         if(-Not(Get-WinCultureFromLanguageListOptOut))
         {
             Write-Log "Match Windows Display language (recommended)"
@@ -70,7 +83,7 @@ function Update-RegionalFormat {
 }
 
 
-function Update-RegkeyValue ([string] $shortData, [string] $timeFormat, [string]$am = "AM", [string]$pm = "PM") {
+function Update-RegkeyValue ([string] $shortData, [string] $timeFormat, [string]$am = "AM", [string]$pm = "PM", [string]$decimal = ".") {
     $RegKeyPath = "HKCU:\Control Panel\International"
 
     Set-ItemProperty -Path $RegKeyPath -Name sShortDate -Value "$shortData"
@@ -78,6 +91,12 @@ function Update-RegkeyValue ([string] $shortData, [string] $timeFormat, [string]
     Set-ItemProperty -Path $RegKeyPath -Name sTimeFormat -Value "$timeFormat"
     Set-ItemProperty -Path $RegKeyPath -Name s1159 -Value "$am"
     Set-ItemProperty -Path $RegKeyPath -Name s2359 -Value "$pm"
+    Set-ItemProperty -Path $RegKeyPath -Name sDecimal -Value "$decimal"
+}
+
+function Update-Decimal ([string]$decimal = ".") {
+    $RegKeyPath = "HKCU:\Control Panel\International"
+    Set-ItemProperty -Path $RegKeyPath -Name sDecimal -Value "$decimal"
 }
 
 Export-ModuleMember -Function Update-RegionalFormat
