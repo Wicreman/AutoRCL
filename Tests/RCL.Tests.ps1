@@ -304,7 +304,7 @@ InModuleScope -ModuleName $NAVRclApi {
 
     #>
     Describe "FOB" -Tag "UnitTestCase" {
-        Context "Verify Fob file can be imported or exported successfully" {
+        Context "Dynamcis$Version with $Language" {
             $shortVersion = $ShortVersionMap.$Version
             # Get NAV Server instance from short version
             $NAVServerInstance = "DynamicsNAV$ShortVersion"
@@ -314,7 +314,7 @@ InModuleScope -ModuleName $NAVRclApi {
 
             $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
             
-            It "Import fob file into Dynamcis$Version with $Language" {
+            It "Import" {
                 $fobPackge = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
                 $importFobParam = @{
                     Path = $fobPackge.FullName
@@ -336,7 +336,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 $importFobLog | Should -FileContentMatch $ExpectedCommandLog
             }
     
-            It "Export txt file from Dynamcis$Version with $Language" {
+            It "Export" {
                 $expectedTxtPackge = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
                 $actualTxtPackge = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version -FileType "txt"
                 $exportedTxtLog = Join-Path $LogPath "ExportFobOrTxt\txt\navcommandresult.txt"
@@ -370,7 +370,7 @@ InModuleScope -ModuleName $NAVRclApi {
         No errors after objects have been compiled.
     #>
     Describe "TXT" -Tag "UnitTestCase" {
-        Context "Verify Txt file can be imported successfully" {
+        Context "Dynamcis$Version with $Language" {
             $shortVersion = $ShortVersionMap.$Version
 
             Import-NAVIdeModule -ShortVersion $shortVersion
@@ -380,7 +380,7 @@ InModuleScope -ModuleName $NAVRclApi {
             $txtPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
             Pop-Location
             $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
-            It "Import txt file into Dynamcis$Version with $Language" {
+            It "Import" {
                 
                 $importTxtParam = @{
                     Path = $txtPackge.FullName
@@ -416,12 +416,12 @@ InModuleScope -ModuleName $NAVRclApi {
         CaptionML should have ENU language code and translation with country language code 
         (some countries have more than one code, such as BE CH NA.).
     #>
-    Describe "Validate objects translation" -Tag "UnitTestCase" {
+    Describe "Translation" -Tag "UnitTestCase" {
         $languageNames = $LanguageTranslationMap.$language
         $shortVersion = $ShortVersionMap.$Version
         Import-NAVIdeModule -ShortVersion $shortVersion -Verbose
         
-        It "Test all $languageNames captions are all present" {
+        It "$languageNames" {
             if($language -ne "W1")
             {
                 Push-Location $demoDataPath
@@ -434,7 +434,7 @@ InModuleScope -ModuleName $NAVRclApi {
                     Source = $txtPackge.FullName
                     LanguageId = $languageIds
                 }
-                $translationResult = Test-NAVApplicationObjectLanguage @translationParam  -PassThru -ErrorAction Stop
+                $translationResult = Test-NAVApplicationObjectLanguage @translationParam -PassThru -ErrorAction Stop
                 if($translationResult)
                 {
                     foreach($result in $translationResult)

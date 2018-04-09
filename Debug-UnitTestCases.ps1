@@ -95,7 +95,7 @@ if ($debugTxt) {
 
 # Validate objects translation
 if ($debugTranslation) {
-    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Validate objects translation" -OutputFile $reportFile -OutputFormat NUnitXml
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Translation" -OutputFile $reportFile -OutputFormat NUnitXml
 }
 
 # All
