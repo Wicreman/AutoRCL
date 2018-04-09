@@ -72,16 +72,26 @@ function Send-UnitTestResult {
         <H2> Unit Test Result for RCL Automation </H2> 
         <br/>
         <H3> 
-        Total Unit Test Cases:  $totalUTs <br/>
-        Passed: $passedUTs<br/>
-        Failed: $failedUTs<br/>
+        <legend> Summary </legend>
+        Passed: $passedUTs of $totalUTs<br/>
+        Failed: $failedUTs of $totalUTs <br/>
         </H3>
         <hr>
 "@
-        $messageBody = "<H2>All Unit Test cases are passed</H2>"
         if($failedUTs -gt 0)
         {
-            $messageBody = $report.SelectNodes("//test-case[@success='False']") `
+            $messageBodyFailedUTs = $report.SelectNodes("//test-case[@success='False']") `
+                | Select-Object `
+                    @{ Name = "Test Case Name"; Expression = {$_.name}}, `
+                    @{ Name = "Execution Time"; Expression = {$_.time}}, `
+                    @{ Name = "Test Result"; Expression = {$_.result}},  `
+                    @{ Name = "FailureLog"; Expression = {$_.InnerText}} `
+                | ConvertTo-Html -Head $headerStyle 
+        }
+
+        if($passedUTs -gt 0)
+        {
+            $messageBodyPassedUTS = $report.SelectNodes("//test-case[@success='True']") `
                 | Select-Object `
                     @{ Name = "Test Case Name"; Expression = {$_.name}}, `
                     @{ Name = "Execution Time"; Expression = {$_.time}}, `
@@ -97,8 +107,8 @@ function Send-UnitTestResult {
             To = $sendToArray;
             Cc = @($CcTo);
             Bcc = @($BCc);
-            Subject = "RCL Unit Test Result for Dynamics$Version with $Language ";
-            Body =  $caseCount+$MessageBody;
+            Subject = "RCL Report for Dynamics$Version with $Language ";
+            Body =  $caseCount + "<hr />" + $messageBodyFailedUTs + "<hr/>" + $messageBodyPassedUTS;
             IsHtml = $true
         }
 
