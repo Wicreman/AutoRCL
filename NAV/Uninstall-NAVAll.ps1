@@ -70,6 +70,7 @@ function Uninstall-NAVAll {
         # Revmove IIS Sites
         Remove-AllNAVWebSites
         
+
         # Uninstall NAV Database.
         Write-Log "Looking for all NAV Database ..."
         $queryStr = "select name from sys.databases where name like $CustomQueryFilter"
@@ -77,6 +78,8 @@ function Uninstall-NAVAll {
 
         try
         {
+            Import-SqlPsModule
+            
             $allNAVDatabases = Invoke-SQLcmd `
             -ServerInstance $serverInstance `
             -Database master  `

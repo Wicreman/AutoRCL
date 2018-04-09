@@ -275,7 +275,14 @@ InModuleScope -ModuleName $NAVRclApi {
             else {
                 Start-NavServer -ServiceName $NAVServerInstance
                 Write-Log "Setp 11: Sync the database"   -ForegroundColor "DarkGreen"
-                Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+                try {
+                    Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+                }
+                catch {
+                    # try again
+                    Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+                }
+                
             }
             
             Write-Log "Setp 12: Update region format"  -ForegroundColor "DarkGreen"
