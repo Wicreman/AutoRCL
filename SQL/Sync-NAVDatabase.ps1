@@ -7,7 +7,7 @@ function Sync-NAVDatabase {
 
         [Parameter(Mandatory = $false)]
         [string]
-        $Mode = "Sync"
+        $Mode = "ForceSync"
     )
     process{
         try{

@@ -325,10 +325,13 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
                 Import-FobOrTxtFile @importFobParam 
 
-                if (-Not($Version -like "NAV2013*")){
+                try {
                     Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
                 }
-               
+                catch {
+                    Sync-NAVDatabase -NAVServerInstance $NAVServerInstance -Mode "CheckOnly"
+                }
+                             
                 $importFobLog = Join-Path $LogPath "ImportFobOrTxt\Fob\navcommandresult.txt"
                 $importFobLog | Should -FileContentMatch $ExpectedCommandLog
             }
