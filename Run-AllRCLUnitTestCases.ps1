@@ -31,8 +31,10 @@ if (-Not(Test-Path $reportPath)) {
     $null = New-Item -ItemType Directory $reportPath -Force
 }
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-$versions = "NAV2016" #"NAV2017", "NAV2016", "NAV2015", "NAV2018" #"NAV2013R2", "NAV2013",
-$languages = "DK" #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
+$buildDate = "2018-4"
+$versions = "NAV2018" 
+$languages = "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
+ #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
 # Please update your database intance name like NAVDEMO22, NAVDEMO33
 $DatabaseInstance = "NAVDEMO"
 $RTMDatabaseName = "NAVRTMDB"
@@ -93,6 +95,7 @@ foreach($version in $versions)
                     ReportPath = $reportFile
                     Version = $version
                     Language= $language
+                    BuildDate = $buildDate
                 }
                 Send-UnitTestResult @reportParm
             }

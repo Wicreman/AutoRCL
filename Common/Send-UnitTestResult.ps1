@@ -12,7 +12,11 @@ function Send-UnitTestResult {
 
         [Parameter(Mandatory = $true)]
         [string]
-        $Language
+        $Language,
+
+        [Parameter(Mandatory = $false)]
+        [string]
+        $BuildDate
     )
 
     process{
@@ -72,9 +76,9 @@ function Send-UnitTestResult {
         <H2> Unit Test Result for RCL Automation </H2> 
         <br/>
         <H3> 
-        <legend> Summary </legend>
-        Passed: $passedUTs of $totalUTs<br/>
-        Failed: $failedUTs of $totalUTs <br/>
+        Summary is as below: <br />
+        $passedUTs passed of $totalUTs<br/>
+        $failedUTs failed of $totalUTs <br/>
         </H3>
         <hr>
 "@
@@ -107,7 +111,7 @@ function Send-UnitTestResult {
             To = $sendToArray;
             Cc = @($CcTo);
             Bcc = @($BCc);
-            Subject = "RCL Report for Dynamics$Version with $Language ";
+            Subject = "RCL Report for Dynamics$Version with $Language - $BuildDate";
             Body =  $caseCount + "<hr />" + $messageBodyFailedUTs + "<hr/>" + $messageBodyPassedUTS;
             IsHtml = $true
         }
