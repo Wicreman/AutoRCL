@@ -52,6 +52,7 @@ InModuleScope -ModuleName $NAVRclApi {
         FI = "FIN"
         FR = "FRA"
         GB = "ENG"
+        IN = "ENN"
         IS = "ISL"
         IT = "ITA"
         NA = "ESM", "FRC", "ENC"
