@@ -83,7 +83,7 @@ function Update-RegionalFormat {
 }
 
 
-function Update-RegkeyValue ([string] $shortData, [string] $timeFormat, [string]$am = "AM", [string]$pm = "PM", [string]$decimal = ".") {
+function Update-RegkeyValue ([string] $shortData, [string] $timeFormat, [string]$am = "AM", [string]$pm = "PM") {
     $RegKeyPath = "HKCU:\Control Panel\International"
 
     Set-ItemProperty -Path $RegKeyPath -Name sShortDate -Value "$shortData"
@@ -91,7 +91,6 @@ function Update-RegkeyValue ([string] $shortData, [string] $timeFormat, [string]
     Set-ItemProperty -Path $RegKeyPath -Name sTimeFormat -Value "$timeFormat"
     Set-ItemProperty -Path $RegKeyPath -Name s1159 -Value "$am"
     Set-ItemProperty -Path $RegKeyPath -Name s2359 -Value "$pm"
-    Set-ItemProperty -Path $RegKeyPath -Name sDecimal -Value "$decimal"
 }
 
 function Update-Decimal ([string]$decimal = ".") {
