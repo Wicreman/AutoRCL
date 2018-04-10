@@ -26,17 +26,21 @@ if (-Not($PesterVersion))
     }  
 }
 
+# Update the version, build date, language
+$buildDate = "2018-4"
+$versions = "NAV2018" 
+$languages = "CH" #"ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
+ #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
+
+# Please update your database intance name like NAVDEMO22, NAVDEMO33
+$DatabaseInstance = "NAVDEMO"
+
 $reportPath = Join-Path $env:HOMEDRIVE "NAVReports"
 if (-Not(Test-Path $reportPath)) {
     $null = New-Item -ItemType Directory $reportPath -Force
 }
 $reportFile = Join-Path $reportPath "RCLReport.xml"
-$buildDate = "2018-4"
-$versions = "NAV2018" 
-$languages = "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
- #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
-# Please update your database intance name like NAVDEMO22, NAVDEMO33
-$DatabaseInstance = "NAVDEMO"
+
 $RTMDatabaseName = "NAVRTMDB"
 $NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
 $Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}

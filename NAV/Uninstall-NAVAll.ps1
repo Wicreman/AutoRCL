@@ -140,7 +140,7 @@ function Uninstall-BySetup ([string]$LogPath) {
         if($dvdpath)
         {
             $LogFile = Join-Path $LogPath "UninstallNAVBySetup.log"
-            $navSetupExe = Join-Path $dvdpath.FullName "setup.exe"
+            $navSetupExe = Join-Path $dvdpath[0].FullName "setup.exe"
             if(Test-Path $navSetupExe)
             {
                 Write-Log "Found Seup.exe file under $navSetupExe"

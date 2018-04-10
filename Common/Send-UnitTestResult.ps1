@@ -26,31 +26,33 @@ function Send-UnitTestResult {
         $BCc = "v-doc@microsoft.com"
 
         $headerStyle = @"
-        <Title><H1> Unit Test Result for RCL testing </Title>
         <style>
         body { 
             font-family:Verdana;
             font-size:12pt; 
         }
         td, th { 
-            border:0px solid black; 
+            border:0px solid #9CC2E5; 
             border-collapse:collapse;
             white-space:pre; 
         }
         th { 
             color:white;
-            background-color:black; 
+            background-color:#1C6EA4; 
         }
         table, tr, td, th { padding: 2px; margin: 0px ;white-space:pre; }
         tr:nth-child(odd) {background-color: lightgray}
-        table { width:95%;margin-left:5px; margin-bottom:20px;}
+        table { width:100%;margin:0px;}
         h2 {
             font-family:Verdana;
-            color:#6D7B8D;
+            color:#1C6EA4;
         }
-        .alert {
-            color: red; 
-            }
+
+        h3 {
+            font-family:Verdana;
+            color:#076A34;
+        }
+
         .footer { 
             color:green; 
             margin-left:10px; 
@@ -60,7 +62,6 @@ function Send-UnitTestResult {
         }
         </style>
 "@
-
         if(-Not(Test-Path $ReportPath))
         {
             throw "The report file doesn't exist" 
@@ -74,17 +75,15 @@ function Send-UnitTestResult {
         $passedUTs = $report.SelectNodes("//test-case[@success='True']").Count
         $caseCount = @"
         <H2> Unit Test Result for RCL Automation </H2> 
-        <br/>
         <H3> 
-        Summary is as below: <br />
-        $passedUTs passed of $totalUTs<br/>
-        $failedUTs failed of $totalUTs <br/>
+        Summary: <br />
+        Passed: $passedUTs of $totalUTs<br/>
+        Failed: $failedUTs of $totalUTs<br/>
         </H3>
-        <hr>
 "@
-        if($failedUTs -gt 0)
+        if($totalUTs -gt 0)
         {
-            $messageBodyFailedUTs = $report.SelectNodes("//test-case[@success='False']") `
+            $messageBodyUTs = $report.SelectNodes("//test-case") `
                 | Select-Object `
                     @{ Name = "Test Case Name"; Expression = {$_.name}}, `
                     @{ Name = "Execution Time"; Expression = {$_.time}}, `
@@ -93,17 +92,6 @@ function Send-UnitTestResult {
                 | ConvertTo-Html -Head $headerStyle 
         }
 
-        if($passedUTs -gt 0)
-        {
-            $messageBodyPassedUTS = $report.SelectNodes("//test-case[@success='True']") `
-                | Select-Object `
-                    @{ Name = "Test Case Name"; Expression = {$_.name}}, `
-                    @{ Name = "Execution Time"; Expression = {$_.time}}, `
-                    @{ Name = "Test Result"; Expression = {$_.result}},  `
-                    @{ Name = "FailureLog"; Expression = {$_.InnerText}} `
-                | ConvertTo-Html -Head $headerStyle 
-        }
-        
         $sendToArray = $SendTo.Split(",")
 
         $body = @{
@@ -112,7 +100,7 @@ function Send-UnitTestResult {
             Cc = @($CcTo);
             Bcc = @($BCc);
             Subject = "RCL Report for Dynamics$Version with $Language - $BuildDate";
-            Body =  $caseCount + "<hr />" + $messageBodyFailedUTs + "<hr/>" + $messageBodyPassedUTS;
+            Body =  $caseCount + $messageBodyUTs;
             IsHtml = $true
         }
 
