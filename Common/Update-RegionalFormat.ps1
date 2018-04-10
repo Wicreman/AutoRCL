@@ -74,6 +74,13 @@ function Update-RegionalFormat {
             Update-Decimal $comma
         }
 
+        $currencyDecimalCountry = "ES", "SE"
+
+        if ($currencyDecimalCountry -contains $Language) {
+            $monComma = ","
+            Update-MoneyDecimal $monComma
+        }
+
         if(-Not(Get-WinCultureFromLanguageListOptOut))
         {
             Write-Log "Match Windows Display language (recommended)"
@@ -96,6 +103,11 @@ function Update-RegkeyValue ([string] $shortData, [string] $timeFormat, [string]
 function Update-Decimal ([string]$decimal = ".") {
     $RegKeyPath = "HKCU:\Control Panel\International"
     Set-ItemProperty -Path $RegKeyPath -Name sDecimal -Value "$decimal"
+}
+
+function Update-MoneyDecimal ([string]$monDecimal = ".") {
+    $RegKeyPath = "HKCU:\Control Panel\International"
+    Set-ItemProperty -Path $RegKeyPath -Name sMonDecimalSep -Value "$monDecimal"
 }
 
 Export-ModuleMember -Function Update-RegionalFormat
