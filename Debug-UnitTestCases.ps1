@@ -3,14 +3,14 @@
 # then run Set-ExecutionPolicy AllSigned 
 # or Set-ExecutionPolicy Bypass -Scope Process.
 $policy = Get-ExecutionPolicy 
-if ($policy -eq "Restricted")
+if ($policy -eq "Restricted" -or $policy -eq "RemoteSigned")
 {
     Set-ExecutionPolicy Bypass -Scope Process -Force
 }
 
 # Import NAV RCL API module
 Get-module  -name "NAVRCLAPI" | Remove-Module
-Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Verbose -Force
+Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Force
 
 # Check if Pester is not installed, if no, we need to install it firstly
 $PesterVersion = Get-Module -ListAvailable -Name "Pester" | Where-Object { $_.Version.Major -ge 4 }
@@ -26,26 +26,32 @@ if (-Not($PesterVersion))
     }  
 }
 
-$reportPath = Join-Path $PSScriptRoot "Reports"
-$reportFile = Join-Path $reportPath "RCLReport.xml"
-$version = "NAV2017"#, "NAV2016", "NAV2015", "NAV2013R2", "NAV2013", "NAV2018"
-$language = "AU"#, "AT", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
+# Update the version, build date, language
+$buildDate = "2018-4"
+$version = "NAV2018"#, "NAV2016", "NAV2015", "NAV2013R2", "NAV2013", "NAV2018"
+$language = "DK"#, "AT", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
+
 # Please update your database intance name like NAVDEMO22, NAVDEMO33
 $DatabaseInstance = "NAVDEMO"
 
-$RTMDatabaseName = "NAVRTMDB"
-$NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
-$Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
-$DatabaseServer = "localhost"
-
 # debug parameter
 $debugClean = $false
-$debugSetup = $true
+$debugSetup = $false
 $debugFob = $false
 $debugTxt = $false
 $debugTranslation = $false
 $debugAll = $false
 
+$reportPath = Join-Path $env:HOMEDRIVE "NAVReports"
+if (-Not(Test-Path $reportPath)) {
+    $null = New-Item -ItemType Directory $reportPath -Force
+}
+$reportFile = Join-Path $reportPath "RCLReport.xml"
+
+$RTMDatabaseName = "NAVRTMDB"
+$NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
+$Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
+$DatabaseServer = "localhost"
 
 # Call invoke-pester to run all Unit Test cases
 Set-Location $PSScriptRoot
@@ -82,17 +88,17 @@ $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
 
 # UTC: Import and export process of FOB file
 if ($debugFob) {
-    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Import and export process of FOB file" -OutputFile $reportFile -OutputFormat NUnitXml
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "FOB" -OutputFile $reportFile -OutputFormat NUnitXml
 }
 
 #Import process of TXT file
 if ($debugTxt) {
-    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Import process of TXT file" -OutputFile $reportFile -OutputFormat NUnitXml
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "TXT" -OutputFile $reportFile -OutputFormat NUnitXml
 }
 
 # Validate objects translation
 if ($debugTranslation) {
-    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Validate objects translation" -OutputFile $reportFile -OutputFormat NUnitXml
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Translation" -OutputFile $reportFile -OutputFormat NUnitXml
 }
 
 # All
@@ -100,11 +106,20 @@ if ($debugAll) {
     Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -OutputFile $reportFile -OutputFormat NUnitXml
 }
 
-# Generate HTML report by using tool ReportUnit
+#Send email
+$reportParm = @{
+    ReportPath = $reportFile
+    Version = $version
+    Language= $language
+    BuildDate = $buildDate
+}
+Send-UnitTestResult @reportParm
+
+<# Generate HTML report by using tool ReportUnit
 $reportUnitPath = Join-Path $PSScriptRoot "External"
 Push-Location $reportUnitPath
 & .\ReportUnit1-5.exe $reportPath
-Pop-Location
+Pop-Location #>
 
 # SIG # Begin signature block
 # MIID2QYJKoZIhvcNAQcCoIIDyjCCA8YCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

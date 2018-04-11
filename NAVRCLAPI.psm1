@@ -18,7 +18,6 @@
 .(Join-Path $PSScriptRoot 'NAV\Invoke-NavSetup.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Start-NavServer.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Stop-NavServer.ps1')
-.(Join-Path $PSScriptRoot 'NAV\Install-NAV.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Uninstall-NAVAll.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Set-NavInstallerConfiguration.ps1')
 .(Join-Path $PSScriptRoot 'NAV\Set-NewNAVServerConfiguration.ps1')

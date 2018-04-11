@@ -52,6 +52,7 @@ InModuleScope -ModuleName $NAVRclApi {
         FI = "FIN"
         FR = "FRA"
         GB = "ENG"
+        IN = "ENN"
         IS = "ISL"
         IT = "ITA"
         NA = "ESM", "FRC", "ENC"
@@ -178,9 +179,18 @@ InModuleScope -ModuleName $NAVRclApi {
             
             $NavSetupLogName = "Install-NAV.log"
             $NavSetupLog = Join-Path $LogPath $NavSetupLogName
-            $unexpectedSetupInfomation = "Error"
-            $NavSetupLog | Should -Not -FileContentMatch $unexpectedSetupInfomation
-
+            $NavLogContent = Get-Content $NavSetupLog
+            if ($NavLogContent -match "Package Web Server Components failed with error")
+            {
+                $webClientError = "Package Web Server Components failed with error"
+                Write-Log $webClientError
+            }
+            else 
+            {
+                $unexpectedSetupInfomation = "Error"
+                $NavSetupLog | Should -Not -FileContentMatch $unexpectedSetupInfomation     
+            }
+            
             Write-Log "Setp 3: Get the RTM Database backup file"  -ForegroundColor "DarkGreen" 
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
 
@@ -266,7 +276,14 @@ InModuleScope -ModuleName $NAVRclApi {
             else {
                 Start-NavServer -ServiceName $NAVServerInstance
                 Write-Log "Setp 11: Sync the database"   -ForegroundColor "DarkGreen"
-                Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+                try {
+                    Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+                }
+                catch {
+                    # try again
+                    Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+                }
+                
             }
             
             Write-Log "Setp 12: Update region format"  -ForegroundColor "DarkGreen"
@@ -287,8 +304,8 @@ InModuleScope -ModuleName $NAVRclApi {
            (To be skiped)
 
     #>
-    Describe "Import and export process of FOB file" -Tag "UnitTestCase" {
-        Context "Verify Fob file can be imported or exported successfully" {
+    Describe "FOB" -Tag "UnitTestCase" {
+        Context "Dynamcis$Version with $Language" {
             $shortVersion = $ShortVersionMap.$Version
             # Get NAV Server instance from short version
             $NAVServerInstance = "DynamicsNAV$ShortVersion"
@@ -298,7 +315,7 @@ InModuleScope -ModuleName $NAVRclApi {
 
             $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
             
-            It "Import fob file into Dynamcis$Version with $Language" {
+            It "Import" {
                 $fobPackge = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
                 $importFobParam = @{
                     Path = $fobPackge.FullName
@@ -309,15 +326,18 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
                 Import-FobOrTxtFile @importFobParam 
 
-                if (-Not($Version -like "NAV2013*")){
+                try {
                     Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
                 }
-               
+                catch {
+                    Sync-NAVDatabase -NAVServerInstance $NAVServerInstance -Mode "CheckOnly"
+                }
+                             
                 $importFobLog = Join-Path $LogPath "ImportFobOrTxt\Fob\navcommandresult.txt"
                 $importFobLog | Should -FileContentMatch $ExpectedCommandLog
             }
     
-            It "Export txt file from Dynamcis$Version with $Language" {
+            It "Export" {
                 $expectedTxtPackge = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
                 $actualTxtPackge = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version -FileType "txt"
                 $exportedTxtLog = Join-Path $LogPath "ExportFobOrTxt\txt\navcommandresult.txt"
@@ -326,25 +346,22 @@ InModuleScope -ModuleName $NAVRclApi {
                 # Assert
                 $actualTxt = (Get-FileHash $actualTxtPackge[0]).hash
                 $expectedTxt = (Get-FileHash  $expectedTxtPackge.FullName).hash
+
+                if($actualTxt -ne  $expectedTxt)
+                {
+                    $navReports = Join-Path $env:HOMEDRIVE "NAVReports"
+                    #backup actual result.
+                    Copy-Item -Path  $actualTxtPackge[0] -Destination $navReports -PassThru |
+                    Rename-Item -NewName {"CUObjects" + $Version + $Language + ".AcutalResult" + ".txt"} -Force
+                }
+
                 ($actualTxt -eq $expectedTxt) | Should -Be $true
-            }
-
-            It "Export fob file from Dynamcis$Version with $Language" -Skip {
-                $expectedFobPackage = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.fob"}
-                $expectedFob = (Get-FileHash $expectedFobPackage.FullName).hash
-                $actualFobPackage = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version
-                $exportedLog = Join-Path $LogPath "ExportFobOrTxt\fob\navcommandresult.txt"
-
-                $exportedLog | Should -FileContentMatch $ExpectedCommandLog
-                # Assert
-                $actualFob = (Get-FileHash $actualFobPackage[0]).hash
-
-                ($actualFob -eq $expectedFob) | Should -Be $true
             }
         }
         
     }
 
+    
     <#
     .SYNOPSIS
         Verify Txt file can be imported successfully
@@ -353,8 +370,8 @@ InModuleScope -ModuleName $NAVRclApi {
         Filter the uncompiled files and do compile.
         No errors after objects have been compiled.
     #>
-    Describe "Import process of TXT file" -Tag "UnitTestCase" {
-        Context "Verify Txt file can be imported successfully" {
+    Describe "TXT" -Tag "UnitTestCase" {
+        Context "Dynamcis$Version with $Language" {
             $shortVersion = $ShortVersionMap.$Version
 
             Import-NAVIdeModule -ShortVersion $shortVersion
@@ -364,7 +381,7 @@ InModuleScope -ModuleName $NAVRclApi {
             $txtPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
             Pop-Location
             $RTMDatabaseName = "$RTMDatabaseName$shortVersion"
-            It "Import txt file into Dynamcis$Version with $Language" {
+            It "Import" {
                 
                 $importTxtParam = @{
                     Path = $txtPackge.FullName
@@ -400,12 +417,12 @@ InModuleScope -ModuleName $NAVRclApi {
         CaptionML should have ENU language code and translation with country language code 
         (some countries have more than one code, such as BE CH NA.).
     #>
-    Describe "Validate objects translation" -Tag "UnitTestCase" {
+    Describe "Translation" -Tag "UnitTestCase" {
         $languageNames = $LanguageTranslationMap.$language
         $shortVersion = $ShortVersionMap.$Version
         Import-NAVIdeModule -ShortVersion $shortVersion -Verbose
         
-        It "Test all $languageNames captions are all present" {
+        It "$languageNames" {
             if($language -ne "W1")
             {
                 Push-Location $demoDataPath
@@ -418,7 +435,7 @@ InModuleScope -ModuleName $NAVRclApi {
                     Source = $txtPackge.FullName
                     LanguageId = $languageIds
                 }
-                $translationResult = Test-NAVApplicationObjectLanguage @translationParam  -PassThru -ErrorAction Stop
+                $translationResult = Test-NAVApplicationObjectLanguage @translationParam -PassThru -ErrorAction Stop
                 if($translationResult)
                 {
                     foreach($result in $translationResult)

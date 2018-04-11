@@ -26,12 +26,21 @@ if (-Not($PesterVersion))
     }  
 }
 
-$reportPath = Join-Path $PSScriptRoot "Reports"
-$reportFile = Join-Path $reportPath "RCLReport.xml"
-$versions = "NAV2016" #"NAV2017", "NAV2016", "NAV2015", "NAV2018" #"NAV2013R2", "NAV2013",
-$languages = "DK" #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
+# Update the version, build date, language
+$buildDate = "2018-4"
+$versions = "NAV2018" 
+$languages = "CH" #"ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
+ #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
+
 # Please update your database intance name like NAVDEMO22, NAVDEMO33
 $DatabaseInstance = "NAVDEMO"
+
+$reportPath = Join-Path $env:HOMEDRIVE "NAVReports"
+if (-Not(Test-Path $reportPath)) {
+    $null = New-Item -ItemType Directory $reportPath -Force
+}
+$reportFile = Join-Path $reportPath "RCLReport.xml"
+
 $RTMDatabaseName = "NAVRTMDB"
 $NAVServerServiceAccount = "NT AUTHORITY\NETWORK SERVICE"
 $Tags = @{Clean = "CleanEnvironment";  Setup = "NAVSetup"; UTC = "UnitTestCase"}
@@ -90,6 +99,7 @@ foreach($version in $versions)
                     ReportPath = $reportFile
                     Version = $version
                     Language= $language
+                    BuildDate = $buildDate
                 }
                 Send-UnitTestResult @reportParm
             }

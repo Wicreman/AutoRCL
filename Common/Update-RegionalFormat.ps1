@@ -6,7 +6,7 @@ function Update-RegionalFormat {
     )
     process{
         $aGroupDMY = "AT", "FI", "CH", "IS", "CZ", "DE", "NO", "RU"
-        $bGroupDMY = "ES", "FR", "BE", "GB", "IT"
+        $bGroupDMY = "ES", "FR", "BE", "GB"
         $cGroupDYM = "DK", "NL", "W1"
         $dGroupMDY = "IN", "NA"
         $TimeFormat = "HH:mm:ss"
@@ -25,6 +25,18 @@ function Update-RegionalFormat {
              {$cGroupDYM -contains $_} {
                 $ShortDate = "dd-MM-yy"
                 Update-RegkeyValue $ShortDate $TimeFormat
+                break
+             }
+             {$dGroupMDY -contains $_} {
+                $ShortDate = "MM/dd/yy"
+                $naTimeFormat = "HH:mm:ss tt"
+                Update-RegkeyValue $ShortDate $naTimeFormat
+                break
+             }
+             "IT" {
+                $ShortDate = "dd/MM/yy"
+                $itTimeFormat = "HH.mm.ss tt"
+                Update-RegkeyValue $ShortDate $itTimeFormat
                 break
              }
              "SE" {
@@ -47,13 +59,28 @@ function Update-RegionalFormat {
                 Update-RegkeyValue $ShortDate $nzTimeFormat $am $pm
                 break
              }
-             {$dGroupMDY -contains $_} {
-                $ShortDate = "MM/dd/yy"
-                $naTimeFormat = "HH:mm:ss tt"
-                Update-RegkeyValue $ShortDate $naTimeFormat
-                break
-             }
+             
         }
+
+        # Update the decimal 
+        $commaDecimal = "AT", "FI", "CZ",  `
+            "DE", "DK", "BE", "ES", "FR",  `
+            "IS", "IT", "NA", "NL", "NO", `
+            "RU", "SE", "W1"
+
+        if ($commaDecimal -contains $Language)
+        {
+            $comma = ","
+            Update-Decimal $comma
+        }
+
+        $currencyDecimalCountry = "ES", "SE"
+
+        if ($currencyDecimalCountry -contains $Language) {
+            $monComma = ","
+            Update-MoneyDecimal $monComma
+        }
+
         if(-Not(Get-WinCultureFromLanguageListOptOut))
         {
             Write-Log "Match Windows Display language (recommended)"
@@ -71,6 +98,16 @@ function Update-RegkeyValue ([string] $shortData, [string] $timeFormat, [string]
     Set-ItemProperty -Path $RegKeyPath -Name sTimeFormat -Value "$timeFormat"
     Set-ItemProperty -Path $RegKeyPath -Name s1159 -Value "$am"
     Set-ItemProperty -Path $RegKeyPath -Name s2359 -Value "$pm"
+}
+
+function Update-Decimal ([string]$decimal = ".") {
+    $RegKeyPath = "HKCU:\Control Panel\International"
+    Set-ItemProperty -Path $RegKeyPath -Name sDecimal -Value "$decimal"
+}
+
+function Update-MoneyDecimal ([string]$monDecimal = ".") {
+    $RegKeyPath = "HKCU:\Control Panel\International"
+    Set-ItemProperty -Path $RegKeyPath -Name sMonDecimalSep -Value "$monDecimal"
 }
 
 Export-ModuleMember -Function Update-RegionalFormat

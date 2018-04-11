@@ -66,7 +66,11 @@ function Uninstall-NAVAll {
 
         Uninstall-BySetup $LogPath
         Uninstall-ByMSIExec $LogPath
+
+        # Revmove IIS Sites
+        Remove-AllNAVWebSites
         
+
         # Uninstall NAV Database.
         Write-Log "Looking for all NAV Database ..."
         $queryStr = "select name from sys.databases where name like $CustomQueryFilter"
@@ -74,6 +78,8 @@ function Uninstall-NAVAll {
 
         try
         {
+            Import-SqlPsModule
+            
             $allNAVDatabases = Invoke-SQLcmd `
             -ServerInstance $serverInstance `
             -Database master  `
@@ -134,7 +140,7 @@ function Uninstall-BySetup ([string]$LogPath) {
         if($dvdpath)
         {
             $LogFile = Join-Path $LogPath "UninstallNAVBySetup.log"
-            $navSetupExe = Join-Path $dvdpath.FullName "setup.exe"
+            $navSetupExe = Join-Path $dvdpath[0].FullName "setup.exe"
             if(Test-Path $navSetupExe)
             {
                 Write-Log "Found Seup.exe file under $navSetupExe"
@@ -146,6 +152,44 @@ function Uninstall-BySetup ([string]$LogPath) {
         }
     }
        
+}
+
+function Remove-AllNAVWebSites
+{
+    if(!(Get-Module WebAdministration))
+    {
+        Import-Module WebAdministration -ErrorAction SilentlyContinue
+    }
+
+    Write-Log "Remove all nav web sites"
+    $allNAVSites = Get-ChildItem "IIS:\Sites"  | Where-Object {$_.Name -match "NAV"}
+    if($allNAVSites)
+    {
+        foreach($navSite in $allNAVSites)
+        {
+            Write-Log "Remove web sites:  $navSite.name"
+            if(Test-Path $navSite.PhysicalPath)
+            {
+                [System.IO.Directory]::Delete($navSite.PhysicalPath, $true)
+            }
+           
+            Remove-Website -Name $navSite.name
+        }
+    }
+    
+    Write-Log "Remove all nave web application pools"
+    $allNAVAppPools = Get-ChildItem "IIS:\AppPools" | Where-Object {$_.Name -match "NAV"} 
+    if($allNAVAppPools)
+    {
+        foreach($navAppPool in $allNAVAppPools)
+        {
+            Write-Log "Remove nav web app pool: $navAppPool.name"
+            Remove-WebAppPool -Name $navAppPool.name 
+        }
+    }
+    
+
+    IISReset
 }
 
 Export-ModuleMember -Function Uninstall-NAVAll
