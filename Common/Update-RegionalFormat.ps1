@@ -73,11 +73,19 @@ function Update-RegionalFormat {
             $comma = ","
             Update-Decimal $comma
         }
+        else {
+            $comma = "."
+            Update-Decimal $comma
+        }
 
         $currencyDecimalCountry = "ES", "SE"
 
         if ($currencyDecimalCountry -contains $Language) {
             $monComma = ","
+            Update-MoneyDecimal $monComma
+        }
+        else {
+            $monComma = "."
             Update-MoneyDecimal $monComma
         }
 

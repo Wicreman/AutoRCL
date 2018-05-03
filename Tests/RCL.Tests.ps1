@@ -180,16 +180,7 @@ InModuleScope -ModuleName $NAVRclApi {
             $NavSetupLogName = "Install-NAV.log"
             $NavSetupLog = Join-Path $LogPath $NavSetupLogName
             $NavLogContent = Get-Content $NavSetupLog
-            if ($NavLogContent -match "Package Web Server Components failed with error")
-            {
-                $webClientError = "Package Web Server Components failed with error"
-                Write-Log $webClientError
-            }
-            else 
-            {
-                $unexpectedSetupInfomation = "Error"
-                $NavSetupLog | Should -Not -FileContentMatch $unexpectedSetupInfomation     
-            }
+            Write-Log $NavLogContent
             
             Write-Log "Setp 3: Get the RTM Database backup file"  -ForegroundColor "DarkGreen" 
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language

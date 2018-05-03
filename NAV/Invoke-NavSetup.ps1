@@ -95,6 +95,7 @@ function Invoke-NavSetup {
         Write-Log "Running Setup.exe to install NAV.."
         Invoke-ProcessWithProgress -FilePath $navSetupExe -ArgumentList $argumentList -TimeOutSeconds 6000
         
+        <#
         Write-Log "Searching the log file for 'Error'"
         [int]$errorCount = @(Select-String -Path $logFile -Pattern "Error:").Count
         if ($errorCount -ne 0) 
@@ -102,7 +103,7 @@ function Invoke-NavSetup {
             $Message = "The setup program failed: $navSetupExe. More details can be found in the log file located on the target machine: $logFile."
             Write-Log $Message
             Throw $Message
-        }
+        }#>
     }
 }
 
