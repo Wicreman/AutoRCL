@@ -180,7 +180,7 @@ InModuleScope -ModuleName $NAVRclApi {
             $NavSetupLogName = "Install-NAV.log"
             $NavSetupLog = Join-Path $LogPath $NavSetupLogName
             $NavLogContent = Get-Content $NavSetupLog
-            Write-Log $NavLogContent
+            #Write-Log $NavLogContent
             
             Write-Log "Setp 3: Get the RTM Database backup file"  -ForegroundColor "DarkGreen" 
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
