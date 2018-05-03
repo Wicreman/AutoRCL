@@ -395,8 +395,28 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
                 Invoke-NAVCompile @compileParam
 
-                $compiledLog = Join-Path $LogPath "Compile\navcommandresult.txt"
-                $compiledLog | Should -FileContentMatchExactly $ExpectedCommandLog
+                $navErrorLog = Join-Path $LogPath "Compile\naverrorlog.txt"
+                if(Test-Path $navErrorLog)
+                {
+                    $skipedError = "Object: Codeunit 2000010"
+                    $allError = "Object:"
+                    $skipedErrorCount = @(Select-String -Path $navErrorLog -Pattern "$skipedError").Count
+                    $allErrorCount = @(Select-String -Path $navErrorLog -Pattern "$allError").Count
+
+                    $errorInformation = Get-Content $navErrorLog | Where-Object {$_ -like "*$allError*"}
+                    if($errorInformation)
+                    {
+                        Write-Log $errorInformation -ForegroundColor "RED"
+                    }
+
+                    $allErrorCount | Should -Be $skipedErrorCount
+                }
+                else 
+                {
+                    $compiledLog = Join-Path $LogPath "Compile\navcommandresult.txt"
+                    $compiledLog | Should -FileContentMatchExactly $ExpectedCommandLog
+                }
+                
             }
         }
     }
