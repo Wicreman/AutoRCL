@@ -62,7 +62,7 @@ Export-ModuleMember -Function Import-SqlPsModule
 function Get-InstalledSQLServerMajorVersion {
     $installedInstances = (get-itemproperty 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server').InstalledInstances
 
-    if($installedInstances.Contains("MSSQLSERVER"))
+    if($installedInstances -and $installedInstances.Contains("MSSQLSERVER"))
     {
         $instanceKey = $installedInstances[0]
         $instanceValue = (Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\Instance Names\SQL').$instanceKey

@@ -179,13 +179,15 @@ InModuleScope -ModuleName $NAVRclApi {
             
             $NavSetupLogName = "Install-NAV.log"
             $NavSetupLog = Join-Path $LogPath $NavSetupLogName
-            $NavLogContent = Get-Content $NavSetupLog
-            #Write-Log $NavLogContent
+            [int]$errorCount = @(Select-String -Path $NavSetupLog -Pattern "ERROR:").Count
+            [int]$skippedErrorCount = @(Select-String -Path $logFile -Pattern "ERROR: Package Web Server Components failed with error").Count
+            
+            $errorCount | Should -Be $skippedErrorCount
             
             Write-Log "Setp 3: Get the RTM Database backup file"  -ForegroundColor "DarkGreen" 
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
 
-            Write-Log "Setp 4: Restore RTM Database backup file as new database"   -ForegroundColor "DarkGreen" 
+            Write-Log "Setp 4: Restore RTM Database backup file as new database"  -ForegroundColor "DarkGreen" 
             $RTMDatabaseName = "$RTMDatabaseName$ShortVersion"
             $rtmParam = @{
                 SQLServerInstance = $SQLServerInstance
