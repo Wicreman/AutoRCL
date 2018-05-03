@@ -10,7 +10,7 @@ if ($policy -eq "Restricted" -or $policy -eq "RemoteSigned")
 
 # Import NAV RCL API module
 Get-module  -name "NAVRCLAPI" | Remove-Module
-Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Verbose -Force
+Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Force
 
 # Check if Pester is not installed, if no, we need to install it firstly
 $PesterVersion = Get-Module -ListAvailable -Name "Pester" | Where-Object { $_.Version.Major -ge 4 }

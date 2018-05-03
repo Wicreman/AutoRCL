@@ -411,7 +411,7 @@ InModuleScope -ModuleName $NAVRclApi {
     Describe "Translation" -Tag "UnitTestCase" {
         $languageNames = $LanguageTranslationMap.$language
         $shortVersion = $ShortVersionMap.$Version
-        Import-NAVIdeModule -ShortVersion $shortVersion -Verbose
+        Import-NAVIdeModule -ShortVersion $shortVersion
         
         It "$languageNames" {
             if($language -ne "W1")
