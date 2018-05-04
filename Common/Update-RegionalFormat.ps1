@@ -72,7 +72,7 @@ function Update-RegionalFormat {
             "IS", "IT", "NA", "NL", "NO", `
             "RU", "SE", "W1"
         
-        $currencyDecimalCountry = "ES", "SE", "CZ", "DE", "DK"
+        $currencyDecimalCountry = "ES", "SE", "CZ", "DE", "DK", "FI"
 
         if ($commaDecimal -contains $Language)
         {
