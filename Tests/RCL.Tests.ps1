@@ -399,9 +399,11 @@ InModuleScope -ModuleName $NAVRclApi {
                 if(Test-Path $navErrorLog)
                 {
                     $skipedError = "Object: Codeunit 2000010"
+                    $skipedErrorMenuSuite = "Object: MenuSuite"
                     $allError = "Object:"
-                    $skipedErrorCount = @(Select-String -Path $navErrorLog -Pattern "$skipedError").Count
-                    $allErrorCount = @(Select-String -Path $navErrorLog -Pattern "$allError").Count
+                    [int]$skipedCodeunit = @(Select-String -Path $navErrorLog -Pattern "$skipedError").Count
+                    [int]$skipedMenuSuite = @(Select-String -Path $navErrorLog -Pattern "$skipedErrorMenuSuite").Count
+                    [int]$allErrorCount = @(Select-String -Path $navErrorLog -Pattern "$allError").Count
 
                     $errorInformation = Get-Content $navErrorLog | Where-Object {$_ -like "*$allError*"}
                     if($errorInformation)
@@ -409,7 +411,7 @@ InModuleScope -ModuleName $NAVRclApi {
                         Write-Log $errorInformation -ForegroundColor "RED"
                     }
 
-                    $allErrorCount | Should -Be $skipedErrorCount
+                    $allErrorCount | Should -Be ($skipedCodeunit + $skipedMenuSuite)
                 }
                 else 
                 {
