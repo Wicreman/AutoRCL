@@ -105,7 +105,7 @@ Function Get-NAVRTMDemoData  {
         }
         
         Push-Location $BuildVersionPath
-        $BuilPackge = Get-ChildItem * | Where-Object { $_.Name -match "Dynamics.*$Language.*\.zip"}
+        $BuilPackge = Get-ChildItem * | Where-Object { $_.Name -cmatch ".*$Language.*\.zip"}
         Pop-Location
 
         if($BuilPackge -eq $null)
