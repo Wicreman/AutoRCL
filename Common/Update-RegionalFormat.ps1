@@ -67,12 +67,15 @@ function Update-RegionalFormat {
         $defualtMoneyDecimal = "."
 
         # Update the decimal 
-        $commaDecimal = "AT", "FI", "CZ",  `
-            "DE", "DK", "BE", "ES", "FR",  `
-            "IS", "IT", "NA", "NL", "NO", `
-            "RU", "SE", "W1"
+        $commaDecimal = 
+            "AT", "BE", "CZ", "DE", "DK", `
+            "ES","FI", "FR",  "IS", "IT", `
+            "NA", "NL", "NO", "RU", "SE", "W1" 
         
-        $currencyDecimalCountry = "ES", "SE", "CZ", "DE", "DK", "FI"
+        $currencyDecimalCountry = 
+            "AT", "BE", "CZ", "DE", "DK", `
+            "ES", "FI", "FR", "IS", "IT", `
+            "NL", "NO", "RU", "SE"
 
         if ($commaDecimal -contains $Language)
         {
