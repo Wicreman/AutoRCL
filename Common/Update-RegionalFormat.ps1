@@ -64,30 +64,20 @@ function Update-RegionalFormat {
 
         # Default symbol of decimal
         $defualtSymbolDecimal = "."
-        $defualtMoneyDecimal = "."
 
         # Update the decimal 
         $commaDecimal = 
             "AT", "BE", "CZ", "DE", "DK", `
             "ES","FI", "FR",  "IS", "IT", `
-            "NA", "NL", "NO", "RU", "SE", "W1" 
-        
-        $currencyDecimalCountry = 
-            "AT", "BE", "CZ", "DE", "DK", `
-            "ES", "FI", "FR", "IS", "IT", `
-            "NL", "NO", "RU", "SE"
+            "NL", "NO", "RU", "SE", "W1" 
 
         if ($commaDecimal -contains $Language)
         {
             $defualtSymbolDecimal = ","  
         }
 
-        if ($currencyDecimalCountry -contains $Language) {
-            $defualtMoneyDecimal = "," 
-        }
-
         Update-Decimal $defualtSymbolDecimal
-        Update-MoneyDecimal $defualtMoneyDecimal
+        Update-MoneyDecimal $defualtSymbolDecimal
 
         if(-Not(Get-WinCultureFromLanguageListOptOut))
         {
