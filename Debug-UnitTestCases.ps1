@@ -42,7 +42,7 @@ $debugTxt = $false
 $debugTranslation = $false
 $debugAll = $false
 
-$reportPath = Join-Path $env:HOMEDRIVE "NAVDebugReports"
+$reportPath = Join-Path $env:HOMEDRIVE "NAVReports"
 if (-Not(Test-Path $reportPath)) {
     $null = New-Item -ItemType Directory $reportPath -Force
 }
@@ -106,16 +106,16 @@ if ($debugTranslation) {
 # All
 if ($debugAll) {
     Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -OutputFile $reportFile -OutputFormat NUnitXml
-}
 
-#Send email
-$reportParm = @{
-    ReportPath = $reportFile
-    Version = $version
-    Language= $language
-    BuildDate = $buildDate
+    #Send email
+    $reportParm = @{
+        ReportPath = $reportFile
+        Version = $version
+        Language= $language
+        BuildDate = $buildDate
+    }
+    Send-UnitTestResult @reportParm
 }
-Send-UnitTestResult @reportParm
 
 #Generate HTML report by using tool ReportUnit
 $reportUnitPath = Join-Path $PSScriptRoot "External"
