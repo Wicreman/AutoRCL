@@ -179,22 +179,15 @@ InModuleScope -ModuleName $NAVRclApi {
             
             $NavSetupLogName = "Install-NAV.log"
             $NavSetupLog = Join-Path $LogPath $NavSetupLogName
-            $NavLogContent = Get-Content $NavSetupLog
-            if ($NavLogContent -match "Package Web Server Components failed with error")
-            {
-                $webClientError = "Package Web Server Components failed with error"
-                Write-Log $webClientError
-            }
-            else 
-            {
-                $unexpectedSetupInfomation = "Error"
-                $NavSetupLog | Should -Not -FileContentMatch $unexpectedSetupInfomation     
-            }
+            [int]$errorCount = @(Select-String -Path $NavSetupLog -Pattern "ERROR:").Count
+            [int]$skippedErrorCount = @(Select-String -Path $NavSetupLog -Pattern "ERROR: Package Web Server Components failed with error").Count
+            
+            $errorCount | Should -Be $skippedErrorCount
             
             Write-Log "Setp 3: Get the RTM Database backup file"  -ForegroundColor "DarkGreen" 
             $RTMDataBaseBackupFile = Get-NAVRTMDemoData -Version $Version -Language $Language
 
-            Write-Log "Setp 4: Restore RTM Database backup file as new database"   -ForegroundColor "DarkGreen" 
+            Write-Log "Setp 4: Restore RTM Database backup file as new database"  -ForegroundColor "DarkGreen" 
             $RTMDatabaseName = "$RTMDatabaseName$ShortVersion"
             $rtmParam = @{
                 SQLServerInstance = $SQLServerInstance
@@ -402,8 +395,30 @@ InModuleScope -ModuleName $NAVRclApi {
                 }
                 Invoke-NAVCompile @compileParam
 
-                $compiledLog = Join-Path $LogPath "Compile\navcommandresult.txt"
-                $compiledLog | Should -FileContentMatchExactly $ExpectedCommandLog
+                $navErrorLog = Join-Path $LogPath "Compile\naverrorlog.txt"
+                if(Test-Path $navErrorLog)
+                {
+                    $skipedError = "Object: Codeunit 2000010"
+                    $skipedErrorMenuSuite = "Object: MenuSuite"
+                    $allError = "Object:"
+                    [int]$skipedCodeunit = @(Select-String -Path $navErrorLog -Pattern "$skipedError").Count
+                    [int]$skipedMenuSuite = @(Select-String -Path $navErrorLog -Pattern "$skipedErrorMenuSuite").Count
+                    [int]$allErrorCount = @(Select-String -Path $navErrorLog -Pattern "$allError").Count
+
+                    $errorInformation = Get-Content $navErrorLog | Where-Object {$_ -like "*$allError*"}
+                    if($errorInformation)
+                    {
+                        Write-Log $errorInformation -ForegroundColor "RED"
+                    }
+
+                    $allErrorCount | Should -Be ($skipedCodeunit + $skipedMenuSuite)
+                }
+                else 
+                {
+                    $compiledLog = Join-Path $LogPath "Compile\navcommandresult.txt"
+                    $compiledLog | Should -FileContentMatchExactly $ExpectedCommandLog
+                }
+                
             }
         }
     }
@@ -420,7 +435,7 @@ InModuleScope -ModuleName $NAVRclApi {
     Describe "Translation" -Tag "UnitTestCase" {
         $languageNames = $LanguageTranslationMap.$language
         $shortVersion = $ShortVersionMap.$Version
-        Import-NAVIdeModule -ShortVersion $shortVersion -Verbose
+        Import-NAVIdeModule -ShortVersion $shortVersion
         
         It "$languageNames" {
             if($language -ne "W1")

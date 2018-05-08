@@ -80,46 +80,48 @@ if ($debugClean) {
 
 # Starting Install and configure
 if ($debugSetup) {
-    $reportFileSetup = Join-Path $reportPath "RCLReport-$Version-$language-Setup.xml"
-    Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup -OutputFile $reportFileSetup -OutputFormat NUnitXml
+    Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup
 }
 
 $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
 
 # UTC: Import and export process of FOB file
 if ($debugFob) {
-    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "FOB" -OutputFile $reportFile -OutputFormat NUnitXml
+    $reportFileFob = Join-Path $reportPath "RCLReport-$Version-$language-Fob-debug.xml"
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "FOB" -OutputFile $reportFileFob -OutputFormat NUnitXml
 }
 
 #Import process of TXT file
 if ($debugTxt) {
-    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "TXT" -OutputFile $reportFile -OutputFormat NUnitXml
+    $reportFileTxt = Join-Path $reportPath "RCLReport-$Version-$language-Txt-debug.xml"
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "TXT" -OutputFile $reportFileTxt -OutputFormat NUnitXml
 }
 
 # Validate objects translation
 if ($debugTranslation) {
-    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Translation" -OutputFile $reportFile -OutputFormat NUnitXml
+    $reportFileTranslation = Join-Path $reportPath "RCLReport-$Version-$language-Translation-debug.xml"
+    Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -TestName "Translation" -OutputFile $reportFileTranslation -OutputFormat NUnitXml
 }
 
 # All
 if ($debugAll) {
     Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -OutputFile $reportFile -OutputFormat NUnitXml
+
+    #Send email
+    $reportParm = @{
+        ReportPath = $reportFile
+        Version = $version
+        Language= $language
+        BuildDate = $buildDate
+    }
+    Send-UnitTestResult @reportParm
 }
 
-#Send email
-$reportParm = @{
-    ReportPath = $reportFile
-    Version = $version
-    Language= $language
-    BuildDate = $buildDate
-}
-Send-UnitTestResult @reportParm
-
-<# Generate HTML report by using tool ReportUnit
+#Generate HTML report by using tool ReportUnit
 $reportUnitPath = Join-Path $PSScriptRoot "External"
 Push-Location $reportUnitPath
 & .\ReportUnit1-5.exe $reportPath
-Pop-Location #>
+Pop-Location
 
 # SIG # Begin signature block
 # MIID2QYJKoZIhvcNAQcCoIIDyjCCA8YCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB

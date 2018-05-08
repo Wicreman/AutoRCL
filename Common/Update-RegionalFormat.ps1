@@ -62,24 +62,22 @@ function Update-RegionalFormat {
              
         }
 
+        # Default symbol of decimal
+        $defualtSymbolDecimal = "."
+
         # Update the decimal 
-        $commaDecimal = "AT", "FI", "CZ",  `
-            "DE", "DK", "BE", "ES", "FR",  `
-            "IS", "IT", "NA", "NL", "NO", `
-            "RU", "SE", "W1"
+        $commaDecimal = 
+            "AT", "BE", "CZ", "DE", "DK", `
+            "ES","FI", "FR",  "IS", "IT", `
+            "NL", "NO", "RU", "SE", "W1" 
 
         if ($commaDecimal -contains $Language)
         {
-            $comma = ","
-            Update-Decimal $comma
+            $defualtSymbolDecimal = ","  
         }
 
-        $currencyDecimalCountry = "ES", "SE"
-
-        if ($currencyDecimalCountry -contains $Language) {
-            $monComma = ","
-            Update-MoneyDecimal $monComma
-        }
+        Update-Decimal $defualtSymbolDecimal
+        Update-MoneyDecimal $defualtSymbolDecimal
 
         if(-Not(Get-WinCultureFromLanguageListOptOut))
         {

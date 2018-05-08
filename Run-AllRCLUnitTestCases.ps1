@@ -10,7 +10,7 @@ if ($policy -eq "Restricted" -or $policy -eq "RemoteSigned")
 
 # Import NAV RCL API module
 Get-module  -name "NAVRCLAPI" | Remove-Module
-Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Verbose -Force
+Import-Module (Join-Path $PSScriptRoot "NAVRCLAPI.psm1") -Force
 
 # Check if Pester is not installed, if no, we need to install it firstly
 $PesterVersion = Get-Module -ListAvailable -Name "Pester" | Where-Object { $_.Version.Major -ge 4 }
@@ -79,8 +79,8 @@ foreach($version in $versions)
         if($cleanUTs.FailedCount -eq 0)
         {
             Write-Log  "Starting Install and configure Dynamics$Version"
-            $reportFileSetup = Join-Path $reportPath "RCLReport-$Version-$language-Setup.xml"
-            $failedUTs =  Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup -OutputFile $reportFileSetup -OutputFormat NUnitXml
+            $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
+            $failedUTs =  Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup -OutputFile $reportFile -OutputFormat NUnitXml
 
             if($failedUTs.FailedCount -gt 0){
                 Write-Error "Fail to setup NAV for Dynamics$version with $language " -ErrorAction Stop
@@ -88,7 +88,6 @@ foreach($version in $versions)
             else {
                 Write-Log  "Successfully Install and configure Dynamics$Version"
                 Write-Log  "Starting to run case for Dynamics$version with $language"
-                $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
             
                 Invoke-Pester -Script $scriptParam -Tag $Tags.UTC -OutputFile $reportFile -OutputFormat NUnitXml
 
