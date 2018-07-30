@@ -21,15 +21,15 @@ if (-Not($PesterVersion))
         Install-Module Pester -Force -SkipPublisherCheck
     }
     else {
-        (new-object Net.WebClient).DownloadString("http://psget.net/GetPsGet.ps1") | Invoke-Expression 
-        Install-Module Pester
+        iex ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+        choco install pester -Force
     }  
 }
 
 # Update the version, build date, language
-$buildDate = "2018-4"
-$versions = "NAV2018" 
-$languages = "CH" #"ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
+$buildDate = "2018-8"
+$versions = "NAV2017" 
+$languages = "W1" #"ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
  #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
 
 # Please update your database intance name like NAVDEMO22, NAVDEMO33
