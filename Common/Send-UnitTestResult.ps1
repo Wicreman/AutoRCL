@@ -93,8 +93,6 @@ function Send-UnitTestResult {
                 | ConvertTo-Html -Head $headerStyle 
         }
 
-        $sendToArray = $SendTo.Split(",")
-
         $body = @{
             From = $fromEmailAddress
             To = $toEmailAddress
@@ -103,7 +101,7 @@ function Send-UnitTestResult {
             Subject = "RCL Report for Dynamics$Version with $Language - $BuildDate"
             Body =  $caseCount + $messageBodyUTs
             SmtpServer = "smtphost.dns.microsoft.com"
-            IsHtml = $true
+            BodyAsHtml = $true
         }
 
         if ($PSVersionTable.PSVersion.Major -ge 3)
