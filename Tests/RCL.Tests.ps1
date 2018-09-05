@@ -145,15 +145,12 @@ InModuleScope -ModuleName $NAVRclApi {
         Setp 4: Restore RTM Database backup file as new database
         Setp 5: Set the Service Account  $NAVServerServiceAccount user as db_owner for the  $RTMDatabaseName database 
         Setp 6: Import NAV admin and development module
-        Setp 7: Stop NAV AOS
-        Setp 8: Convert the database
-        Setp 9: Update NAV Server configuration to connect RTM Database
-        Setp 10: Copy required file for NST, RTC, Web Client"
-        (Only for NAV2013R2 and NAV2013)
-        Setp 10: Sync the database
-        (Before sync, start the NAV service.Do this only for NAV80,NAV90,NAV10 & Main)
-        Setp 11: Update region format
-        Step 12: Import NAV License
+        Step 7: Import NAV License
+        Setp 8: Stop NAV AOS
+        Setp 9: Convert the database
+        Setp 10: Update NAV Server configuration to connect RTM Database
+        Setp 11: Sync the database
+        Setp 12: Update region format
     #>
     Describe "Install and configure Dynamics$Version" -Tag "NAVSetup" {
 
@@ -212,10 +209,13 @@ InModuleScope -ModuleName $NAVRclApi {
             Import-NAVIdeModule -ShortVersion $ShortVersion
             Find-NAVMgtModuleLoaded -ShortVersion $ShortVersion
 
-            Write-Log "Setp 7: Stop NAV AOS before converting the database" -ForegroundColor "DarkGreen"
+            Write-Log "Step 7: Import NAV License"    -ForegroundColor "DarkGreen"
+            Import-NAVLicense -ShortVersion $ShortVersion
+
+            Write-Log "Setp 8: Stop NAV AOS before converting the database" -ForegroundColor "DarkGreen"
             Stop-NAVServer -ServiceName $NAVServerInstance
          
-            Write-Log "Setp 8: Convert the database" -ForegroundColor "DarkGreen" 
+            Write-Log "Setp 9: Convert the database" -ForegroundColor "DarkGreen" 
             
             $convertDBParam = @{
                 DatabaseServer = $DatabaseServer
@@ -238,47 +238,24 @@ InModuleScope -ModuleName $NAVRclApi {
 
             $convertDBLog | Should -FileContentMatch $ExpectedCommandLog
 
-            Write-Log "Setp 9: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
+            Write-Log "Setp 10: Update NAV Server configuration to connect RTM Database"  -ForegroundColor "DarkGreen"
             $serverConfigParam = @{
                 ServerInstance = $NAVServerInstance  
                 KeyValue = $RTMDatabaseName
             }
 
             Set-NewNAVServerConfiguration  @serverConfigParam
-
-            Write-Log "Step 10: Import NAV License"    -ForegroundColor "DarkGreen"
             Import-NAVLicense -ShortVersion $ShortVersion
-
-            if ($Version -like "NAV2013*") {
-                Write-Log "Setp 10: Copy required file for NST, RTC, Web Client"  -ForegroundColor "DarkGreen" 
-                #Below steps are only for NAV2013 and NAV2013R2
-                $NSTPath =  (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\NST\*")
-                $WebClientPath = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\WEB CLIENT\*")
-                $RoleTailoredClienPath  = (Join-Path $env:HOMEDRIVE "NAVWorking\$Version\$Language\Extracted\RTC\*")
-
-                $NAVInstalledNSTPath = (Join-Path $env:HOMEDRIVE  "Microsoft Dynamics NAV\Service")
-                $NAVInstalledWebClientPath = (Join-Path $env:HOMEDRIVE  "Microsoft Dynamics NAV\Web Client")
-                $NAVInstalledRTCPath = (Join-Path $env:HOMEDRIVE  "Microsoft Dynamics NAV\RoleTailored Client")
-
-                Copy-Item -Path $NSTPath -Destination $NAVInstalledNSTPath -Recurse -Force
-
-                Copy-Item -Path $WebClientPath -Destination $NAVInstalledWebClientPath -Recurse -Force
-
-                Copy-Item -Path $RoleTailoredClienPath -Destination $NAVInstalledRTCPath -Recurse -Force
+            Write-Log "Setp 11: Sync the database"   -ForegroundColor "DarkGreen"
+            Start-NavServer -ServiceName $NAVServerInstance
+            try {
+                Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
             }
-            else {
-                Start-NavServer -ServiceName $NAVServerInstance
-                Write-Log "Setp 11: Sync the database"   -ForegroundColor "DarkGreen"
-                try {
-                    Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
-                }
-                catch {
-                    # try again
-                    Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
-                }
+            catch {
+                # try again
+                Sync-NAVDatabase -NAVServerInstance $NAVServerInstance
+            }
                 
-            }
-            
             Write-Log "Setp 12: Update region format"  -ForegroundColor "DarkGreen"
             Update-RegionalFormat $Language
         }

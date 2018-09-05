@@ -19,7 +19,7 @@ function Import-NAVLicense {
                 Write-Error "The Microsoft Dynamics NAV Server instance $NAVServerInstance does not exist."
                 return
             }
-            [string]$LicenseFile = Join-Path $PSScriptRoot  "Data\NAVDemoLicense.flf"
+            [string]$LicenseFile = Join-Path $PSScriptRoot  "Data\NAVDemoLicenseLatest.flf"
             Write-Log "Looking  for NAV demo licence file in $LicenseFile"
             if ((Test-Path -PathType Leaf $LicenseFile) -eq $false) 
             {
