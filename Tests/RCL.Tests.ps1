@@ -245,7 +245,7 @@ InModuleScope -ModuleName $NAVRclApi {
             }
 
             Set-NewNAVServerConfiguration  @serverConfigParam
-
+            Import-NAVLicense -ShortVersion $ShortVersion
             Write-Log "Setp 11: Sync the database"   -ForegroundColor "DarkGreen"
             Start-NavServer -ServiceName $NAVServerInstance
             try {
