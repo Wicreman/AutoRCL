@@ -20,8 +20,9 @@ function Send-UnitTestResult {
     )
 
     process{
-        $ClientKey = "rw01+b4CIdOKxvKZVLorxD7EH9TOjyJ5OWZNpuhu1k0="
-        $SendTo = "$env:UserName@microsoft.com"
+
+        $toEmailAddress = ([adsi]"LDAP://$(whoami /fqdn)").mail.ToString()
+        $fromEmailAddress = ([adsi]"LDAP://$(whoami /fqdn)").mail.ToString()
         $CcTo = "wsnavt@microsoft.com"
         $BCc = "v-doc@microsoft.com"
 
@@ -95,18 +96,19 @@ function Send-UnitTestResult {
         $sendToArray = $SendTo.Split(",")
 
         $body = @{
-            ClientKey = $ClientKey;
-            To = $sendToArray;
-            Cc = @($CcTo);
-            Bcc = @($BCc);
-            Subject = "RCL Report for Dynamics$Version with $Language - $BuildDate";
-            Body =  $caseCount + $messageBodyUTs;
+            From = $fromEmailAddress
+            To = $toEmailAddress
+            Cc = @($CcTo)
+            Bcc = @($BCc)
+            Subject = "RCL Report for Dynamics$Version with $Language - $BuildDate"
+            Body =  $caseCount + $messageBodyUTs
+            SmtpServer = "smtphost.dns.microsoft.com"
             IsHtml = $true
         }
 
         if ($PSVersionTable.PSVersion.Major -ge 3)
         {
-            Invoke-RestMethod -Method Post -Uri "https://emailcourier.azurewebsites.net/api/EmailCourier" -Body (ConvertTo-Json $body) 
+            Send-MailMessage @body
         }
         else
         {
