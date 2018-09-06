@@ -29,13 +29,13 @@ function Update-RegionalFormat {
              }
              {$dGroupMDY -contains $_} {
                 $ShortDate = "MM/dd/yy"
-                $naTimeFormat = "HH:mm:ss tt"
+                $naTimeFormat = "hh:mm:ss tt"
                 Update-RegkeyValue $ShortDate $naTimeFormat
                 break
              }
              "IT" {
                 $ShortDate = "dd/MM/yy"
-                $itTimeFormat = "HH.mm.ss tt"
+                $itTimeFormat = "hh.mm.ss tt"
                 Update-RegkeyValue $ShortDate $itTimeFormat
                 break
              }
@@ -46,14 +46,14 @@ function Update-RegionalFormat {
              }
              "AU" {
                 $ShortDate = "dd/MM/yy"
-                $auTimeFormat = "HH:mm:ss tt"
+                $auTimeFormat = "hh:mm:ss tt"
                 
                 Update-RegkeyValue $ShortDate $auTimeFormat
                 break
              }
              "NZ" {
                 $ShortDate = "dd/MM/yy"
-                $nzTimeFormat = "HH:mm:ss tt"
+                $nzTimeFormat = "hh:mm:ss tt"
                 $am = "a.m."
                 $pm = "p.m."
                 Update-RegkeyValue $ShortDate $nzTimeFormat $am $pm
