@@ -151,6 +151,7 @@ InModuleScope -ModuleName $NAVRclApi {
         Setp 10: Update NAV Server configuration to connect RTM Database
         Setp 11: Sync the database
         Setp 12: Update region format
+        Step 13: Import NAV License
     #>
     Describe "Install and configure Dynamics$Version" -Tag "NAVSetup" {
 
@@ -258,6 +259,9 @@ InModuleScope -ModuleName $NAVRclApi {
                 
             Write-Log "Setp 12: Update region format"  -ForegroundColor "DarkGreen"
             Update-RegionalFormat $Language
+
+            Write-Log "Step 13: Import NAV License"    -ForegroundColor "DarkGreen"
+            Import-NAVLicense -ShortVersion $ShortVersion            
         }
     }
 
@@ -313,7 +317,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 $exportedTxtLog = Join-Path $LogPath "ExportFobOrTxt\txt\navcommandresult.txt"
 
                 $exportedTxtLog | Should -FileContentMatch $ExpectedCommandLog
-                # Assert
+                # Assert              
                 $actualTxt = (Get-FileHash $actualTxtPackge[0]).hash
                 $expectedTxt = (Get-FileHash  $expectedTxtPackge.FullName).hash
 
