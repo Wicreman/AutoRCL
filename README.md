@@ -1,4 +1,4 @@
-# NAVTool
+# AutoRCL 
+AutoRCL is automatic for NAV RCL test cases.
 
-NAV installer tool
-Auto-setup Dynamics NAV environment
+Version1: powershel command 
