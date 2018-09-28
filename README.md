@@ -1,4 +1,4 @@
 # AutoRCL 
 AutoRCL is automatic for NAV RCL test cases.
 
-Version1: powershel command 
+Version1: powershell command 
