@@ -60,6 +60,11 @@ Function Copy-NAVCU  {
                 $BuildFlavor = "Update_Rollups"
                 break
             }
+            "365" { 
+                $rootPath = "\\vedfssrv01\DynNavFS2\Releases\BusinessCentral\"
+                $BuildFlavor = "_CumulativeUpdates"
+                break
+            }
             Default {
                 $BuildFlavor = "Cumulative Updates"
             }
@@ -67,8 +72,14 @@ Function Copy-NAVCU  {
 
         if($Version -ne "NAV2015")
         {
-            $Version = "Dynamics$Version"
-        }
+            if($Version -eq "365")
+            {
+                $Version = "Dynamics$Version" + "BusinessCentral_Fall18"
+            }
+            else {
+                $Version = "Dynamics$Version"
+            }         
+        } 
 
         $BuildDropPath = Join-Path $rootPath $Version
 

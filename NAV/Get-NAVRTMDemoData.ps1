@@ -35,7 +35,14 @@ Function Get-NAVRTMDemoData  {
 
         if($Version -ne "NAV2015")
         {
-            $Version = "Dynamics$Version"
+            if($Version -eq "365")
+            {
+                $BuildDropPath = "\\vedfssrv01\DynNavFS2\Releases\BusinessCentral\"
+                $Version = "Dynamics$Version" + "BusinessCentral_Fall18"
+            }
+            else {
+                $Version = "Dynamics$Version"
+            } 
         }
         
         Write-Log "Preparing $Destination directory..."

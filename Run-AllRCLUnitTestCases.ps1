@@ -28,7 +28,8 @@ if (-Not($PesterVersion))
 
 # Update the version, build date, language
 $buildDate = "2018-8"
-$versions = "NAV2017" 
+#Dynamics365BusinessCentral 
+$versions = "365" #"NAV2018", "NAV2016", "NAV2015",
 $languages = "W1" #"ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
  #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
 
