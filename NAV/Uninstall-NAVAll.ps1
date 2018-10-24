@@ -70,6 +70,8 @@ function Uninstall-NAVAll {
         # Revmove IIS Sites
         Remove-AllNAVWebSites
         
+        #Remove all nav services
+        Remove-AllNAVServices
 
         # Uninstall NAV Database.
         Write-Log "Looking for all NAV Database ..."
@@ -190,6 +192,23 @@ function Remove-AllNAVWebSites
     
 
     IISReset
+
+}
+
+function Remove-AllNAVServices {
+    $ServiceName = "*DynamicsNAV*"
+    $Services = Get-Service "MicrosoftDynamicsNavServer`$$ServiceName"
+    ForEach ($Service in $Services)
+    {
+        $Name = $Service.Name
+        $ServiceStatus = $Service.Status
+        if ($ServiceStatus -ne [System.ServiceProcess.ServiceControllerStatus]::Stopped)
+        {
+            sc stop "$Name"
+        }
+
+        sc delete "$Name"
+    }
 }
 
 Export-ModuleMember -Function Uninstall-NAVAll

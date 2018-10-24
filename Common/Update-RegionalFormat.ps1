@@ -6,7 +6,7 @@ function Update-RegionalFormat {
     )
     process{
         $aGroupDMY = "AT", "FI", "CH", "IS", "CZ", "DE", "NO", "RU"
-        $bGroupDMY = "ES", "FR", "BE", "GB"
+        $bGroupDMY = "ES", "FR", "BE", "GB", "IT"
         $cGroupDYM = "DK", "NL", "W1"
         $dGroupMDY = "IN", "NA"
         $TimeFormat = "HH:mm:ss"
@@ -29,14 +29,8 @@ function Update-RegionalFormat {
              }
              {$dGroupMDY -contains $_} {
                 $ShortDate = "MM/dd/yy"
-                $naTimeFormat = "HH:mm:ss tt"
+                $naTimeFormat = "hh:mm:ss tt"
                 Update-RegkeyValue $ShortDate $naTimeFormat
-                break
-             }
-             "IT" {
-                $ShortDate = "dd/MM/yy"
-                $itTimeFormat = "HH.mm.ss tt"
-                Update-RegkeyValue $ShortDate $itTimeFormat
                 break
              }
              "SE" {
@@ -46,14 +40,14 @@ function Update-RegionalFormat {
              }
              "AU" {
                 $ShortDate = "dd/MM/yy"
-                $auTimeFormat = "HH:mm:ss tt"
+                $auTimeFormat = "hh:mm:ss tt"
                 
                 Update-RegkeyValue $ShortDate $auTimeFormat
                 break
              }
              "NZ" {
                 $ShortDate = "dd/MM/yy"
-                $nzTimeFormat = "HH:mm:ss tt"
+                $nzTimeFormat = "hh:mm:ss tt"
                 $am = "a.m."
                 $pm = "p.m."
                 Update-RegkeyValue $ShortDate $nzTimeFormat $am $pm
