@@ -47,10 +47,10 @@ function Export-FobOrTxtFile  {
 
         $FilterMap = @{
             365 = "Version List=*13.*"
-            NAV2018 = "Version List=*11.*.00*"
-            NAV2017 = "Version List=*10.*.00*"
-            NAV2016 = "Version List=*9.*.00*"
-            NAV2015 = "Version List=*8.*.00*"
+            NAV2018 = "Version List=*11.0?.00*"
+            NAV2017 = "Version List=*10.0?.00*"
+            NAV2016 = "Version List=*9.0?.00*"
+            NAV2015 = "Version List=*8.0?.00*"
         }
 
         $isExportTxtSkipUnlicensed = $false
