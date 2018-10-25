@@ -393,11 +393,7 @@ InModuleScope -ModuleName $NAVRclApi {
                     [int]$skipedMenuSuite = @(Select-String -Path $navErrorLog -Pattern "$skipedErrorMenuSuite").Count
                     [int]$allErrorCount = @(Select-String -Path $navErrorLog -Pattern "$allError").Count
 
-                    $errorInformation = Get-Content $navErrorLog | Where-Object {$_ -like "*$allError*"}
-                    if($errorInformation)
-                    {
-                        Write-Log $errorInformation -ForegroundColor "RED"
-                    }
+                    Get-Content $navErrorLog | Where-Object {$_ -like "*$allError*"} | Out-Host
 
                     $allErrorCount | Should -Be ($skipedCodeunit + $skipedMenuSuite)
                 }
@@ -443,6 +439,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 {
                     foreach($result in $translationResult)
                     {
+
                         $message = "Caption in $languageNames are missing ----- ObjectType:"+ $result.ObjectType + "  Id:" + $result.Id + " LCID:" + $result.LCID 
                         Write-Log $message -ForegroundColor "Red"
                     }

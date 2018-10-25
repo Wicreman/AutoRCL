@@ -170,7 +170,7 @@ Function Copy-NAVCU  {
         $BuilPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*NAV.*\.zip"}
         Pop-Location
 
-        if($BuilPackge -eq $null)
+        if($null -eq $BuilPackge)
         {
             $Message = ("Could not find any build package in path '{0}'!" -f $BuildDropPath)
             Write-Log $Message
@@ -200,7 +200,7 @@ Function Copy-NAVCU  {
 
         Push-Location $ExtractToPath
         $BuilDVDPackge = Get-ChildItem * | Where-Object { $_.Name -match ".*DVD.*\.zip"}
-        if($BuilDVDPackge -eq $null)
+        if($null -eq $BuilDVDPackge)
         {
             $Message = ("Could not find any DVD package in path '{0}'!" -f $ExtractToPath)
             Write-Log $Message

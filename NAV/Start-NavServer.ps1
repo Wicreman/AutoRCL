@@ -29,14 +29,6 @@ function Start-NavServer {
         [Parameter(Mandatory=$false)]
         [String]
 		$ServiceName = "*DynamicsNAV*",
-		
-		[Parameter(Mandatory=$false)]
-		[int]
-		$RetryCount = 5,
-		
-		[Parameter(Mandatory = $false)]
-        [Timespan]
-        $WaitTimeout = (New-Object Timespan 0, 2, 0),
 
         [Parameter(Mandatory = $false)]
         [String]
@@ -50,112 +42,8 @@ function Start-NavServer {
             $null = New-Item -ItemType Directory -Path $LogPath -Force
         }
 
-        Write-Log "Trying to find Dynamics NAV service..."
-        # $Services = Get-Service $ServiceName
-        $Services = Get-Service "MicrosoftDynamicsNavServer`$$ServiceName"
-
-        If ($Services -Eq $Null)
-        {
-            Write-Log "Service not found matching '$ServiceName'! Assuming NAV Server is not installed."
-            Return
-        }
-
-        ForEach ($Service in $Services)
-        {
-            $Attempt = 1
-            $Name = $Service.Name
-            $ServiceStatus = $Service.Status
-
-            While (($Attempt -Le $RetryCount) -And ($ServiceStatus -Ne [System.ServiceProcess.ServiceControllerStatus]::Running))
-            {
-                Write-Log "Service '$Name': Status is $ServiceStatus."
-                Write-Log "Service '$Name': Attempt $Attempt to ensure service is running."
-                # Get-Service returns a snapshot of the service at a certain point in time - it doesn't update the Status...
-                $Service = Get-Service $Name
-                $ServiceStatus = $Service.Status
-                
-                If ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::StopPending)
-                {
-                    Write-Log "Service '$Name': Status is pending stop. Waiting for up to 2 minutes..."
-                    Try
-                    {
-                        $Service.WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Stopped, $WaitTimeout)
-                    }
-                    Catch [System.ServiceProcess.TimeoutException]
-                    {
-                        Write-Log "Service '$Name': Timed out waiting for service to stop!"
-                    }
-                }
-                
-                If ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::PausePending)
-                {
-                    Write-Log "Service '$Name': Status is pending pause. Waiting for up to 2 minutes..."
-                    Try
-                    {
-                        $Service.WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Paused, $WaitTimeout)
-                    }
-                    Catch [System.ServiceProcess.TimeoutException]
-                    {
-                        Write-Log "Service '$Name': Timed out waiting for service to pause!"
-                    }
-                }
-                
-                $Service = Get-Service $Name
-                $ServiceStatus = $Service.Status
-                If (($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::Stopped) `
-                -Or ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::Paused))
-                {
-                    Write-Log "Service '$Name': Attempting to start service..."
-                    Try
-                    {
-                        $Service.Start()
-                    }
-                    Catch
-                    {
-                        Write-Log ("Service '$Name': Failed starting service. Exception message: {0}" -f $_.Exception.Message)
-                    }
-                }
-                
-                $Service = Get-Service $Name
-                $ServiceStatus = $Service.Status
-                If (($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::StartPending) `
-                -Or ($ServiceStatus -Eq [System.ServiceProcess.ServiceControllerStatus]::ContinuePending))
-                {
-                    Write-Log "Service '$Name': Status is pending start ($ServiceStatus). Waiting for up to 2 minutes..."
-                    Try
-                    {
-                        $Service.WaitForStatus([System.ServiceProcess.ServiceControllerStatus]::Running, $WaitTimeout)
-                    }
-                    Catch [System.ServiceProcess.TimeoutException]
-                    {
-                        Write-Log "Service '$Name': Timed out waiting for service to start!"
-                    }
-                }
-
-                $Attempt++
-            }
-
-            $Service = Get-Service $Name
-            $ServiceStatus = $Service.Status
-            If ($ServiceStatus -Ne [System.ServiceProcess.ServiceControllerStatus]::Running)
-            {
-                $NavServerInstanceNum = $Name.Split('$')[1]
-                $NavServerEventLogFileName = "NAV-AOS-EventLog-{0}.csv" -f (Get-Date).ToString("yyyyMMddHHmmss")
-                $NavServerEventLogFilePath = Join-Path $LogPath $NavServerEventLogFileName
-
-                $LogFilter = @{
-                    LogName = 'Application'
-                    ProviderName = $NavServerInstanceNum 
-                    Level = 2
-                }
-
-                Get-WinEvent -FilterHashtable $LogFilter | Select-Object TimeCreated, Id, LevelDisplayName, Message | Export-Csv $NavServerEventLogFilePath -NoTypeInformation
-
-                $Message = "Expected service '$Name' to be running but it is $ServiceStatus!"
-                Write-Log $Message
-                Throw $Message
-            }
-        }
+        Write-Log "Sart NAV Server"
+        Get-Service "MicrosoftDynamicsNavServer*" | Where-Object { $.Status -eq "Stopped"} | Restart-Service -ErrorAction SilentlyContinue
     }
 }
 
