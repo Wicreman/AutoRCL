@@ -32,6 +32,7 @@ $NAVRclApi = "NAVRCLAPI"
 InModuleScope -ModuleName $NAVRclApi {
 
     $ShortVersionMap = @{
+        365 = "130"
         NAV2018 = "110"
         NAV2017 = "100"
         NAV2016 = "90"
@@ -70,7 +71,13 @@ InModuleScope -ModuleName $NAVRclApi {
     
     if($Version -ne "NAV2015")
     {
-        $ProductVersion = "Dynamics$Version"
+        if($Version -eq "365")
+        {
+            $ProductVersion = "Dynamics$Version" + "BusinessCentral_Fall18"
+        }
+        else {
+            $ProductVersion = "Dynamics$Version"
+        }    
     }
     else 
     {
@@ -313,7 +320,7 @@ InModuleScope -ModuleName $NAVRclApi {
     
             It "Export" {
                 $expectedTxtPackge = Get-ChildItem $demoDataPath | Where-Object { $_.Name -match ".*$Language.CUObjects\.txt"}
-                $actualTxtPackge = Export-FobOrTxtFile -ShortVersion $ShortVersionMap.$Version -FileType "txt"
+                $actualTxtPackge = Export-FobOrTxtFile -Version $Version -FileType "txt"
                 $exportedTxtLog = Join-Path $LogPath "ExportFobOrTxt\txt\navcommandresult.txt"
 
                 $exportedTxtLog | Should -FileContentMatch $ExpectedCommandLog
@@ -386,11 +393,7 @@ InModuleScope -ModuleName $NAVRclApi {
                     [int]$skipedMenuSuite = @(Select-String -Path $navErrorLog -Pattern "$skipedErrorMenuSuite").Count
                     [int]$allErrorCount = @(Select-String -Path $navErrorLog -Pattern "$allError").Count
 
-                    $errorInformation = Get-Content $navErrorLog | Where-Object {$_ -like "*$allError*"}
-                    if($errorInformation)
-                    {
-                        Write-Log $errorInformation -ForegroundColor "RED"
-                    }
+                    Get-Content $navErrorLog | Where-Object {$_ -like "*$allError*"} | Out-Host
 
                     $allErrorCount | Should -Be ($skipedCodeunit + $skipedMenuSuite)
                 }
@@ -436,6 +439,7 @@ InModuleScope -ModuleName $NAVRclApi {
                 {
                     foreach($result in $translationResult)
                     {
+
                         $message = "Caption in $languageNames are missing ----- ObjectType:"+ $result.ObjectType + "  Id:" + $result.Id + " LCID:" + $result.LCID 
                         Write-Log $message -ForegroundColor "Red"
                     }

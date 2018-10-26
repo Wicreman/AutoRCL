@@ -28,7 +28,8 @@ if (-Not($PesterVersion))
 
 # Update the version, build date, language
 $buildDate = "2018-8"
-$versions = "NAV2017" 
+#Dynamics365BusinessCentral 
+$versions = "365" #"NAV2018", "NAV2016", "NAV2015",
 $languages = "W1" #"ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
  #, "ES", "FI", "FR", "GB","CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1", "AT","AU", "BE"
 
@@ -72,14 +73,17 @@ foreach($version in $versions)
             } 
         }
 
+        # report path
+        $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
+
         Write-Log  "Starting to clean NAV test environment"
-        $cleanUTs = Invoke-Pester -Script $scriptParam -Tag $Tags.Clean -PassThru 
+        $cleanUTs = Invoke-Pester -Script $scriptParam -Tag $Tags.Clean -PassThru -OutputFile $reportFile -OutputFormat NUnitXml
         Write-Log  "Successfully clean NAV test environment"
 
         if($cleanUTs.FailedCount -eq 0)
         {
             Write-Log  "Starting Install and configure Dynamics$Version"
-            $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
+            
             $failedUTs =  Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup -OutputFile $reportFile -OutputFormat NUnitXml
 
             if($failedUTs.FailedCount -gt 0){

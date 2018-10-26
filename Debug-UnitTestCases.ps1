@@ -28,7 +28,7 @@ if (-Not($PesterVersion))
 
 # Update the version, build date, language
 $buildDate = "2018-4"
-$version = "NAV2018"#, "NAV2016", "NAV2015", "NAV2013R2", "NAV2013", "NAV2018"
+$version = "365" #"NAV2018", "NAV2016", "NAV2015", "NAV2013R2", "NAV2013", "NAV2018"
 $language = "DK"#, "AT", "BE", "CH", "CZ", "DE", "DK", "ES", "FI", "FR", "GB", "IS", "IT", "NA", "NL", "NO", "NZ", "RU", "SE", "W1"
 
 # Please update your database intance name like NAVDEMO22, NAVDEMO33

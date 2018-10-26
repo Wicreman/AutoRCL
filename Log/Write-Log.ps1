@@ -9,9 +9,9 @@ Function Write-Log
 {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory = $True)]
+        [Parameter(Mandatory = $false)]
         [String]
-        $Message,
+        $Message = "Default information",
 
         [Parameter(Mandatory = $false)]
         [String]

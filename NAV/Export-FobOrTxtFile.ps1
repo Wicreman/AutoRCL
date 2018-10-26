@@ -2,7 +2,7 @@ function Export-FobOrTxtFile  {
     param(
         [Parameter(Mandatory = $true)]
         [string]
-        $ShortVersion,
+        $Version,
 
         [Parameter(Mandatory = $false)]
         [string]
@@ -46,12 +46,11 @@ function Export-FobOrTxtFile  {
         }
 
         $FilterMap = @{
-            NAV2018 = "Version List=*11.00.00*"
-            NAV2017 = "Version List=*10.00.00*"
-            NAV2016 = "Version List=*9.00.00*"
-            NAV2015 = "Version List=*8.00.00*"
-            NAV2013R2 = "Version List=*7.10.00*"
-            NAV2013 = "Version List=*7.00.00*"
+            365 = "Version List=*13.*"
+            NAV2018 = "Version List=*11.0?.00*"
+            NAV2017 = "Version List=*10.0?.00*"
+            NAV2016 = "Version List=*9.0?.00*"
+            NAV2015 = "Version List=*8.0?.00*"
         }
 
         $isExportTxtSkipUnlicensed = $false
