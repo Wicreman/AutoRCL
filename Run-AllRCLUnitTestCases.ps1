@@ -73,14 +73,17 @@ foreach($version in $versions)
             } 
         }
 
+        # report path
+        $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
+
         Write-Log  "Starting to clean NAV test environment"
-        $cleanUTs = Invoke-Pester -Script $scriptParam -Tag $Tags.Clean -PassThru 
+        $cleanUTs = Invoke-Pester -Script $scriptParam -Tag $Tags.Clean -PassThru -OutputFile $reportFile -OutputFormat NUnitXml
         Write-Log  "Successfully clean NAV test environment"
 
         if($cleanUTs.FailedCount -eq 0)
         {
             Write-Log  "Starting Install and configure Dynamics$Version"
-            $reportFile = Join-Path $reportPath "RCLReport-$Version-$language.xml"
+            
             $failedUTs =  Invoke-Pester -PassThru -Script $scriptParam -Tag $Tags.Setup -OutputFile $reportFile -OutputFormat NUnitXml
 
             if($failedUTs.FailedCount -gt 0){

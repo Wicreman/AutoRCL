@@ -78,8 +78,9 @@ function Send-UnitTestResult {
         <H2> Unit Test Result for RCL Automation </H2> 
         <H3> 
         Summary: <br />
-        Passed: $passedUTs of $totalUTs<br/>
-        Failed: $failedUTs of $totalUTs<br/>
+        Total: $totalUTs <br/>
+        Passed: $passedUTs <br/>
+        Failed: $failedUTs <br/>
         </H3>
 "@
         if($totalUTs -gt 0)
