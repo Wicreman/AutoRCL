@@ -43,7 +43,7 @@ function Start-NavServer {
         }
 
         Write-Log "Sart NAV Server"
-        Get-Service "MicrosoftDynamicsNavServer*" | Where-Object { $.Status -eq "Stopped"} | Restart-Service -ErrorAction SilentlyContinue
+        Get-Service "MicrosoftDynamicsNavServer*" | Where-Object { $_.Status -eq "Stopped"} | Restart-Service -ErrorAction SilentlyContinue
     }
 }
 
