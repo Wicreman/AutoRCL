@@ -24,7 +24,7 @@ function Send-UnitTestResult {
         $toEmailAddress = ([adsi]"LDAP://$(whoami /fqdn)").mail.ToString()
         $fromEmailAddress = ([adsi]"LDAP://$(whoami /fqdn)").mail.ToString()
         $CcTo = "wsnavt@microsoft.com"
-        $BCc = "v-doc@microsoft.com"
+        $BCc = "v-doc@microsoft.com, v-fichen@microsoft.com"
 
         $headerStyle = @"
         <style>
@@ -51,7 +51,6 @@ function Send-UnitTestResult {
 
         h3 {
             font-family:Verdana;
-            color:#076A34;
         }
 
         .footer { 
@@ -60,6 +59,14 @@ function Send-UnitTestResult {
             font-family:Tahoma;
             font-size:8pt;
             font-style:italic;
+        }
+
+        p.fail {
+            color: red;
+        }
+
+        p.pass {
+            color:#076A34;
         }
         </style>
 "@
@@ -75,12 +82,12 @@ function Send-UnitTestResult {
         $failedUTs = $report.SelectNodes("//test-case[@success='False']").Count
         $passedUTs = $report.SelectNodes("//test-case[@success='True']").Count
         $caseCount = @"
-        <H2> Unit Test Result for RCL Automation </H2> 
+        <H2> Test Result for RCL Automation </H2> 
         <H3> 
         Summary: <br />
         Total: $totalUTs <br/>
-        Passed: $passedUTs <br/>
-        Failed: $failedUTs <br/>
+        <p class="pass"> Passed: $passedUTs </p>
+        <p class="fail"> Failed: $failedUTs </p>
         </H3>
 "@
         if($totalUTs -gt 0)
@@ -93,12 +100,12 @@ function Send-UnitTestResult {
                     @{ Name = "FailureLog"; Expression = {$_.InnerText}} `
                 | ConvertTo-Html -Head $headerStyle 
         }
-
+        $bccAll = $BCc.Split(',')
         $body = @{
             From = $fromEmailAddress
             To = $toEmailAddress
             Cc = @($CcTo)
-            Bcc = @($BCc)
+            Bcc = $BCc
             Subject = "RCL Report for Dynamics$Version with $Language - $BuildDate"
             Body =  $caseCount + $messageBodyUTs
             SmtpServer = "smtphost.dns.microsoft.com"
