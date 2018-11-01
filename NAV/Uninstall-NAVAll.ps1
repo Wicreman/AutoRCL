@@ -196,18 +196,17 @@ function Remove-AllNAVWebSites
 }
 
 function Remove-AllNAVServices {
-    $ServiceName = "*DynamicsNAV*"
-    $Services = Get-Service "MicrosoftDynamicsNavServer`$$ServiceName"
+    $Services = Get-Service "MicrosoftDynamicsNavServer*"
     ForEach ($Service in $Services)
     {
         $Name = $Service.Name
         $ServiceStatus = $Service.Status
         if ($ServiceStatus -ne [System.ServiceProcess.ServiceControllerStatus]::Stopped)
         {
-            sc stop "$Name"
+            & CMD /C sc stop "$Name"
         }
 
-        sc delete "$Name"
+        & CMD /C sc delete "$Name"
     }
 }
 
