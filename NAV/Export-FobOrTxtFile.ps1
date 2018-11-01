@@ -46,7 +46,7 @@ function Export-FobOrTxtFile  {
         }
 
         $FilterMap = @{
-            365 = "Version List=*13.*"
+            "365" = "Version List=*13.01*"
             NAV2018 = "Version List=*11.0?.00*"
             NAV2017 = "Version List=*10.0?.00*"
             NAV2016 = "Version List=*9.0?.00*"

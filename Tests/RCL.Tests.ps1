@@ -32,7 +32,7 @@ $NAVRclApi = "NAVRCLAPI"
 InModuleScope -ModuleName $NAVRclApi {
 
     $ShortVersionMap = @{
-        365 = "130"
+        "365" = "130"
         NAV2018 = "110"
         NAV2017 = "100"
         NAV2016 = "90"

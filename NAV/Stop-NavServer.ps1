@@ -33,7 +33,7 @@ Function Stop-NAVServer
     {
         Write-Log "Stop NAV Server"
         #$Services = Get-Service $ServiceName
-        Get-Service "MicrosoftDynamicsNavServer*" | Where-Object { $.Status -eq "Running"} | Stop-Service -ErrorAction SilentlyContinue
+        Get-Service "MicrosoftDynamicsNavServer*" | Where-Object { $_.Status -eq "Running"} | Stop-Service -ErrorAction SilentlyContinue
     }
 }
 
