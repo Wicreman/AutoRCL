@@ -24,7 +24,6 @@ function Send-UnitTestResult {
         $toEmailAddress = ([adsi]"LDAP://$(whoami /fqdn)").mail.ToString()
         $fromEmailAddress = ([adsi]"LDAP://$(whoami /fqdn)").mail.ToString()
         $CcTo = "wsnavt@microsoft.com"
-        $BCc = "v-doc@microsoft.com, v-fichen@microsoft.com"
 
         $headerStyle = @"
         <style>
@@ -100,12 +99,10 @@ function Send-UnitTestResult {
                     @{ Name = "FailureLog"; Expression = {$_.InnerText}} `
                 | ConvertTo-Html -Head $headerStyle 
         }
-        $bccAll = $BCc.Split(',')
         $body = @{
             From = $fromEmailAddress
             To = $toEmailAddress
             Cc = @($CcTo)
-            Bcc = $BCc
             Subject = "RCL Report for Dynamics$Version with $Language - $BuildDate"
             Body =  $caseCount + $messageBodyUTs
             SmtpServer = "smtphost.dns.microsoft.com"
